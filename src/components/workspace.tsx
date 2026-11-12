@@ -1170,6 +1170,9 @@ export function Workspace({ email }: { email: string }) {
       >
         <div className="panel-heading">
           <h2>In this room</h2>
+          <span className="participant-count">
+            {draftOrRoom.bots.length + 1}
+          </span>
           <button
             className="icon-button panel-close"
             aria-label="Close room setup"
@@ -1177,9 +1180,6 @@ export function Workspace({ email }: { email: string }) {
           >
             <X size={20} />
           </button>
-          <span className="participant-count">
-            {draftOrRoom.bots.length + 1}
-          </span>
         </div>
         <div className="panel-scroll">
           <div className="you-row">
@@ -1217,7 +1217,7 @@ export function Workspace({ email }: { email: string }) {
                     />
                   </button>
                   {expandedBot === bot.id ? (
-                    <div className="bot-details">
+                    <div className={`bot-details ${editing ? "" : "readonly"}`}>
                       {editing ? (
                         <>
                           <label>
@@ -1300,7 +1300,7 @@ export function Workspace({ email }: { email: string }) {
           </div>
           {editing ? (
             <button
-              className="button add-bot"
+              className="button panel-action add-bot"
               disabled={draft.bots.length >= 6}
               onClick={() => {
                 const bot: Bot = {
@@ -1319,7 +1319,7 @@ export function Workspace({ email }: { email: string }) {
             </button>
           ) : (
             <button
-              className="button add-bot"
+              className="button panel-action"
               disabled={
                 room?.status === "running" ||
                 room?.status === "stopped" ||

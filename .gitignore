@@ -9,3 +9,6 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 .DS_Store
+
+# Impeccable engine binary: downloaded per platform on first run, never tracked.
+.claude/skills/impeccable/scripts/bin/
