@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Botsbots social preview</title>
+    <style>
+      @font-face {
+        font-family: "Manrope Variable";
+        src: url("../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2");
+        font-weight: 200 800;
+      }
+      @font-face {
+        font-family: "DM Sans Variable";
+        src: url("../../node_modules/@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2");
+        font-weight: 100 1000;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #122747;
+        color: #faf9f6;
+        font-family: "DM Sans Variable", sans-serif;
+      }
+      .brand {
+        position: absolute;
+        top: 52px;
+        left: 64px;
+        display: flex;
+        align-items: center;
+        gap: 17px;
+        font:
+          800 38px "Manrope Variable",
+          sans-serif;
+        letter-spacing: -1.5px;
+      }
+      .brand svg {
+        color: #c92d36;
+      }
+      .period {
+        color: #c92d36;
+      }
+      h1 {
+        position: absolute;
+        top: 184px;
+        left: 64px;
+        margin: 0;
+        font:
+          800 78px/1.12 "Manrope Variable",
+          sans-serif;
+        letter-spacing: -3px;
+      }
+      .perspectives {
+        position: absolute;
+        left: 910px;
+        top: 135px;
+      }
+      footer {
+        position: absolute;
+        inset: auto 0 0;
+        height: 134px;
+        padding: 32px 64px;
+        background: #faf9f6;
+        color: #182b48;
+      }
+      footer p {
+        margin: 0 0 7px;
+        font-size: 27px;
+        font-weight: 600;
+      }
+      footer span {
+        color: #657084;
+        font-size: 21px;
+      }
+      .footer-mark {
+        position: absolute;
+        right: 64px;
+        top: 48px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand">
+        <svg
+          width="42"
+          height="40"
+          viewBox="0 0 32 30"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M2 5h19l-5 5H2V5Zm0 8h24l-5 5H2v-5Zm0 8h29l-5 5H2v-5Z" />
+        </svg>
+        <span>botsbots<span class="period">.</span></span>
+      </div>
+      <svg
+        class="perspectives"
+        width="390"
+        height="290"
+        viewBox="0 0 390 290"
+        aria-hidden="true"
+      >
+        <path d="M0 0h240l-70 70H0Z" fill="#dcebe2" />
+        <path d="M0 110h310l-70 70H0Z" fill="#fae5d9" />
+        <path d="M0 220h380l-70 70H0Z" fill="#e1eaf8" />
+      </svg>
+      <h1>Different minds.<br />Shared momentum.</h1>
+      <footer>
+        <p>A room for you and a few good AI perspectives.</p>
+        <span>Your room. Your mix of minds.</span>
+        <svg
+          class="footer-mark"
+          width="38"
+          height="38"
+          viewBox="0 0 38 38"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 19h29M21 7l12 12-12 12"
+            stroke="#c92d36"
+            stroke-width="4"
+          />
+        </svg>
+      </footer>
+    </main>
+  </body>
+</html>

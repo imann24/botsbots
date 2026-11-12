@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "variable",
+        "files": [
+          "assets/brand/social-preview.html"
+        ],
+        "createdAt": "2026-11-12T06:17:08.692Z",
+        "reason": "Codex verified both locally bundled font families match DESIGN.md exactly: Manrope Variable and DM Sans Variable. The font shorthand detector splits the quoted family name."
+      }
+    ]
+  }
+}
