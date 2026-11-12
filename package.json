@@ -5,13 +5,14 @@
   "packageManager": "pnpm@10.32.1",
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
+    "env:setup": "node scripts/bootstrap-env.mjs",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "assets:brand": "node scripts/render-brand-assets.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:integration": "tsx scripts/integration-test.ts",
-    "db:start": "supabase start",
+    "db:start": "node scripts/start-db.mjs",
     "db:stop": "supabase stop",
     "db:status": "supabase status",
     "db:setup": "node scripts/local-env.mjs"
