@@ -619,6 +619,7 @@ small {
   width: 28px;
 }
 .main {
+  --chat-gutter: max(36px, calc((100% - 800px) / 2));
   position: relative;
   min-width: 0;
   display: flex;
@@ -1229,7 +1230,7 @@ progress::-moz-progress-bar {
 .conversation {
   flex: 1;
   overflow-y: auto;
-  padding: 28px 36px 18px;
+  padding: 28px var(--chat-gutter) 18px;
 }
 .topic-summary {
   display: flex;
@@ -1706,10 +1707,6 @@ progress::-moz-progress-bar {
   .room-builder {
     padding-top: 65px;
   }
-  .conversation {
-    padding-left: max(42px, calc((100% - 800px) / 2));
-    padding-right: max(42px, calc((100% - 800px) / 2));
-  }
   .room-panel {
     --panel-pad: 28px;
   }
@@ -1749,8 +1746,11 @@ progress::-moz-progress-bar {
   .mode-options small {
     margin-top: 7px;
   }
+  .main {
+    --chat-gutter: max(24px, calc((100% - 800px) / 2));
+  }
   .conversation {
-    padding: 24px;
+    padding-block: 24px;
   }
   .composer-wrap {
     padding-left: 22px;
@@ -1962,8 +1962,11 @@ progress::-moz-progress-bar {
   .panel-footer {
     font-size: 11px;
   }
+  .main {
+    --chat-gutter: max(20px, calc((100% - 800px) / 2));
+  }
   .conversation {
-    padding: 23px 20px 15px;
+    padding-block: 23px 15px;
   }
   .conversation-empty {
     margin: 65px auto 30px;
@@ -2137,7 +2140,7 @@ progress::-moz-progress-bar {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 16px 30px 20px;
+  padding: 28px var(--chat-gutter) 24px;
   border-bottom: 1px solid var(--line);
   background: var(--white);
 }
@@ -2221,7 +2224,7 @@ progress::-moz-progress-bar {
     justify-content: flex-end;
   }
   .summary-panel {
-    padding: 14px 18px;
+    padding-block: 23px 20px;
   }
   .summary-controls {
     flex-wrap: wrap;
