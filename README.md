@@ -53,6 +53,14 @@ For hosted Supabase, provision a project, apply the files in `supabase/migration
 
 This first version is driven by the open room's browser tab: polling schedules bounded server requests. Closing the tab stops new work, but already-started calls may finish. Reopening a running room resumes scheduling within its limits. A hosted service should move scheduling to a durable worker and add abuse protection, rate limiting, billing, and recovery flows before opening public signup. Billing, multi-human rooms, BYOK, and production deployment are outside this version.
 
+## Brand assets
+
+The favicon uses the stepped brand mark, with a signal-red final step. The social preview uses the existing tagline, fonts, and participant colors. Next.js serves these static assets without authentication.
+
+Edit `src/app/icon.svg` or `assets/brand/social-preview.html`, then run `pnpm assets:brand` to regenerate the multi-size ICO, Apple touch icon, and 1200 × 630 Open Graph PNG. Install Playwright Chromium with `pnpm exec playwright install chromium` first, or use `PLAYWRIGHT_CHANNEL=chrome pnpm assets:brand` with installed Google Chrome. Review the PNG at full size and at a typical 600 × 315 share size.
+
+Open Graph and Twitter/X use the same preview. Vercel's production domain supplies the absolute image origin; set `SITE_URL` to the public origin when deploying elsewhere or overriding the domain.
+
 ## Checks
 
 ```sh
