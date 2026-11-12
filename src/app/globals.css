@@ -748,16 +748,92 @@ small {
   border-color: #8797ae;
   color: var(--ink);
 }
-.topic-label textarea {
+.topic-field {
+  display: grid;
+  gap: 9px;
+  margin-bottom: var(--builder-gap);
+}
+.topic-field > label {
+  display: block;
+}
+/* Echoes the conversation composer: one white frame around a borderless
+   textarea, with the starting-prompt action tucked into its foot. */
+.topic-box {
+  display: grid;
+  border: 1px solid #cdd1d9;
+  border-radius: var(--radius);
+  background: var(--white);
+  transition: border-color 0.15s;
+}
+.topic-box:focus-within {
+  border-color: #8197bd;
+  outline: 2px solid #8197bd;
+  outline-offset: 1px;
+}
+.topic-box textarea {
   font-size: 13px;
-  height: clamp(76px, 11dvh, 112px);
-  min-height: 76px;
+  height: clamp(64px, 9dvh, 96px);
+  min-height: 52px;
   resize: vertical;
+  border: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding-bottom: 4px;
+  background: transparent;
+}
+.topic-box textarea:focus {
+  outline: 0;
 }
 .example-button {
-  margin: 8px 0 var(--builder-gap);
+  justify-self: start;
+  margin: 0 8px 6px;
+  padding: 4px 6px;
+  border-radius: 5px;
   font-size: 11px;
   color: var(--muted);
+}
+.example-button:hover:not(:disabled) {
+  color: var(--ink);
+}
+.mode-note {
+  display: none;
+}
+.lineup-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.lineup-button:hover {
+  border-color: #bfc6d1;
+  background: #f4f5f8;
+}
+.lineup-button > svg {
+  color: var(--muted);
+}
+.lineup-avatars {
+  display: inline-flex;
+}
+.lineup-avatars .avatar {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--white);
+  border-radius: 6px;
+  font-size: 10px;
+  box-sizing: border-box;
+}
+.lineup-avatars .avatar + .avatar {
+  margin-left: -7px;
+}
+.lineup-count {
+  font-variant-numeric: tabular-nums;
 }
 .room-name-label > span {
   display: flex;
@@ -1924,28 +2000,6 @@ progress::-moz-progress-bar {
     font-size: 10px !important;
     padding: 6px 8px !important;
   }
-  .room-builder {
-    padding-inline: 20px;
-  }
-  .builder-heading h1 {
-    font-size: 28px;
-  }
-  .purpose-options {
-    gap: 7px;
-  }
-  .purpose-options button {
-    font-size: 10px;
-    padding: 8px;
-  }
-  .builder-submit {
-    align-items: flex-start;
-    gap: 14px;
-  }
-  .builder-submit > span {
-    max-width: 125px;
-    font-size: 9px;
-    padding-top: 6px;
-  }
   /* On phones the panel is a full-screen sheet, not a squeezed side column. */
   .room-panel {
     --panel-pad: 20px;
@@ -2148,13 +2202,225 @@ progress::-moz-progress-bar {
     overflow: visible;
   }
 }
+/* Phones: the new-room builder fits one screen. One-row header, a compact
+   form, and a footer pinned in thumb reach that pairs the lineup with the
+   primary action, so Create room never scrolls away. */
+@media (max-width: 640px) {
+  .main .room-header.builder-header {
+    flex-wrap: nowrap;
+    height: 56px;
+    min-height: 56px;
+    padding-block: 0;
+  }
+  .builder-header .header-title {
+    flex: 0 0 auto;
+  }
+  .builder-header .header-title > span {
+    display: none;
+  }
+  .builder-header .header-actions {
+    width: auto;
+  }
+  .room-builder {
+    --builder-gap: 14px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 14px 16px 0;
+  }
+  .builder-heading {
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 6px 8px;
+    margin-bottom: 16px;
+  }
+  .heading-mark {
+    padding-top: 3px;
+  }
+  .heading-mark svg {
+    width: 20px;
+    height: 20px;
+  }
+  .builder-heading h1 {
+    font-size: 23px;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+  }
+  .builder-heading p {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  .room-builder legend,
+  .topic-field > label {
+    margin-bottom: 7px;
+    line-height: 1.3;
+  }
+  /* The topic takes whatever height the phone has to spare. */
+  .topic-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    max-height: 230px;
+    gap: 0;
+  }
+  .topic-box {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .purpose-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .purpose-options button {
+    justify-content: flex-start;
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 1.2;
+    text-align: left;
+  }
+  .purpose-options button svg {
+    width: 15px;
+    height: 15px;
+  }
+  .topic-box textarea {
+    flex: 1 0 58px;
+    height: 58px;
+    min-height: 58px;
+    padding: 10px 12px 2px;
+    line-height: 1.45;
+    resize: none;
+  }
+  .example-button {
+    margin: 0 6px 4px;
+  }
+  .room-name-label {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+  }
+  .room-name-label > span {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    line-height: 1.3;
+  }
+  .room-name-label .optional {
+    font-size: 11px;
+  }
+  .room-name-label input {
+    padding: 10px 12px;
+  }
+  .mode-field {
+    margin-bottom: 16px;
+  }
+  .mode-options {
+    gap: 6px;
+  }
+  .mode-options button {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 6px 10px;
+  }
+  .mode-options button > span {
+    flex: 1;
+    flex-wrap: nowrap;
+    gap: 7px;
+  }
+  .mode-options button svg {
+    width: 16px;
+    height: 16px;
+  }
+  .mode-options b {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .mode-options small {
+    display: none;
+  }
+  .mode-note {
+    display: block;
+    margin: 7px 0 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .builder-submit {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    gap: 8px;
+    margin: auto -16px 0;
+    padding: 10px 16px max(10px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .builder-submit .button.primary {
+    flex: 1;
+  }
+  .builder-submit > .shortcut-hint {
+    display: none;
+  }
+}
+/* Short phones keep the headline and drop the supporting line. */
+@media (max-width: 640px) and (max-height: 700px) {
+  .room-builder {
+    --builder-gap: 12px;
+    padding-top: 12px;
+  }
+  .builder-heading p {
+    display: none;
+  }
+  .builder-heading {
+    margin-bottom: 12px;
+  }
+  .mode-field {
+    margin-bottom: 12px;
+  }
+  .builder-submit {
+    padding-block: 8px max(8px, env(safe-area-inset-bottom));
+  }
+}
+/* The smallest phones give the headline's room to the form; it stays in the
+   accessibility tree so the page keeps its heading. */
+@media (max-width: 640px) and (max-height: 600px) {
+  .builder-heading {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    margin: 0;
+  }
+}
+@media (max-width: 360px) {
+  .mode-options b + svg {
+    display: none;
+  }
+}
+/* Editing a room adds Cancel to the footer; narrow phones trade the bot count
+   and the arrow for room (the lineup keeps its accessible name). */
+@media (max-width: 400px) {
+  .builder-submit:has(> .text-button) .lineup-count,
+  .builder-submit:has(> .text-button) .button.primary svg,
+  .builder-submit:has(> .text-button) .lineup-avatars .avatar:nth-child(n + 4) {
+    display: none;
+  }
+  .builder-submit:has(> .text-button) .button.primary {
+    padding-inline: 14px;
+  }
+}
 /* Touch: full-size targets, and 16px fields so iOS does not zoom on focus. */
 @media (pointer: coarse) {
-  .purpose-options button {
+  .purpose-options button,
+  .mode-options button {
     min-height: 44px;
   }
   .example-button {
-    min-height: 36px;
+    min-height: 32px;
   }
   .room-builder input,
   .room-builder textarea {

@@ -12,6 +12,14 @@ Signature: each reply has a stable turn number; the room's finite message allowa
 
 Grounded directions considered before roll: workshop, academic journal, colored index tabs, publishing colophon, field guide, civic wayfinding, seminar notes. The initial field guide direction was rejected for a bolder hand. New chosen world replaces it completely.
 
+## Mobile new-room builder
+
+On phones the whole builder fits the dynamic viewport. One-row header; two-by-two
+purpose grid; composer-style topic box with the starting-prompt action inside;
+inline room name; compact mode toggles with the selected description beneath; a
+sticky footer pairing the bot lineup (opens setup) with a full-width Create room.
+Short phones drop the supporting paragraph, then visually hide the headline.
+
 ## Weekly account usage
 
 Approved addition: account usage sits above account controls in the navy sidebar;
