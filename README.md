@@ -10,13 +10,17 @@ Requirements: Node.js 22+, pnpm 10, and OrbStack with Docker running.
 pnpm install
 docker context use orbstack
 pnpm db:start
-pnpm db:setup
+pnpm env:setup
 pnpm dev
 ```
 
 Supabase applies the committed migrations when creating its local database. For an existing local database, apply pending migrations with `pnpm exec supabase db push` (CLI v3 defaults to local).
 
-Set `AI_GATEWAY_API_KEY` in `.env.local`. `db:setup` fills the local Supabase URL and keys while preserving your Gateway key. Never commit this file. Create an account at [the local app](http://127.0.0.1:3000); local email confirmation is disabled. Supabase Studio runs at [localhost:54323](http://127.0.0.1:54323).
+`pnpm db:start` checks all configured service ports and automatically replaces occupied ports, including those used by other Docker projects. It saves the selected ports in Git-ignored `supabase/.env`, keeps the committed `config.toml` unchanged, and refreshes the Supabase URL and keys in `.env.local` after a successful start. Subsequent starts reuse the ports; an already running Botsbots stack keeps its ports. `db:stop`, `db:status`, and direct Supabase CLI commands read the same local overrides. Run `pnpm db:status` for the current URLs; the default ports below may change when another project uses them.
+
+`pnpm env:setup` creates or updates `.env.local` in an interactive terminal. It prompts for the Gateway key, Supabase connection, daily budget, and optional site URL. Key input is hidden and existing secrets are never displayed. Press Enter to keep an existing value; Ctrl+C cancels without saving. The file has owner-only permissions (`0600`) and is ignored by Git. Values are stored as plaintext for Next.js to read; hidden prompts and file permissions do not encrypt them. `NEXT_PUBLIC_` values are public in the browser; the Gateway and Supabase secret keys stay server-only.
+
+`db:setup` fills the local Supabase URL and keys while preserving your Gateway key. For hosted Supabase, run `pnpm env:setup` and enter the hosted values instead. Restart the dev server after changing configuration. Create an account at [the local app](http://127.0.0.1:3000); local email confirmation is disabled. Supabase Studio runs at [localhost:54323](http://127.0.0.1:54323).
 
 ## Using a room
 
