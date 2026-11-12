@@ -1,0 +1,9 @@
+import { describe, it, expect } from 'vitest';
+import { buildPrompt, reserveCost, usageCost, INPUT_RESERVATION_TOKENS } from './prompt';
+import { DEFAULT_BOTS, DEFAULT_SETTINGS, roomSchema, type Room, type Message } from './types';
+const room={topic:'Help plan a project',purpose:'plan',bots:DEFAULT_BOTS,settings:DEFAULT_SETTINGS} as Room;
+describe('spend controls',()=>{
+ it('reserves more than the full allowed input and output at current prices',()=>{const price={id:'test',input:0.000001,output:0.000005};expect(reserveCost(price,450)).toBeGreaterThan(INPUT_RESERVATION_TOKENS*price.input+450*price.output);expect(usageCost(price,500,300)).toBeLessThan(reserveCost(price,450));});
+ it('bounds even multilingual transcript bytes and preserves recent messages',()=>{const messages=Array.from({length:30},(_,i)=>({speaker:'User',content:`${i}:`+'🌳'.repeat(1000),status:'complete'} as Message));const p=buildPrompt(room,DEFAULT_BOTS[0],messages);expect(Buffer.byteLength(p.prompt+p.system)).toBeLessThan(INPUT_RESERVATION_TOKENS);expect(p.prompt).toContain('29:');expect(p.prompt).not.toContain('0:');});
+ it('rejects premium/unlisted models and unsafe settings',()=>{const draft={title:'Test',topic:'Discuss this',purpose:'plan',bots:DEFAULT_BOTS,settings:DEFAULT_SETTINGS};expect(roomSchema.safeParse(draft).success).toBe(true);expect(roomSchema.safeParse({...draft,bots:[{...DEFAULT_BOTS[0],model:'xai/grok'},DEFAULT_BOTS[1]]}).success).toBe(false);expect(roomSchema.safeParse({...draft,settings:{...DEFAULT_SETTINGS,concurrency:100}}).success).toBe(false);});
+});

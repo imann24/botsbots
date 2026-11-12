@@ -30,7 +30,7 @@ export type Room = RoomDraft & { id: string; user_id: string; status: 'paused'|'
 export type Message = { id: string; room_id: string; sequence: number; bot_id: string|null; speaker: string; model: string|null; content: string; status: 'pending'|'complete'|'failed'; run_id: string|null; reserved_cost: number; cost: number|null; input_tokens: number|null; output_tokens: number|null; created_at: string; completed_at: string|null; error: string|null };
 export const DEFAULT_SETTINGS: Settings = { mode: 'moderated', maxMessages: 16, maxPerBot: 4, budget: 0.25, maxTokens: 450, contextMessages: 12, concurrency: 2, cooldownSeconds: 2, maxMinutes: 5 };
 export const DEFAULT_BOTS: Bot[] = [
- { id:'a1111111-1111-4111-8111-111111111111',name:'The strategist',model:'openai/gpt-4.1-mini',perspective:'Turn ideas into a practical plan. Prioritize the highest-impact next step and make trade-offs explicit.' },
+ { id:'a1111111-1111-4111-8111-111111111111',name:'The strategist',model:'openai/gpt-6-luna',perspective:'Turn ideas into a practical plan. Prioritize the highest-impact next step and make trade-offs explicit.' },
  { id:'b2222222-2222-4222-8222-222222222222',name:'The challenger',model:'anthropic/claude-haiku-5.5',perspective:'Stress-test assumptions constructively. Find blind spots, ask sharp questions, and propose improvements.' },
- { id:'c3333333-3333-4333-8333-333333333333',name:'The explorer',model:'google/gemini-3.1-flash-lite',perspective:'Connect unexpected ideas. Offer a fresh perspective and a concrete alternative worth exploring.' },
+ { id:'c3333333-3333-4333-8333-333333333333',name:'The explorer',model:'google/gemini-3.5-flash-lite',perspective:'Connect unexpected ideas. Offer a fresh perspective and a concrete alternative worth exploring.' },
 ];
