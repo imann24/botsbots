@@ -223,6 +223,14 @@ small {
 .brand-period {
   color: #e45b60;
 }
+.brand-button {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  border-radius: 5px;
+}
 .workspace {
   --nav-width: 216px;
   --setup-width: 310px;

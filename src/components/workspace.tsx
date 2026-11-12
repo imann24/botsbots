@@ -516,7 +516,15 @@ export function Workspace({ email }: { email: string }) {
         aria-label="Room navigation"
       >
         <div className="sidebar-brand">
-          <Brand />
+          <button
+            type="button"
+            className="brand-button"
+            aria-label="Botsbots — New chat"
+            title="New chat"
+            onClick={newRoom}
+          >
+            <Brand />
+          </button>
           <button
             className="icon-button mobile-only"
             aria-label="Close navigation"
