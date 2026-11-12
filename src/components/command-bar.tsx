@@ -97,6 +97,9 @@ export function CommandBar({
   useEffect(() => {
     const keydown = (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
+      // Other modal tasks own keyboard focus, including modifier shortcuts.
+      if (document.querySelector("dialog[open]") && !dialog.current?.open)
+        return;
       const key = shortcutKey(event);
       if (key === "mod+k") {
         event.preventDefault();

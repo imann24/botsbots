@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronDown, RefreshCw } from "lucide-react";
+import { ArrowRight, ChevronDown, RefreshCw } from "lucide-react";
 import { usageLevel, usageMoney, type AccountUsage } from "../lib/usage";
 
 export function useAccountUsage() {
@@ -66,11 +66,13 @@ export function AccountUsageMeter({
   error,
   loading,
   onRefresh,
+  onRequestUpgrade,
 }: {
   usage: AccountUsage | null;
   error: boolean;
   loading: boolean;
   onRefresh: () => void;
+  onRequestUpgrade?: () => void;
 }) {
   const level = usage ? usageLevel(usage) : "normal";
   const resetDate = usage
@@ -210,6 +212,15 @@ export function AccountUsageMeter({
             {loading ? "Refreshing…" : "Retry usage"}
           </button>
         </div>
+      )}
+      {onRequestUpgrade && (
+        <button
+          className="usage-upgrade"
+          aria-haspopup="dialog"
+          onClick={onRequestUpgrade}
+        >
+          Request higher limits <ArrowRight size={14} aria-hidden="true" />
+        </button>
       )}
     </section>
   );

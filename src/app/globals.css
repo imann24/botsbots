@@ -2600,3 +2600,183 @@ progress::-moz-progress-bar {
     animation: none;
   }
 }
+
+/* Contact keeps the workspace's paper surfaces, fine rules, and red actions. */
+.contact-dialog {
+  width: min(540px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--muted) var(--paper);
+}
+.contact-dialog::backdrop {
+  background: rgb(12 30 56 / 48%);
+}
+.contact-dialog[open] {
+  animation: command-arrive 180ms var(--ease);
+}
+.contact-dialog ::selection {
+  background: var(--blue);
+  color: var(--ink);
+}
+.contact-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 28px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.contact-heading h2 {
+  margin: 0;
+  font:
+    750 28px / 1.2 "Manrope Variable",
+    sans-serif;
+  letter-spacing: -0.03em;
+}
+.contact-heading p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.contact-heading .icon-button {
+  flex-shrink: 0;
+}
+.contact-fields {
+  display: grid;
+  gap: 22px;
+  padding: 24px 28px;
+}
+.contact-fields input,
+.contact-fields select,
+.contact-fields textarea {
+  font-size: 16px;
+  font-weight: 400;
+}
+.contact-fields textarea {
+  min-height: 136px;
+}
+.contact-hint,
+.contact-message-meta {
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--muted);
+}
+.contact-message-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -16px;
+}
+.contact-message-meta > span:last-child {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.contact-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 18px 28px;
+  border-top: 1px solid var(--line);
+}
+.contact-error {
+  margin: 0 28px 24px;
+  padding: 12px 14px;
+  background: #fff1ed;
+  color: #8f2931;
+  border: 1px solid #efc6c5;
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.contact-success {
+  padding: 28px;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.contact-success > svg {
+  color: var(--carbon);
+}
+.contact-success p {
+  margin: 12px 0;
+}
+.contact-success .button {
+  margin-top: 12px;
+}
+.sidebar-contact,
+.usage-upgrade {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #dbe4f2;
+  font-size: 12px;
+  min-height: 36px;
+  padding: 6px 2px;
+  text-align: left;
+}
+.sidebar-contact {
+  width: 100%;
+  margin-bottom: 12px;
+}
+.sidebar-contact:hover,
+.usage-upgrade:hover {
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.usage-upgrade {
+  margin-top: 6px;
+}
+@media (max-width: 640px) {
+  .contact-dialog {
+    width: calc(100% - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+  .contact-heading {
+    padding: 22px 20px 20px;
+  }
+  .contact-heading h2 {
+    font-size: 25px;
+  }
+  .contact-fields {
+    padding: 20px;
+    gap: 20px;
+  }
+  .contact-message-meta {
+    margin-top: -12px;
+  }
+  .contact-footer {
+    padding: 16px 20px;
+  }
+  .contact-error {
+    margin: 0 20px 20px;
+  }
+  .contact-success {
+    padding: 24px 20px;
+  }
+}
+@media (pointer: coarse) {
+  .contact-dialog .icon-button,
+  .sidebar-contact,
+  .usage-upgrade {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-dialog[open] {
+    animation: none;
+  }
+}
