@@ -12,12 +12,14 @@ export function SummaryPanel({
   room,
   messages,
   summaries,
+  accountExhausted = false,
   onRefresh,
   onClose,
 }: {
   room: Room;
   messages: Message[];
   summaries: Summary[];
+  accountExhausted?: boolean;
   onRefresh: () => Promise<void>;
   onClose: () => void;
 }) {
@@ -43,7 +45,7 @@ export function SummaryPanel({
       ).length
     : 0;
   async function generate() {
-    if (inFlight.current || pending) return;
+    if (inFlight.current || pending || accountExhausted) return;
     inFlight.current = true;
     setBusy(true);
     setError("");
@@ -106,6 +108,7 @@ export function SummaryPanel({
           className="button primary small"
           disabled={
             busy ||
+            accountExhausted ||
             pending ||
             !messages.some(
               (m) => m.bot_id && m.status === "complete" && m.content.trim(),
@@ -118,8 +121,13 @@ export function SummaryPanel({
       </div>
       <p className="summary-help">
         Only runs when you click Generate summary. Cost counts toward your room
-        budget.
+        budget and weekly account allowance.
       </p>
+      {accountExhausted && (
+        <p className="reply-error">
+          Your weekly allowance is used. Saved summaries remain available.
+        </p>
+      )}
       {error && (
         <p className="reply-error" role="alert">
           {error}

@@ -22,7 +22,8 @@ const fields = [
     required: true,
   },
   { key: "SUPABASE_SECRET_KEY", secret: true, required: true },
-  { key: "DAILY_BUDGET_USD", budget: true },
+  { key: "WEEKLY_BUDGET_USD", budget: true },
+  { key: "PREMIUM_WEEKLY_BUDGET_USD", budget: true, unlimited: true },
   { key: "SITE_URL", url: true },
 ];
 
@@ -92,9 +93,14 @@ function validate(field, value) {
   }
   if (
     field.budget &&
-    (!value || !Number.isFinite(Number(value)) || Number(value) <= 0)
+    !(field.unlimited && value.toLowerCase() === "unlimited") &&
+    (!/^\d+(\.\d{1,8})?$/.test(value) ||
+      !Number.isFinite(Number(value)) ||
+      Number(value) > Number.MAX_SAFE_INTEGER)
   ) {
-    throw new Error("Enter a daily budget greater than zero.");
+    throw new Error(
+      `Enter a nonnegative weekly USD amount with at most 8 decimal places${field.unlimited ? ' or "unlimited"' : ""}.`,
+    );
   }
 }
 

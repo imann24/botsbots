@@ -46,7 +46,7 @@ async function claim(
     p_user: user,
     p_run: r.run_id,
     p_prices: prices,
-    p_daily_budget: 10,
+    p_weekly_budget: 10,
   });
 }
 async function finish(m: { id: string; room_id: string }, cost = 0.001) {
@@ -61,7 +61,7 @@ async function finish(m: { id: string; room_id: string }, cost = 0.001) {
 }
 try {
   const clients = [];
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 3; i++) {
     const email = `botsbots-test-${crypto.randomUUID()}@example.test`;
     const { data, error } = await admin.auth.admin.createUser({
       email,
@@ -242,7 +242,7 @@ try {
         p_user: user,
         p_run: r.run_id,
         p_prices: quotes,
-        p_daily_budget: 10,
+        p_weekly_budget: 10,
       })
     ).error,
   );
@@ -382,45 +382,45 @@ try {
     "Old run cannot claim after restart",
   );
   await rpc("room_action", { p_room: r.id, p_user: user, p_action: "pause" });
-  const dailyUser = ids[1];
+  const weeklyUser = ids[1];
   r = await start(
-    (await room(dailyUser, { mode: "free", concurrency: 3 })).id,
-    dailyUser,
+    (await room(weeklyUser, { mode: "free", concurrency: 3 })).id,
+    weeklyUser,
   );
   claims = await Promise.all(
     Array.from({ length: 8 }, () =>
       rpc("claim_turn", {
         p_room: r.id,
-        p_user: dailyUser,
+        p_user: weeklyUser,
         p_run: r.run_id,
         p_prices: quotes,
-        p_daily_budget: 0.015,
+        p_weekly_budget: 0.015,
       }),
     ),
   );
   assert.equal(
     claims.filter(Boolean).length,
     1,
-    "Daily reservations serialize under contention",
+    "Weekly reservations serialize under contention",
   );
   await finish(claims.find(Boolean), 0.01);
   assert.equal(
     await rpc("claim_turn", {
       p_room: r.id,
-      p_user: dailyUser,
+      p_user: weeklyUser,
       p_run: r.run_id,
       p_prices: quotes,
-      p_daily_budget: 0.015,
+      p_weekly_budget: 0.015,
     }),
     null,
   );
   assert.equal(
     (await admin.from("rooms").select("reason").eq("id", r.id).single()).data!
       .reason,
-    "Daily account budget reached.",
+    "Weekly account budget: not enough available to reserve another reply. Resets Monday at 00:00 UTC.",
   );
   console.log(
-    "PASS per-bot quota, session duration, old-run fencing, atomic daily budget",
+    "PASS per-bot quota, session duration, old-run fencing, atomic weekly budget",
   );
   const summaryRoom = await room(user, { budget: 0.015 });
   const { data: source, error: sourceError } = await admin
@@ -442,7 +442,7 @@ try {
     p_model: DEFAULT_BOTS[1].model,
     p_source_ids: [source.id],
     p_quote: 0.01,
-    p_daily_budget: 10,
+    p_weekly_budget: 10,
   };
   const summaryClaims = await Promise.all(
     Array.from({ length: 8 }, () => rpc("claim_summary", summaryArgs)),
@@ -530,9 +530,9 @@ try {
     p_source_ids: [nextSource.id],
   };
   assert.ok(
-    (await admin.rpc("claim_summary", { ...nextArgs, p_daily_budget: 0.005 }))
+    (await admin.rpc("claim_summary", { ...nextArgs, p_weekly_budget: 0.005 }))
       .error,
-    "Daily spending includes summaries",
+    "Weekly spending includes summaries",
   );
   const lostSummary = (await rpc("claim_summary", nextArgs)).summary;
   await admin
@@ -564,6 +564,362 @@ try {
   await rpc("finish_summary", { ...settlement, p_summary: retry.summary.id });
   console.log(
     "PASS summary snapshots, idempotency, permissions, shared budgets, stale work, separate quotas",
+  );
+  const meterUser = ids[2];
+  // Seed running rooms directly to exercise cross-room budget protection independently
+  // of room_action's normal one-running-room guard.
+  async function startMeterRoom(id: string, user: string) {
+    const result = await admin
+      .from("rooms")
+      .update({
+        status: "running",
+        run_id: crypto.randomUUID(),
+        run_started_at: new Date().toISOString(),
+        reason: null,
+      })
+      .eq("id", id)
+      .eq("user_id", user)
+      .select()
+      .single();
+    assert.ifError(result.error);
+    return result.data;
+  }
+  const meter = (standard = 10, premium: number | null = null) =>
+    rpc("account_usage", {
+      p_user: meterUser,
+      p_weekly_budget: standard,
+      p_premium_weekly_budget: premium,
+    });
+  let usage = await meter();
+  assert.equal(usage.tier, "standard");
+  assert.equal(usage.limit, 10);
+  assert.equal(usage.used, 0);
+  assert.equal(usage.remaining, 10);
+  assert.equal(new Date(usage.periodStart).getUTCDay(), 1);
+  assert.equal(new Date(usage.periodStart).getUTCHours(), 0);
+  assert.equal(
+    Date.parse(usage.resetsAt) - Date.parse(usage.periodStart),
+    7 * 86400000,
+  );
+  const anonymous = createClient(
+    url,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    { auth: { persistSession: false } },
+  );
+  for (const table of ["account_billing", "usage_events"]) {
+    assert.ok(
+      (await anonymous.from(table).select("*")).error,
+      `${table}: anonymous reads denied`,
+    );
+    assert.equal(
+      (await clients[0].from(table).select("*").eq("user_id", meterUser)).data!
+        .length,
+      0,
+    );
+  }
+  assert.ok(
+    (
+      await clients[2]
+        .from("account_billing")
+        .update({ is_premium: true })
+        .eq("user_id", meterUser)
+    ).error,
+  );
+  assert.ok(
+    (
+      await clients[2]
+        .from("account_billing")
+        .insert({ user_id: meterUser, is_premium: true })
+    ).error,
+  );
+  assert.ok(
+    (await clients[2].from("usage_events").delete().eq("user_id", meterUser))
+      .error,
+  );
+  assert.ok(
+    (await clients[2].rpc("account_usage", { p_user: meterUser })).error,
+  );
+  assert.ok(
+    (
+      await admin.rpc("account_usage", {
+        p_user: meterUser,
+        p_weekly_budget: null,
+      })
+    ).error,
+  );
+  assert.ok(
+    (
+      await admin.rpc("account_usage", {
+        p_user: meterUser,
+        p_premium_weekly_budget: -1,
+      })
+    ).error,
+  );
+  assert.ifError(
+    (await clients[2].auth.updateUser({ data: { is_premium: true } })).error,
+  );
+  assert.equal(
+    (await meter()).tier,
+    "standard",
+    "User-editable metadata cannot upgrade an account",
+  );
+  console.log(
+    "PASS default weekly allowance, UTC reset, billing/ledger RLS and upgrade protection",
+  );
+
+  const meterRooms = await Promise.all(
+    Array.from({ length: 8 }, async () =>
+      startMeterRoom((await room(meterUser)).id, meterUser),
+    ),
+  );
+  const meteredClaim = (
+    target: typeof r,
+    standard: number,
+    premium: number | null = null,
+  ) =>
+    rpc("claim_turn", {
+      p_room: target.id,
+      p_user: meterUser,
+      p_run: target.run_id,
+      p_prices: quotes,
+      p_weekly_budget: standard,
+      p_premium_weekly_budget: premium,
+    });
+  const crossRoomClaims = await Promise.all(
+    meterRooms.map((target) => meteredClaim(target, 0.015)),
+  );
+  assert.equal(
+    crossRoomClaims.filter(Boolean).length,
+    1,
+    "Reservations serialize across different rooms",
+  );
+  const meteredReply = crossRoomClaims.find(Boolean);
+  usage = await meter(0.015);
+  assert.equal(usage.used, 0.01);
+  assert.equal(usage.pending, 0.01);
+  assert.equal(usage.remaining, 0.005);
+  await finish(meteredReply, 0.004);
+  assert.equal(
+    await finish(meteredReply, 0.1),
+    false,
+    "Settlement is idempotent",
+  );
+  usage = await meter(0.015);
+  assert.equal(usage.spent, 0.004);
+  assert.equal(usage.pending, 0);
+  const nextMeterRoom = await startMeterRoom(
+    (await room(meterUser)).id,
+    meterUser,
+  );
+  const reservedAgain = await meteredClaim(nextMeterRoom, 0.015);
+  assert.ok(reservedAgain, "Settlement releases unused reservation");
+  await rpc("finish_turn", {
+    p_room: reservedAgain.room_id,
+    p_message: reservedAgain.id,
+    p_content: "",
+    p_cost: null,
+    p_input: null,
+    p_output: null,
+    p_error: "Uncertain provider outcome",
+  });
+  usage = await meter(0.015);
+  assert.equal(usage.used, 0.014);
+  assert.equal(usage.uncertain, 0.01);
+  assert.equal(usage.pending, 0);
+  const beforeDelete = usage.used;
+  assert.ifError(
+    (await admin.from("rooms").delete().eq("id", nextMeterRoom.id)).error,
+  );
+  assert.equal(
+    (await meter()).used,
+    beforeDelete,
+    "Deleting a room cannot restore allowance",
+  );
+  const ledgerRow = await admin
+    .from("usage_events")
+    .select("*")
+    .eq("source_id", reservedAgain.id)
+    .single();
+  assert.ifError(ledgerRow.error);
+  assert.equal(ledgerRow.data.room_id, null);
+  console.log(
+    "PASS cross-room contention, metered settlements, uncertain requests and durable usage",
+  );
+
+  assert.ifError(
+    (
+      await admin
+        .from("account_billing")
+        .update({ is_premium: true })
+        .eq("user_id", meterUser)
+    ).error,
+  );
+  usage = await meter(0.015);
+  assert.equal(usage.tier, "premium");
+  assert.equal(usage.limit, null);
+  assert.equal(usage.remaining, null);
+  const unlimitedRoom = await startMeterRoom(
+    (await room(meterUser)).id,
+    meterUser,
+  );
+  const unlimitedReply = await meteredClaim(unlimitedRoom, 0);
+  assert.ok(unlimitedReply, "Unlimited premium bypasses the standard cap");
+  await finish(unlimitedReply, 0.02);
+  const cappedPremiumRoom = await startMeterRoom(
+    (await room(meterUser)).id,
+    meterUser,
+  );
+  assert.equal(await meteredClaim(cappedPremiumRoom, 0, 0.04), null);
+  const raisedPremium = await meteredClaim(
+    await startMeterRoom(cappedPremiumRoom.id, meterUser),
+    0,
+    0.1,
+  );
+  assert.ok(
+    raisedPremium,
+    "Raising the premium env allowance restores eligibility",
+  );
+  await finish(raisedPremium, 0.001);
+  assert.equal((await meter(0, 0)).remaining, 0);
+  assert.equal(
+    await meteredClaim(
+      await startMeterRoom((await room(meterUser)).id, meterUser),
+      0,
+      0,
+    ),
+    null,
+  );
+  const premiumRoomLimit = await startMeterRoom(
+    (await room(meterUser, { budget: 0.001 })).id,
+    meterUser,
+  );
+  assert.equal(
+    await meteredClaim(premiumRoomLimit, 10),
+    null,
+    "Unlimited premium retains room limits",
+  );
+  assert.ifError(
+    (
+      await admin
+        .from("account_billing")
+        .update({ is_premium: false })
+        .eq("user_id", meterUser)
+    ).error,
+  );
+  assert.equal((await meter(0.015)).tier, "standard");
+  assert.equal(
+    await meteredClaim(
+      await startMeterRoom((await room(meterUser)).id, meterUser),
+      0.015,
+    ),
+    null,
+    "Downgrade applies immediately without resetting spend",
+  );
+  console.log(
+    "PASS premium unlimited/finite/zero limits, upgrades, downgrades and retained room caps",
+  );
+
+  const meterSummaryRoom = await room(meterUser);
+  const summarySource = await admin
+    .from("messages")
+    .insert({
+      room_id: meterSummaryRoom.id,
+      bot_id: DEFAULT_BOTS[0].id,
+      speaker: "Planner",
+      content: "A useful point",
+      cost: 0,
+    })
+    .select()
+    .single();
+  assert.ifError(summarySource.error);
+  const meterSummaryArgs = {
+    p_room: meterSummaryRoom.id,
+    p_user: meterUser,
+    p_request: crypto.randomUUID(),
+    p_model: DEFAULT_BOTS[0].model,
+    p_source_ids: [summarySource.data.id],
+    p_quote: 0.01,
+    p_weekly_budget: 0.015,
+  };
+  assert.ok(
+    (await admin.rpc("claim_summary", meterSummaryArgs)).error,
+    "Replies consume summary allowance too",
+  );
+  const meterSummary = await rpc("claim_summary", {
+    ...meterSummaryArgs,
+    p_weekly_budget: 1,
+  });
+  const usageWithSummary = await meter(1);
+  assert.equal(usageWithSummary.pending, 0.01);
+  assert.equal(
+    (await rpc("claim_summary", { ...meterSummaryArgs, p_weekly_budget: 1 }))
+      .claimed,
+    false,
+  );
+  assert.equal(
+    (await meter(1)).used,
+    usageWithSummary.used,
+    "Duplicate summary request does not double meter",
+  );
+  await rpc("finish_summary", {
+    p_summary: meterSummary.summary.id,
+    p_content: "Summary",
+    p_cost: 0.003,
+  });
+  assert.equal((await meter(1)).pending, 0);
+  assert.equal((await meter(1)).spent, 0.028);
+  console.log(
+    "PASS shared reply/summary ledger, summary idempotency and settlement",
+  );
+
+  // Boundary fixtures affect only the disposable test account's ledger.
+  assert.ifError(
+    (await admin.from("usage_events").delete().eq("user_id", meterUser)).error,
+  );
+  usage = await meter();
+  const weekStart = Date.parse(usage.periodStart),
+    weekEnd = Date.parse(usage.resetsAt);
+  for (const [timestamp, cost] of [
+    [weekStart - 1, 100],
+    [weekStart, 1],
+    [weekEnd - 1, 2],
+    [weekEnd, 100],
+  ]) {
+    assert.ifError(
+      (
+        await admin.from("usage_events").insert({
+          source_id: crypto.randomUUID(),
+          user_id: meterUser,
+          kind: "reply",
+          status: "complete",
+          reserved_cost: cost,
+          cost,
+          created_at: new Date(timestamp).toISOString(),
+        })
+      ).error,
+    );
+  }
+  assert.equal(
+    (await meter()).used,
+    3,
+    "Week includes Monday start and excludes next Monday",
+  );
+  assert.ifError(
+    (
+      await admin
+        .from("usage_events")
+        .update({ created_at: new Date(weekStart - 1).toISOString() })
+        .eq("user_id", meterUser)
+    ).error,
+  );
+  assert.equal(
+    (await meter()).used,
+    0,
+    "Previous-week spend does not consume new allowance",
+  );
+  assert.equal((await meter()).remaining, 10, "No unused allowance rolls over");
+  console.log(
+    "PASS exact weekly boundaries and fresh allowance without rollover",
   );
   console.log("All integration checks passed. No Gateway calls were made.");
 } finally {

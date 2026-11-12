@@ -54,6 +54,8 @@ import {
 import { Brand } from "./brand";
 import { SummaryPanel } from "./summary-panel";
 import type { Summary } from "@/lib/summary";
+import { AccountUsageMeter, useAccountUsage } from "./account-usage";
+import { usageMoney } from "@/lib/usage";
 const presets = [
   {
     id: "plan" as const,
@@ -105,6 +107,9 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 const money = (n: number) => `$${n.toFixed(n > 0 && n < 0.01 ? 4 : 2)}`;
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export function Workspace({ email }: { email: string }) {
+  const accountUsage = useAccountUsage();
+  const accountExhausted =
+    !accountUsage.error && accountUsage.usage?.remaining === 0;
   const [summaries, setSummaries] = useState<Summary[]>([]),
     [summaryOpen, setSummaryOpen] = useState(false);
   const summaryButton = useRef<HTMLButtonElement>(null);
@@ -590,14 +595,10 @@ export function Workspace({ email }: { email: string }) {
             ) && <p className="nav-empty">No rooms match “{search}”.</p>}
         </div>
         <div className="sidebar-bottom">
-          <div className="sidebar-note">
-            <ShieldCheck size={17} />
-            <span>
-              Big ideas.
-              <br />
-              Small, sensible limits.
-            </span>
-          </div>
+          <AccountUsageMeter
+            {...accountUsage}
+            onRefresh={() => void accountUsage.refresh()}
+          />
           <div className="account">
             <span className="account-avatar">{email[0].toUpperCase()}</span>
             <span title={email}>
@@ -659,6 +660,27 @@ export function Workspace({ email }: { email: string }) {
             </span>
           </div>
           <div className="header-actions">
+            <button
+              className="button small usage-shortcut"
+              aria-label="View weekly account usage"
+              aria-controls="room-navigation"
+              onClick={() => {
+                if (mobileNav) setNavOpen(true);
+                else if (collapsedPanels.nav) toggleCollapsedPanel("nav");
+                setTimeout(
+                  () => document.getElementById("weekly-usage")?.focus(),
+                  0,
+                );
+              }}
+            >
+              {accountUsage.error
+                ? "Usage unavailable"
+                : accountUsage.usage
+                  ? accountUsage.usage.remaining === null
+                    ? "Unlimited"
+                    : `${usageMoney(accountUsage.usage.remaining)} left`
+                  : "Usage…"}
+            </button>
             {room && !editing && (
               <>
                 <button
@@ -725,12 +747,21 @@ export function Workspace({ email }: { email: string }) {
             </button>
           </div>
         </header>
+        {accountExhausted && (
+          <p className="account-limit-notice" role="status">
+            {accountUsage.usage?.limit === 0
+              ? "Your weekly allowance is $0. AI replies and summaries resume when your allowance changes."
+              : "Weekly allowance used. AI replies and summaries pause until Monday at 00:00 UTC or your allowance changes."}{" "}
+            You can still read, export, and add your own notes.
+          </p>
+        )}
         {room && !editing && summaryOpen && (
           <SummaryPanel
             key={room.id}
             room={room}
             messages={messages}
             summaries={summaries}
+            accountExhausted={accountExhausted}
             onRefresh={() => refresh(room.id)}
             onClose={() => {
               setSummaryOpen(false);
@@ -941,6 +972,7 @@ export function Workspace({ email }: { email: string }) {
                     className="button primary"
                     disabled={
                       busy ||
+                      accountExhausted ||
                       room.status === "running" ||
                       room.status === "stopped"
                     }
@@ -1075,7 +1107,7 @@ export function Workspace({ email }: { email: string }) {
                     room.status !== "stopped" && (
                       <button
                         className="button small"
-                        disabled={busy || pending > 0}
+                        disabled={busy || pending > 0 || accountExhausted}
                         onClick={() => void action("start")}
                       >
                         <Play size={14} />

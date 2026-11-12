@@ -347,6 +347,230 @@ small {
 }
 .sidebar-bottom {
   margin-top: 20px;
+  min-height: 0;
+  flex-shrink: 0;
+}
+.account-usage {
+  padding: 0 2px 16px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #b7c5da;
+  font-variant-numeric: tabular-nums;
+}
+.account-usage p {
+  margin: 0;
+}
+.usage-details > summary {
+  display: block;
+  padding: 6px 0;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 2px;
+}
+.usage-details > summary::-webkit-details-marker {
+  display: none;
+}
+.usage-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.usage-heading > span:first-child {
+  flex: 1;
+}
+.usage-amount {
+  color: #b7c5da;
+  text-align: right;
+}
+.usage-amount strong {
+  color: #e9edf6;
+  font-weight: 600;
+}
+.usage-amount,
+.usage-breakdown dd {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.usage-chevron {
+  flex: 0 0 auto;
+  align-self: center;
+  color: #b7c5da;
+  transition: transform 150ms ease-out;
+}
+.usage-details[open] .usage-chevron {
+  transform: rotate(180deg);
+}
+.usage-details > summary:hover .usage-heading {
+  color: #fff;
+}
+.usage-details > summary:hover .usage-chevron {
+  color: #fff;
+}
+.account-usage progress {
+  display: block;
+  width: 100%;
+  height: 3px;
+  margin: 9px 0 7px;
+  border: 0;
+  border-radius: 1px;
+  overflow: hidden;
+  appearance: none;
+  background: #ffffff20;
+  color: #c9b4e3;
+}
+.account-usage progress::-webkit-progress-bar {
+  background: #ffffff20;
+}
+.account-usage progress::-webkit-progress-value {
+  background: #c9b4e3;
+}
+.account-usage progress::-moz-progress-bar {
+  background: #c9b4e3;
+}
+.usage-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 8px;
+  font-size: 10px;
+}
+.account-usage.unlimited .usage-meta {
+  margin-top: 7px;
+}
+.usage-breakdown {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #ffffff20;
+  scrollbar-color: #b7c5da var(--navy);
+  scrollbar-width: thin;
+}
+.usage-plan {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #e9edf6;
+}
+.usage-plan span:last-child {
+  color: #b7c5da;
+  font-size: 10px;
+}
+.usage-breakdown dl {
+  margin: 10px 0 12px;
+}
+.usage-breakdown dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 5px;
+}
+.usage-breakdown dd {
+  margin: 0;
+  color: #e9edf6;
+}
+.usage-breakdown p + p {
+  margin-top: 8px;
+}
+.usage-placeholder {
+  padding: 6px 0;
+}
+.usage-placeholder p {
+  margin-top: 7px;
+}
+.account-usage .usage-warning {
+  color: #ffd2bb;
+  margin-top: 8px;
+}
+.account-usage.exhausted .usage-warning {
+  color: #ffc4c8;
+}
+.account-usage.exhausted progress::-webkit-progress-value {
+  background: #ffc4c8;
+}
+.account-usage.exhausted progress::-moz-progress-bar {
+  background: #ffc4c8;
+}
+.usage-error {
+  margin-top: 10px;
+}
+.usage-error button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 0;
+  padding: 6px 0;
+  color: #e9edf6;
+  font-size: inherit;
+  cursor: pointer;
+}
+.usage-error button:hover {
+  text-decoration: underline;
+}
+.usage-shortcut {
+  display: none;
+}
+.nav-collapsed .usage-shortcut {
+  display: inline-flex;
+}
+.account-limit-notice {
+  margin: 0;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--line);
+  background: #fff1ed;
+  color: #8f2931;
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-height: 780px) {
+  .sidebar {
+    overflow-y: auto;
+  }
+  .sidebar .room-list {
+    flex-shrink: 0;
+    min-height: 90px;
+  }
+  .usage-breakdown {
+    max-height: 160px;
+  }
+}
+@media (pointer: coarse) {
+  .usage-details summary,
+  .usage-error button {
+    min-height: 44px;
+  }
+}
+@media (max-width: 640px) {
+  .header-actions .usage-shortcut {
+    display: inline-flex;
+    padding: 6px 8px;
+    font-size: 10px;
+    max-width: 110px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .account-usage {
+    font-size: 12px;
+  }
+  .usage-meta {
+    font-size: 11px;
+  }
+  .main .room-header {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 96px;
+    padding-block: 8px;
+    row-gap: 4px;
+  }
+  .room-header .header-title {
+    flex: 1 1 100%;
+  }
+  .room-header .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 .sidebar-note {
   display: flex;

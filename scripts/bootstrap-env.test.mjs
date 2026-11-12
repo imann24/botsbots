@@ -35,12 +35,12 @@ test("secret values survive the installed Next.js environment loader", () => {
 
 test("updates preserve unrelated values, comments, and unchanged secrets", () => {
   const source =
-    "# keep this comment\nAI_GATEWAY_API_KEY='existing$REFERENCE'\nCUSTOM='line one\nline two'\nDAILY_BUDGET_USD=10\n";
-  const result = updateEnv(source, { DAILY_BUDGET_USD: "5", SITE_URL: "" });
+    "# keep this comment\nAI_GATEWAY_API_KEY='existing$REFERENCE'\nCUSTOM='line one\nline two'\nWEEKLY_BUDGET_USD=10\n";
+  const result = updateEnv(source, { WEEKLY_BUDGET_USD: "5", SITE_URL: "" });
   assert.ok(
-    result.startsWith(source.slice(0, source.indexOf("DAILY_BUDGET_USD"))),
+    result.startsWith(source.slice(0, source.indexOf("WEEKLY_BUDGET_USD"))),
   );
-  assert.equal(parseEnv(result).DAILY_BUDGET_USD, "5");
+  assert.equal(parseEnv(result).WEEKLY_BUDGET_USD, "5");
   assert.equal(parseEnv(result).SITE_URL, "");
 });
 
