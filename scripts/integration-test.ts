@@ -126,6 +126,113 @@ try {
   console.log(
     "PASS moderated serialization, unique participants, round pause, idempotent settlement",
   );
+  const sendMessage = (id: string, requestId = crypto.randomUUID()) =>
+    rpc("room_action", {
+      p_room: id,
+      p_user: user,
+      p_action: "message",
+      p_payload: { content: "Consider another perspective", requestId },
+    });
+  const previousRun = r.run_id;
+  // Advance the completed round past its per-bot cooldown without a timed test wait.
+  assert.ifError(
+    (
+      await admin
+        .from("messages")
+        .update({ completed_at: new Date(Date.now() - 2000).toISOString() })
+        .eq("room_id", r.id)
+        .eq("run_id", previousRun)
+    ).error,
+  );
+  const resumeRequest = crypto.randomUUID();
+  const resumed = await Promise.all(
+    Array.from({ length: 8 }, () => sendMessage(r.id, resumeRequest)),
+  );
+  r = resumed[0];
+  assert.equal(r.status, "running", "Sending resumes a completed round");
+  assert.notEqual(r.run_id, previousRun);
+  assert.ok(resumed.every((result) => result.run_id === r.run_id));
+  assert.equal(
+    (await sendMessage(r.id)).run_id,
+    r.run_id,
+    "Active sends keep the run",
+  );
+  for (let i = 0; i < DEFAULT_BOTS.length; i++) {
+    const reply = await claim(r, user);
+    assert.ok(reply, "Each bot gets a turn after auto-resume");
+    await finish(reply);
+  }
+  assert.equal(await claim(r, user), null);
+  assert.equal(
+    (await sendMessage(r.id, resumeRequest)).status,
+    "paused",
+    "Retrying a delivered message cannot start another round",
+  );
+  const fresh = await room(user);
+  r = await sendMessage(fresh.id);
+  assert.equal(
+    r.status,
+    "running",
+    "The first human message starts an idle room",
+  );
+  const blockedRoom = await room(user);
+  const blockedSend = await admin.rpc("room_action", {
+    p_room: blockedRoom.id,
+    p_user: user,
+    p_action: "message",
+    p_payload: {
+      content: "Cannot run a second room",
+      requestId: crypto.randomUUID(),
+    },
+  });
+  assert.ok(blockedSend.error, "Another active room blocks auto-resume");
+  assert.equal(
+    (await admin.from("messages").select("id").eq("room_id", blockedRoom.id))
+      .data!.length,
+    0,
+    "Failed auto-resume rolls back the send",
+  );
+  const pendingReply = await claim(r, user);
+  await rpc("room_action", { p_room: r.id, p_user: user, p_action: "pause" });
+  const pendingSend = await admin.rpc("room_action", {
+    p_room: r.id,
+    p_user: user,
+    p_action: "message",
+    p_payload: {
+      content: "Wait for pending work",
+      requestId: crypto.randomUUID(),
+    },
+  });
+  assert.ok(pendingSend.error, "Paused in-flight work still fences a new run");
+  await finish(pendingReply);
+  await rpc("room_action", { p_room: r.id, p_user: user, p_action: "stop" });
+  const stoppedSend = await admin.rpc("room_action", {
+    p_room: r.id,
+    p_user: user,
+    p_action: "message",
+    p_payload: {
+      content: "Cannot restart an ended room",
+      requestId: crypto.randomUUID(),
+    },
+  });
+  assert.ok(stoppedSend.error);
+  const tightBudget = await room(user, { budget: 0.001 });
+  const budgetRun = await sendMessage(tightBudget.id);
+  assert.equal(
+    await claim(budgetRun, user),
+    null,
+    "Auto-resume preserves the budget cap",
+  );
+  const capped = await room(user, { maxMessages: 1 });
+  const cappedRun = await sendMessage(capped.id);
+  assert.equal(
+    await claim(cappedRun, user),
+    null,
+    "Human sends still consume the total quota",
+  );
+  console.log(
+    "PASS atomic send-and-resume, duplicate retries, active runs, start guards, budgets and quotas",
+  );
   const { data: privateRooms } = await clients[1].from("rooms").select("*");
   assert.equal(privateRooms!.length, 0);
   assert.ok(

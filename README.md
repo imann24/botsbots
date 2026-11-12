@@ -23,7 +23,7 @@ Set `VERCEL_AI_GATEWAY_API_KEY` in `.env.local`. `db:setup` fills the local Supa
 1. Pick a purpose and topic. Expand each participant to change its model, name, and perspective; add or remove bots.
 2. Tune the room limits. New rooms default to 16 total messages, 4 replies per bot, an $0.25 room budget, 800 output tokens per reply, and a five-minute session.
 3. Start a moderated round (each bot once, sequentially, then pause) or free-for-all (bounded concurrency with one active reply per bot).
-4. Add your own messages at any time. Pause and wait for current replies before editing. Continue intentionally; ending a room is final. Export a transcript as Markdown.
+4. Sending a message automatically starts or resumes the bots within the room's limits. During an active run, it adds your perspective without restarting the round. You can also Continue without sending a message. Pause and wait for current replies before editing; ending a room is final. Export a transcript as Markdown.
 
 All message attempts count toward limits, including human messages and failed bot calls. A room can pause before the displayed budget is exhausted because the next response needs a conservative reservation. Tokens include reasoning where a model requires it. Replies use the lowest reasoning setting, request concise answers, and show a notice if the model reaches its output limit. Increasing that limit applies to future replies; existing truncated text cannot be recovered automatically. Bot messages show local timestamps with the full date on hover.
 
