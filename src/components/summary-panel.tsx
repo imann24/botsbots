@@ -4,6 +4,7 @@ import { FileText, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { MODEL_CHOICES, modelInfo } from "@/lib/models";
+import { agentClass, agentColors } from "@/lib/agent-colors";
 import type { Message, Room } from "@/lib/types";
 import type { Summary } from "@/lib/summary";
 import { parseSummaryContent } from "@/lib/summary-content";
@@ -34,6 +35,10 @@ export function SummaryPanel({
   const pending = summaries.some((s) => s.status === "pending" && !expired(s));
   const summary = summaries.find((s) => s.id === selected) ?? summaries[0];
   const structured = summary ? parseSummaryContent(summary.content) : null;
+  const colors = agentColors(room.bots, [
+    ...messages.map((m) => m.bot_id),
+    ...(structured?.contributions.map((c) => c.botId) ?? []),
+  ]);
   const newer = summary
     ? messages.filter(
         (m) =>
@@ -168,12 +173,12 @@ export function SummaryPanel({
                 <div className="summary-contributions">
                   {structured.contributions.map((part, i) => (
                     <section
-                      className={`summary-contribution ${modelInfo(part.model).color}`}
+                      className={`summary-contribution ${agentClass(colors, part.botId)}`}
                       key={`${part.botId}:${part.model}:${i}`}
                     >
                       <h3>
                         <span
-                          className={`avatar ${modelInfo(part.model).color}`}
+                          className={`avatar ${agentClass(colors, part.botId)}`}
                           aria-hidden="true"
                         >
                           {part.speaker.replace(/^The /, "")[0]?.toUpperCase()}

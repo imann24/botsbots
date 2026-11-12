@@ -128,7 +128,7 @@ Deep navy structure and warm paper carry the interface; red creates a clear acti
 
 ### Secondary
 - **Carbon Purple** (`carbon`): numerical limits, budget progress, and reply turn markers. **Lavender** (`lavender`) supports the purple participant identity.
-- **Sage**, **Apricot**, and **Powder Blue** (`green`, `orange`, `blue`): participant avatar backgrounds, paired with darker identity-specific lettering. These are identity accents, not interchangeable status signals.
+- **Agent identity hues** (`.agent-0` to `.agent-9`, defined in OKLCH at one shared lightness): each agent in a room owns one hue for its avatar and summary contribution, paired with darker lettering in the same hue. Colors belong to the agent, never the model, and are unique per room: the slot is stored on the bot, new bots take the lowest free slot, and the first six slots are the most widely spaced because a room holds at most six bots. These are identity accents, not interchangeable status signals.
 
 ### Neutral
 - **Warm Paper** (`paper`): main workspace and composer surround.
