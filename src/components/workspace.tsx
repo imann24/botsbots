@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type FormEvent,
 } from "react";
 import {
@@ -126,6 +127,24 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 }
 const money = (n: number) => `$${n.toFixed(n > 0 && n < 0.01 ? 4 : 2)}`;
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Resolved on the client only: null on the server, on touch-only devices
+// (no keyboard to press it with), and during hydration.
+const noSubscribe = () => () => {};
+function startModifier(): "⌘" | "Ctrl" | null {
+  if (!matchMedia("(any-pointer: fine)").matches) return null;
+  return /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl";
+}
+function StartShortcutHint() {
+  const modifier = useSyncExternalStore(noSubscribe, startModifier, () => null);
+  if (!modifier) return null;
+  return (
+    <span className="shortcut-hint">
+      <kbd>{modifier}</kbd>
+      <kbd>↵</kbd>
+      to start
+    </span>
+  );
+}
 export function Workspace({ email }: { email: string }) {
   const accountUsage = useAccountUsage();
   const accountExhausted =
@@ -1278,10 +1297,7 @@ export function Workspace({ email }: { email: string }) {
                     Cancel
                   </button>
                 ) : (
-                  <span>
-                    Create the room now, or press ⌘ + Enter (Mac) or Ctrl +
-                    Enter (Windows/Linux) to create and start it.
-                  </span>
+                  <StartShortcutHint />
                 )}
               </div>
             </form>
