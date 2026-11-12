@@ -4,15 +4,18 @@ A conversation-first workspace for one human and 2–6 AI participants. Each bot
 
 ## Run locally
 
-Requirements: Node.js 22+, pnpm 10, and OrbStack with Docker running.
+Requirements: Node.js 22+, pnpm 10, and a running Docker runtime: Docker Engine on Linux, or Docker Desktop/OrbStack on macOS.
 
 ```sh
 pnpm install
-docker context use orbstack
 pnpm db:start
 pnpm env:setup
 pnpm dev
 ```
+
+On Linux, install Docker Engine using your distribution's instructions and start it with `sudo systemctl start docker` on systemd systems. Configure your user's Docker socket access or use rootless Docker; `docker ps` must succeed **without sudo** in the same terminal used for pnpm. If group membership changed, log out and back in first. Do not run pnpm with sudo. See [Docker's Linux post-install instructions](https://docs.docker.com/engine/install/linux-postinstall/) for access setup and its security implications.
+
+On macOS with OrbStack, start OrbStack and run `docker context use orbstack` before `pnpm db:start`. On either OS, check `docker context show` and `DOCKER_HOST` if Docker is unreachable. `pnpm db:setup` requires an already running local stack; `pnpm db:start` starts it and also performs that setup automatically.
 
 Supabase applies the committed migrations when creating its local database. For an existing local database, apply pending migrations with `pnpm exec supabase db push` (CLI v3 defaults to local).
 

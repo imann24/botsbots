@@ -1,4 +1,4 @@
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { chmodSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { parseEnv } from "node:util";
 import { updateEnv } from "./bootstrap-env.mjs";
 import { syncLocalEnv } from "./local-env.mjs";
+import { runningContainers } from "./docker.mjs";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -127,23 +128,7 @@ export async function startDb({ root = projectRoot, args = [] } = {}) {
   const projectId = config.match(/^project_id\s*=\s*"([^"]+)"/m)?.[1];
   if (!projectId)
     throw new Error("Missing project_id in supabase/config.toml.");
-  let containers;
-  try {
-    const raw = execFileSync("docker", ["ps", "--format", "{{json .}}"], {
-      cwd: root,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    containers = raw
-      .trim()
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => JSON.parse(line));
-  } catch {
-    throw new Error(
-      "Cannot reach Docker. Start Docker/OrbStack and check your Docker context, then rerun pnpm db:start.",
-    );
-  }
+  const containers = runningContainers(root);
   const { occupied, running } = dockerPorts(containers, projectId);
   const envPath = join(root, "supabase/.env");
   const source = existsSync(envPath) ? readFileSync(envPath, "utf8") : "";
@@ -170,7 +155,7 @@ export async function startDb({ root = projectRoot, args = [] } = {}) {
   });
   if (started.error) throw started.error;
   if (started.status !== 0) return started.status ?? 1;
-  syncLocalEnv({ root, env: { ...process.env, ...ports } });
+  syncLocalEnv({ root, env: { ...process.env, ...ports }, checkDocker: false });
   return 0;
 }
 

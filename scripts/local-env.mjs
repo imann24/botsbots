@@ -3,20 +3,29 @@ import { readFileSync, writeFileSync, existsSync, chmodSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { updateEnv } from "./bootstrap-env.mjs";
+import { runningContainers } from "./docker.mjs";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
-export function syncLocalEnv({ root = projectRoot, env = process.env } = {}) {
-  const raw = execFileSync(
-    "pnpm",
-    ["exec", "supabase", "status", "-o", "json"],
-    {
+export function syncLocalEnv({
+  root = projectRoot,
+  env = process.env,
+  checkDocker = true,
+} = {}) {
+  if (checkDocker) runningContainers(root);
+  let raw;
+  try {
+    raw = execFileSync("pnpm", ["exec", "supabase", "status", "-o", "json"], {
       cwd: root,
       env,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
-    },
-  );
+    });
+  } catch {
+    throw new Error(
+      "Cannot read local Supabase status. Run `pnpm db:start` successfully before `pnpm db:setup`.",
+    );
+  }
   const status = JSON.parse(raw.slice(raw.indexOf("{")));
   const values = {
     NEXT_PUBLIC_SUPABASE_URL: status.API_URL,

@@ -16,6 +16,8 @@ vi.mock("node:child_process", () => ({
   spawnSync: vi.fn(),
 }));
 import { execFileSync, spawnSync } from "node:child_process";
+import { syncLocalEnv } from "./local-env.mjs";
+import { runningContainers } from "./docker.mjs";
 import {
   allocatePorts,
   configuredPorts,
@@ -148,4 +150,48 @@ test("Docker failure and help do not change local configuration", async () => {
   spawnSync.mockReturnValue({ status: 0 });
   expect(await startDb({ root, args: ["--help"] })).toBe(0);
   expect(execFileSync).toHaveBeenCalledTimes(1);
+});
+
+test.each([
+  [{ code: "ENOENT" }, /Docker CLI is missing/],
+  [
+    { stderr: Buffer.from("permission denied while trying to connect") },
+    /without sudo/,
+  ],
+  [
+    { stderr: Buffer.from("Cannot connect to the Docker daemon") },
+    /systemctl start docker/,
+  ],
+])("explains Docker failures on Linux: %j", (failure, message) => {
+  execFileSync.mockImplementationOnce(() => {
+    throw failure;
+  });
+  expect(() => runningContainers(fixture())).toThrow(message);
+});
+
+test("standalone setup checks Docker and preserves credentials when the stack is stopped", () => {
+  const root = fixture();
+  const original = readFileSync(join(root, ".env.local"), "utf8");
+  execFileSync.mockReturnValueOnce("").mockImplementationOnce(() => {
+    throw new Error("stack is stopped");
+  });
+  expect(() => syncLocalEnv({ root })).toThrow(/pnpm db:start/);
+  expect(readFileSync(join(root, ".env.local"), "utf8")).toBe(original);
+});
+
+test("standalone setup reads the running Linux stack and supports legacy keys", () => {
+  const root = fixture();
+  execFileSync.mockReturnValueOnce("").mockReturnValueOnce(
+    JSON.stringify({
+      API_URL: "http://127.0.0.1:54321",
+      ANON_KEY: "dummy-public",
+      SERVICE_ROLE_KEY: "dummy-private",
+    }),
+  );
+  vi.spyOn(console, "log").mockImplementation(() => {});
+  syncLocalEnv({ root });
+  const env = parseEnv(readFileSync(join(root, ".env.local"), "utf8"));
+  expect(env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY).toBe("dummy-public");
+  expect(env.SUPABASE_SECRET_KEY).toBe("dummy-private");
+  expect(env.AI_GATEWAY_API_KEY).toBe("dummy-existing-secret");
 });
