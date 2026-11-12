@@ -10,6 +10,7 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
+  BookmarkCheck,
   BookOpen,
   Check,
   ChevronDown,
@@ -28,6 +29,7 @@ import {
   Pause,
   Play,
   Plus,
+  RotateCcw,
   Search,
   Settings2,
   ShieldCheck,
@@ -62,6 +64,11 @@ import { SummaryPanel } from "./summary-panel";
 import type { Summary } from "@/lib/summary";
 import { AccountUsageMeter, useAccountUsage } from "./account-usage";
 import { usageMoney } from "@/lib/usage";
+import {
+  appDefaults,
+  sameLineup,
+  type AccountDefaults,
+} from "@/lib/account-defaults";
 import { CommandBar, type WorkspaceCommand } from "./command-bar";
 import { shortcutKey } from "@/lib/commands";
 const presets = [
@@ -94,13 +101,18 @@ const presets = [
       "Imagine a weekend that feels like a tiny adventure without a big budget. Combine unexpected ideas and turn the best ones into an achievable plan.",
   },
 ];
-function freshDraft(): RoomDraft {
+function freshDraft(
+  defaults: Pick<AccountDefaults, "bots" | "settings"> = {
+    bots: DEFAULT_BOTS,
+    settings: DEFAULT_SETTINGS,
+  },
+): RoomDraft {
   return {
     title: "",
     topic: "",
     purpose: "plan",
-    bots: structuredClone(DEFAULT_BOTS),
-    settings: { ...DEFAULT_SETTINGS },
+    bots: structuredClone(defaults.bots),
+    settings: { ...defaults.settings },
   };
 }
 async function api<T>(path: string, options?: RequestInit): Promise<T> {
@@ -133,6 +145,13 @@ export function Workspace({ email }: { email: string }) {
     [search, setSearch] = useState(""),
     [prices, setPrices] = useState<ModelPrice[]>([]),
     [modelError, setModelError] = useState("");
+  // Starting lineup and limits for new rooms, saved to the account.
+  const [accountDefaults, setAccountDefaults] =
+      useState<AccountDefaults>(appDefaults),
+    [defaultsBusy, setDefaultsBusy] = useState(false),
+    [defaultsNotice, setDefaultsNotice] = useState("");
+  const accountDefaultsRef = useRef(accountDefaults);
+  accountDefaultsRef.current = accountDefaults;
   const [navOpen, setNavOpen] = useState(false),
     [panelOpen, setPanelOpen] = useState(false),
     [expandedBot, setExpandedBot] = useState<string | null>(null),
@@ -300,6 +319,25 @@ export function Workspace({ email }: { email: string }) {
       .finally(() => setLoading(false));
     const id = new URLSearchParams(window.location.search).get("room");
     if (id) void selectRoom(id);
+    void api<{ defaults: AccountDefaults }>("/api/account/defaults")
+      .then(({ defaults }) => {
+        setAccountDefaults(defaults);
+        // Swap the saved lineup into an untouched new-room draft.
+        setDraft((d) =>
+          !selectedId.current && sameLineup(d, freshDraft())
+            ? {
+                ...d,
+                ...freshDraft(defaults),
+                title: d.title,
+                topic: d.topic,
+                purpose: d.purpose,
+              }
+            : d,
+        );
+      })
+      .catch(() => {
+        // App defaults still work; saving will surface any real problem.
+      });
     void api<{ prices: ModelPrice[] }>("/api/models")
       .then((d) => setPrices(d.prices))
       .catch(() =>
@@ -373,8 +411,9 @@ export function Workspace({ email }: { email: string }) {
     selectedId.current = null;
     setRoom(null);
     setMessages([]);
-    setDraft(freshDraft());
+    setDraft(freshDraft(accountDefaultsRef.current));
     setEditing(true);
+    setDefaultsNotice("");
     setError("");
     setNavOpen(false);
     setExpandedBot(null);
@@ -524,6 +563,55 @@ export function Workspace({ email }: { email: string }) {
       setBusy(false);
     }
   }
+  async function saveDefaults() {
+    setDefaultsBusy(true);
+    setDefaultsNotice("");
+    setError("");
+    try {
+      const { defaults } = await api<{ defaults: AccountDefaults }>(
+        "/api/account/defaults",
+        {
+          method: "PUT",
+          body: JSON.stringify({ bots: draft.bots, settings: draft.settings }),
+        },
+      );
+      setAccountDefaults(defaults);
+      setDefaultsNotice(
+        "Saved. New rooms will start with these bots and limits.",
+      );
+    } catch (e) {
+      setError(`Couldn’t save your defaults: ${(e as Error).message}`);
+    } finally {
+      setDefaultsBusy(false);
+    }
+  }
+  async function resetDefaults() {
+    setDefaultsBusy(true);
+    setDefaultsNotice("");
+    setError("");
+    try {
+      const { defaults } = await api<{ defaults: AccountDefaults }>(
+        "/api/account/defaults",
+        { method: "DELETE" },
+      );
+      setAccountDefaults(defaults);
+      if (!room)
+        setDraft((d) => ({
+          ...d,
+          ...freshDraft(defaults),
+          title: d.title,
+          topic: d.topic,
+          purpose: d.purpose,
+        }));
+      setExpandedBot(null);
+      setDefaultsNotice("Restored the BotsBots starting lineup for new rooms.");
+    } catch (e) {
+      setError(`Couldn’t reset your defaults: ${(e as Error).message}`);
+    } finally {
+      setDefaultsBusy(false);
+    }
+  }
+  const draftIsDefault = sameLineup(draft, accountDefaults);
   function updateBot(id: string, patch: Partial<Bot>) {
     setDraft((d) => ({
       ...d,
@@ -1604,7 +1692,7 @@ export function Workspace({ email }: { email: string }) {
               );
             })}
           </div>
-          {editing ? (
+          {editing && (
             <button
               className="button panel-action add-bot"
               disabled={draft.bots.length >= 6}
@@ -1624,6 +1712,40 @@ export function Workspace({ email }: { email: string }) {
               <Plus size={16} />
               Add a bot<span>{draft.bots.length} / 6</span>
             </button>
+          )}
+          {editing ? (
+            <div className="account-defaults">
+              <button
+                type="button"
+                className="button panel-action"
+                disabled={defaultsBusy || draftIsDefault}
+                onClick={() => void saveDefaults()}
+              >
+                <BookmarkCheck size={16} />
+                {defaultsBusy
+                  ? "Saving…"
+                  : draftIsDefault
+                    ? "These are your defaults"
+                    : "Save as my defaults"}
+              </button>
+              <p className="defaults-note" role="status">
+                {(draftIsDefault && defaultsNotice) ||
+                  (accountDefaults.custom
+                    ? "New rooms start with your saved bots and limits."
+                    : "Save these bots and limits to start every new room with them.")}
+              </p>
+              {accountDefaults.custom && (
+                <button
+                  type="button"
+                  className="text-button defaults-reset"
+                  disabled={defaultsBusy}
+                  onClick={() => void resetDefaults()}
+                >
+                  <RotateCcw size={13} />
+                  Restore BotsBots defaults
+                </button>
+              )}
+            </div>
           ) : (
             <button
               className="button panel-action"
