@@ -1207,8 +1207,10 @@ export function Workspace({ email }: { email: string }) {
                 Try a starting prompt
                 <ArrowRight size={14} />
               </button>
-              <label>
-                Room name <span className="optional">optional</span>
+              <label className="room-name-label">
+                <span>
+                  Room name <span className="optional">optional</span>
+                </span>
                 <input
                   placeholder="Give this conversation a name"
                   maxLength={80}
