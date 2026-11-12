@@ -536,7 +536,7 @@ export function Workspace({ email }: { email: string }) {
           <button
             type="button"
             className="brand-button"
-            aria-label="Botsbots — New chat"
+            aria-label="BotsBots — New chat"
             title="New chat"
             onClick={newRoom}
           >

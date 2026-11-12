@@ -1,4 +1,4 @@
-# Botsbots
+# BotsBots
 
 A conversation-first workspace for one human and 2–6 AI participants. Each bot has its own model, name, and perspective. Built with TypeScript, Next.js, pnpm, Vercel AI Gateway, and Supabase.
 
@@ -16,7 +16,7 @@ pnpm dev
 
 Supabase applies the committed migrations when creating its local database. For an existing local database, apply pending migrations with `pnpm exec supabase db push` (CLI v3 defaults to local).
 
-`pnpm db:start` checks all configured service ports and automatically replaces occupied ports, including those used by other Docker projects. It saves the selected ports in Git-ignored `supabase/.env`, keeps the committed `config.toml` unchanged, and refreshes the Supabase URL and keys in `.env.local` after a successful start. Subsequent starts reuse the ports; an already running Botsbots stack keeps its ports. `db:stop`, `db:status`, and direct Supabase CLI commands read the same local overrides. Run `pnpm db:status` for the current URLs; the default ports below may change when another project uses them.
+`pnpm db:start` checks all configured service ports and automatically replaces occupied ports, including those used by other Docker projects. It saves the selected ports in Git-ignored `supabase/.env`, keeps the committed `config.toml` unchanged, and refreshes the Supabase URL and keys in `.env.local` after a successful start. Subsequent starts reuse the ports; an already running BotsBots stack keeps its ports. `db:stop`, `db:status`, and direct Supabase CLI commands read the same local overrides. Run `pnpm db:status` for the current URLs; the default ports below may change when another project uses them.
 
 `pnpm env:setup` creates or updates `.env.local` in an interactive terminal. It prompts for the Gateway key, Supabase connection, standard/premium weekly budgets, and optional site URL. Key input is hidden and existing secrets are never displayed. Press Enter to keep an existing value; Ctrl+C cancels without saving. The file has owner-only permissions (`0600`) and is ignored by Git. Values are stored as plaintext for Next.js to read; hidden prompts and file permissions do not encrypt them. `NEXT_PUBLIC_` values are public in the browser; the Gateway and Supabase secret keys stay server-only.
 

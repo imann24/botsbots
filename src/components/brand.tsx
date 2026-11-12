@@ -14,7 +14,7 @@ export function Brand() {
         />
       </svg>
       <span>
-        botsbots<span className="brand-period">.</span>
+        BotsBots<span className="brand-period">.</span>
       </span>
     </span>
   );
