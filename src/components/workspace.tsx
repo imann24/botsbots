@@ -536,7 +536,7 @@ export function Workspace({ email }: { email: string }) {
       if (!form?.reportValidity()) return;
       if (draft.topic.trim().length < 3) {
         form
-          .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+          .querySelector<HTMLTextAreaElement>("#room-topic")
           ?.focus();
         return;
       }
@@ -671,7 +671,7 @@ export function Workspace({ email }: { email: string }) {
     requestAnimationFrame(() => {
       if (editing)
         document
-          .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+          .querySelector<HTMLTextAreaElement>("#room-topic")
           ?.focus();
       else composer.current?.focus();
     });
@@ -703,7 +703,7 @@ export function Workspace({ email }: { email: string }) {
         newRoom();
         requestAnimationFrame(() =>
           document
-            .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+            .querySelector<HTMLTextAreaElement>("#room-topic")
             ?.focus(),
         );
       },
@@ -1029,7 +1029,7 @@ export function Workspace({ email }: { email: string }) {
         />
       )}
       <main className="main" id="main" inert={!!activeDrawer}>
-        <header className="room-header">
+        <header className={`room-header${editing ? " builder-header" : ""}`}>
           <div className="header-title">
             <button
               className="icon-button nav-toggle"
@@ -1239,40 +1239,43 @@ export function Workspace({ email }: { email: string }) {
                   ))}
                 </div>
               </fieldset>
-              <label className="topic-label">
-                Set the conversation in motion
-                <textarea
-                  placeholder="An idea to explore, a decision to make, a problem to untangle…"
-                  value={draft.topic}
-                  onChange={(e) =>
-                    setDraft((d) => ({ ...d, topic: e.target.value }))
-                  }
-                  minLength={3}
-                  maxLength={2000}
-                  required
-                  rows={4}
-                />
-              </label>
-              <button
-                type="button"
-                className="text-button example-button"
-                onClick={() =>
-                  setDraft((d) => ({
-                    ...d,
-                    topic: presets.find((p) => p.id === d.purpose)!.topic,
-                  }))
-                }
-              >
-                <Lightbulb size={15} />
-                Try a starting prompt
-                <ArrowRight size={14} />
-              </button>
+              <div className="topic-field">
+                <label htmlFor="room-topic">Set the conversation in motion</label>
+                <div className="topic-box">
+                  <textarea
+                    id="room-topic"
+                    placeholder="An idea to explore, a decision to make, a problem to untangle…"
+                    value={draft.topic}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, topic: e.target.value }))
+                    }
+                    minLength={3}
+                    maxLength={2000}
+                    required
+                    rows={4}
+                  />
+                  <button
+                    type="button"
+                    className="text-button example-button"
+                    onClick={() =>
+                      setDraft((d) => ({
+                        ...d,
+                        topic: presets.find((p) => p.id === d.purpose)!.topic,
+                      }))
+                    }
+                  >
+                    <Lightbulb size={15} />
+                    Try a starting prompt
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
               <label className="room-name-label">
                 <span>
                   Room name <span className="optional">optional</span>
                 </span>
                 <input
-                  placeholder="Give this conversation a name"
+                  placeholder="Name this conversation"
                   maxLength={80}
                   value={draft.title}
                   onChange={(e) =>
@@ -1320,8 +1323,39 @@ export function Workspace({ email }: { email: string }) {
                     </small>
                   </button>
                 </div>
+                <p className="mode-note">
+                  {draft.settings.mode === "moderated"
+                    ? "One at a time. Every bot gets a turn, then the room pauses for you."
+                    : "A more spontaneous exchange. Bots reply independently within your limits."}
+                </p>
               </fieldset>
               <div className="builder-submit">
+                {compactPanel && (
+                  <button
+                    type="button"
+                    className="lineup-button"
+                    aria-label={`Room setup: ${draft.bots.length} ${draft.bots.length === 1 ? "bot" : "bots"}`}
+                    aria-controls="room-setup"
+                    aria-expanded={panelOpen}
+                    onClick={() => setPanelOpen(true)}
+                  >
+                    <span className="lineup-avatars" aria-hidden="true">
+                      {draft.bots.slice(0, 4).map((bot) => (
+                        <span
+                          key={bot.id}
+                          className={`avatar ${agentClass(rosterColors, bot.id)}`}
+                        >
+                          {bot.name.replace(/^The /, "")[0]?.toUpperCase()}
+                        </span>
+                      ))}
+                    </span>
+                    <span className="lineup-count">
+                      {draft.bots.length}{" "}
+                      {draft.bots.length === 1 ? "bot" : "bots"}
+                    </span>
+                    <ChevronRight size={15} aria-hidden="true" />
+                  </button>
+                )}
                 <button
                   className="button primary"
                   disabled={busy || draft.topic.trim().length < 3}
