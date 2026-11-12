@@ -1279,7 +1279,8 @@ export function Workspace({ email }: { email: string }) {
                   </button>
                 ) : (
                   <span>
-                    Create now, or press Cmd/Ctrl + Enter to create and start.
+                    Create the room now, or press ⌘ + Enter (Mac) or Ctrl +
+                    Enter (Windows/Linux) to create and start it.
                   </span>
                 )}
               </div>
