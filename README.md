@@ -29,6 +29,7 @@ Supabase applies the committed migrations when creating its local database. For 
 
 1. Pick a purpose and topic. Expand each participant to change its model, name, and perspective; add or remove bots.
 2. Tune the room limits. New rooms default to 16 total messages, 4 replies per bot, an $0.25 room budget, 800 output tokens per reply, and a five-minute session.
+   To start every new room with your own lineup, set up the bots and limits in the room setup panel and click **Save as my defaults**. Defaults are saved to your account (`public.account_preferences`) and apply to rooms you create afterwards; existing rooms keep their own settings. **Restore BotsBots defaults** removes them. If a saved bot uses a model that later leaves the catalog, new rooms fall back to the built-in lineup.
 3. Start a moderated round (each bot once, sequentially, then pause) or free-for-all (bounded concurrency with one active reply per bot).
 4. Sending a message automatically starts or resumes the bots within the room's limits. During an active run, it adds your perspective without restarting the round. You can also Continue without sending a message. Pause and wait for current replies before editing; ending a room is final. Export a transcript as Markdown.
 

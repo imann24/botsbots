@@ -2268,3 +2268,21 @@ progress::-moz-progress-bar {
   font-size: 14px;
   margin: 0;
 }
+/* Account defaults: save the room's lineup and limits for new rooms. */
+.account-defaults {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+.account-defaults .panel-action {
+  margin-top: 10px;
+}
+.defaults-note {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.defaults-reset {
+  font-size: 12px;
+}
