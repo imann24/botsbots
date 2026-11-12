@@ -1,0 +1,380 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T03:34:51.210307+00:00",
+  "title": "Design System: Botsbots",
+  "extensions": {
+    "colorMeta": {
+      "navy": {
+        "role": "primary",
+        "displayName": "Navigation Navy",
+        "tonalRamp": [
+          "oklch(15% 0.0202 258.62)",
+          "oklch(27% 0.0417 258.62)",
+          "oklch(39% 0.0574 258.62)",
+          "oklch(51% 0.0649 258.62)",
+          "oklch(63% 0.0634 258.62)",
+          "oklch(75% 0.0529 258.62)",
+          "oklch(87% 0.0351 258.62)",
+          "oklch(95% 0.0202 258.62)"
+        ]
+      },
+      "red": {
+        "role": "primary",
+        "displayName": "Signal Red",
+        "tonalRamp": [
+          "oklch(15% 0.0592 23.59)",
+          "oklch(27% 0.1221 23.59)",
+          "oklch(39% 0.1678 23.59)",
+          "oklch(51% 0.1900 23.59)",
+          "oklch(63% 0.1855 23.59)",
+          "oklch(75% 0.1549 23.59)",
+          "oklch(87% 0.1026 23.59)",
+          "oklch(95% 0.0592 23.59)"
+        ]
+      },
+      "red-hover": {
+        "role": "primary",
+        "displayName": "Signal Red Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0543 24.03)",
+          "oklch(27% 0.1119 24.03)",
+          "oklch(39% 0.1539 24.03)",
+          "oklch(51% 0.1742 24.03)",
+          "oklch(63% 0.1701 24.03)",
+          "oklch(75% 0.1420 24.03)",
+          "oklch(87% 0.0941 24.03)",
+          "oklch(95% 0.0543 24.03)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm Paper",
+        "tonalRamp": [
+          "oklch(15% 0.0013 91.45)",
+          "oklch(27% 0.0026 91.45)",
+          "oklch(39% 0.0036 91.45)",
+          "oklch(51% 0.0041 91.45)",
+          "oklch(63% 0.0040 91.45)",
+          "oklch(75% 0.0033 91.45)",
+          "oklch(87% 0.0022 91.45)",
+          "oklch(95% 0.0013 91.45)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(27% 0.0000 89.88)",
+          "oklch(39% 0.0000 89.88)",
+          "oklch(51% 0.0000 89.88)",
+          "oklch(63% 0.0000 89.88)",
+          "oklch(75% 0.0000 89.88)",
+          "oklch(87% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Navy Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0182 258.60)",
+          "oklch(27% 0.0376 258.60)",
+          "oklch(39% 0.0517 258.60)",
+          "oklch(51% 0.0585 258.60)",
+          "oklch(63% 0.0571 258.60)",
+          "oklch(75% 0.0477 258.60)",
+          "oklch(87% 0.0316 258.60)",
+          "oklch(95% 0.0182 258.60)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Slate",
+        "tonalRamp": [
+          "oklch(15% 0.0105 262.41)",
+          "oklch(27% 0.0217 262.41)",
+          "oklch(39% 0.0298 262.41)",
+          "oklch(51% 0.0338 262.41)",
+          "oklch(63% 0.0330 262.41)",
+          "oklch(75% 0.0275 262.41)",
+          "oklch(87% 0.0182 262.41)",
+          "oklch(95% 0.0105 262.41)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Fine Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0022 268.54)",
+          "oklch(27% 0.0045 268.54)",
+          "oklch(39% 0.0062 268.54)",
+          "oklch(51% 0.0071 268.54)",
+          "oklch(63% 0.0069 268.54)",
+          "oklch(75% 0.0058 268.54)",
+          "oklch(87% 0.0038 268.54)",
+          "oklch(95% 0.0022 268.54)"
+        ]
+      },
+      "carbon": {
+        "role": "secondary",
+        "displayName": "Carbon Purple",
+        "tonalRamp": [
+          "oklch(15% 0.0287 307.34)",
+          "oklch(27% 0.0592 307.34)",
+          "oklch(39% 0.0814 307.34)",
+          "oklch(51% 0.0922 307.34)",
+          "oklch(63% 0.0900 307.34)",
+          "oklch(75% 0.0752 307.34)",
+          "oklch(87% 0.0498 307.34)",
+          "oklch(95% 0.0287 307.34)"
+        ]
+      },
+      "lavender": {
+        "role": "secondary",
+        "displayName": "Lavender",
+        "tonalRamp": [
+          "oklch(15% 0.0057 306.66)",
+          "oklch(27% 0.0118 306.66)",
+          "oklch(39% 0.0162 306.66)",
+          "oklch(51% 0.0183 306.66)",
+          "oklch(63% 0.0179 306.66)",
+          "oklch(75% 0.0149 306.66)",
+          "oklch(87% 0.0099 306.66)",
+          "oklch(95% 0.0057 306.66)"
+        ]
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Sage",
+        "tonalRamp": [
+          "oklch(15% 0.0062 159.73)",
+          "oklch(27% 0.0127 159.73)",
+          "oklch(39% 0.0175 159.73)",
+          "oklch(51% 0.0198 159.73)",
+          "oklch(63% 0.0193 159.73)",
+          "oklch(75% 0.0161 159.73)",
+          "oklch(87% 0.0107 159.73)",
+          "oklch(95% 0.0062 159.73)"
+        ]
+      },
+      "orange": {
+        "role": "secondary",
+        "displayName": "Apricot",
+        "tonalRamp": [
+          "oklch(15% 0.0087 51.84)",
+          "oklch(27% 0.0180 51.84)",
+          "oklch(39% 0.0247 51.84)",
+          "oklch(51% 0.0279 51.84)",
+          "oklch(63% 0.0273 51.84)",
+          "oklch(75% 0.0228 51.84)",
+          "oklch(87% 0.0151 51.84)",
+          "oklch(95% 0.0087 51.84)"
+        ]
+      },
+      "blue": {
+        "role": "secondary",
+        "displayName": "Powder Blue",
+        "tonalRamp": [
+          "oklch(15% 0.0066 259.19)",
+          "oklch(27% 0.0136 259.19)",
+          "oklch(39% 0.0187 259.19)",
+          "oklch(51% 0.0211 259.19)",
+          "oklch(63% 0.0206 259.19)",
+          "oklch(75% 0.0172 259.19)",
+          "oklch(87% 0.0114 259.19)",
+          "oklch(95% 0.0066 259.19)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Authentication headline."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Room-builder headline."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Compact settings headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Conversation prose."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Form labels."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Drawer movement and reply arrival."
+      },
+      {
+        "name": "button-state",
+        "value": "150ms",
+        "purpose": "Button background, color, and border changes."
+      },
+      {
+        "name": "drawer",
+        "value": "220ms",
+        "purpose": "Translate navigation and settings into view."
+      },
+      {
+        "name": "reply-arrive",
+        "value": "350ms",
+        "purpose": "Clip reveal and 5px settling translation; disabled for reduced motion."
+      },
+      {
+        "name": "thinking",
+        "value": "1s ease-in-out infinite alternate",
+        "purpose": "Staggered thinking-dot color change; disabled for reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1500px"
+      },
+      {
+        "name": "compact-max",
+        "value": "1180px"
+      },
+      {
+        "name": "settings-drawer-max",
+        "value": "980px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action.",
+      "html": "<button class=\"ds-button-primary\">Start conversation</button>",
+      "css": ".ds-button-primary{font-family:\"DM Sans Variable\",sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line,#dddfe4);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s,border-color .15s;background:var(--red,#c92d36);color:var(--white,#fff);border-color:var(--red,#c92d36);min-height:46px;padding:12px 22px;}.ds-button-primary:hover:not(:disabled){background:var(--red-hover,#ad2029);border-color:var(--red-hover,#ad2029);}.ds-button-primary:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-button-primary:disabled{opacity:.45;cursor:not-allowed;}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary conversation control.",
+      "html": "<button class=\"ds-button-secondary\">Continue</button>",
+      "css": ".ds-button-secondary{font-family:\"DM Sans Variable\",sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line,#dddfe4);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s,border-color .15s;background:var(--white,#fff);color:var(--ink,#182b48);min-height:42px;padding:10px 17px;}.ds-button-secondary:hover:not(:disabled){background:#eceef2;border-color:#bfc6d1;}.ds-button-secondary:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-button-secondary:disabled{opacity:.45;cursor:not-allowed;}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Compact inline action.",
+      "html": "<button class=\"ds-text\">Create an account</button>",
+      "css": ".ds-text{font-family:\"DM Sans Variable\",sans-serif;background:none;border:0;padding:0;color:var(--red,#c92d36);font-size:13px;font-weight:600;cursor:pointer;}.ds-text:hover:not(:disabled){text-decoration:underline;text-underline-offset:4px;}.ds-text:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-text:disabled{opacity:.45;cursor:not-allowed;}"
+    },
+    {
+      "name": "Icon action",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "Named compact close control.",
+      "html": "<button class=\"ds-icon\" aria-label=\"Close room setup\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m6 6 12 12M6 18 18 6\"/></svg></button>",
+      "css": ".ds-icon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:7px;background:transparent;border:0;border-radius:5px;color:var(--ink,#182b48);cursor:pointer;transition:background .15s;}.ds-icon:hover:not(:disabled){background:#879cb522;}.ds-icon:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-icon:disabled{opacity:.45;cursor:not-allowed;}"
+    },
+    {
+      "name": "Labeled field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard light-surface form field.",
+      "html": "<label class=\"ds-label\">Room name<input class=\"ds-field\" placeholder=\"Give your room a name\" /></label>",
+      "css": ".ds-label{font-family:\"DM Sans Variable\",sans-serif;display:grid;gap:9px;font-size:13px;font-weight:600;color:var(--ink,#182b48);}.ds-field{font-family:\"DM Sans Variable\",sans-serif;width:100%;border:1px solid #cdd1d9;border-radius:var(--radius,8px);background:var(--white,#fff);color:var(--ink,#182b48);padding:12px 14px;caret-color:var(--red,#c92d36);font-size:13px;}.ds-field::placeholder{color:var(--muted,#657084);}.ds-field:focus{outline:2px solid #8197bd;outline-offset:1px;}"
+    },
+    {
+      "name": "Room navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Inverse room rows with an explicit selected state.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Rooms\"><button class=\"ds-room\" aria-current=\"page\">Make room for reading<small>Planning</small></button><button class=\"ds-room\">A little room for ideas<small>Just for fun</small></button></nav>",
+      "css": ".ds-nav{font-family:\"DM Sans Variable\",sans-serif;background:var(--navy,#122747);padding:17px;width:216px;}.ds-room{font-family:\"DM Sans Variable\",sans-serif;display:block;width:100%;text-align:left;padding:13px 12px;border:0;border-radius:6px;background:none;color:#e1e8f2;font-size:12px;cursor:pointer;margin-bottom:5px;}.ds-room small{display:block;font-size:10px;color:#b6c3d7;margin-top:5px;}.ds-room:hover{background:#ffffff0c;}.ds-room[aria-current]{background:#ffffff13;}.ds-room:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+    },
+    {
+      "name": "Purpose chip",
+      "kind": "chip",
+      "refersTo": "purpose-chip",
+      "description": "Selectable purpose, shown in its selected state.",
+      "html": "<button class=\"ds-purpose\" aria-pressed=\"true\">Planning</button>",
+      "css": ".ds-purpose{font-family:\"DM Sans Variable\",sans-serif;border:1px solid var(--line,#dddfe4);background:var(--white,#fff);padding:9px 11px;border-radius:5px;font-size:11px;font-weight:550;color:var(--muted,#657084);cursor:pointer;}.ds-purpose[aria-pressed=\"true\"]{background:var(--navy,#122747);border-color:var(--navy,#122747);color:var(--white,#fff);}.ds-purpose:hover:not([aria-pressed=\"true\"]){border-color:#8797ae;color:var(--ink,#182b48);}.ds-purpose:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+    },
+    {
+      "name": "Mode card",
+      "kind": "card",
+      "refersTo": "mode-card",
+      "description": "A selection card with descriptive copy.",
+      "html": "<button class=\"ds-mode\" aria-pressed=\"true\"><b>Moderated rounds</b><small>Everyone gets a turn.</small></button>",
+      "css": ".ds-mode{font-family:\"DM Sans Variable\",sans-serif;text-align:left;padding:17px 14px;border:1px solid var(--line,#dddfe4);border-radius:8px;background:var(--white,#fff);color:var(--ink,#182b48);cursor:pointer;transition:background .15s,border-color .15s;}.ds-mode[aria-pressed=\"true\"]{border-color:var(--navy,#122747);background:#edf0f6;}.ds-mode b{font-size:12px;}.ds-mode small{display:block;font-size:11px;color:var(--muted,#657084);line-height:1.7;margin-top:10px;}.ds-mode:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+    },
+    {
+      "name": "Finite allowance",
+      "kind": "custom",
+      "refersTo": "limit-strip",
+      "description": "Explicit counts and proportional used segments.",
+      "html": "<div class=\"ds-allowance\"><div class=\"ds-limit-label\"><span>Total messages</span><b>6 <span>/ 16</span></b></div><div class=\"ds-segments\" aria-label=\"6 of 16 messages used\"><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>",
+      "css": ".ds-allowance{font-family:\"DM Sans Variable\",sans-serif;width:264px;color:var(--ink,#182b48);}.ds-limit-label{display:flex;justify-content:space-between;gap:10px;font-size:11px;margin:13px 0 10px;}.ds-limit-label b{font-weight:650;font-variant-numeric:tabular-nums;color:var(--carbon,#63467d);}.ds-limit-label b span{font-weight:400;color:var(--muted,#657084);}.ds-segments{display:flex;gap:3px;height:13px;}.ds-segments i{flex:1;background:#e9eaf0;border-radius:1px;min-width:1px;}.ds-segments .ds-used{background:var(--navy,#122747);}"
+    },
+    {
+      "name": "Turn marker",
+      "kind": "custom",
+      "refersTo": "turn-number",
+      "description": "Stable bot reply number, shown as an example.",
+      "html": "<span class=\"ds-turn\" aria-label=\"Turn 2\">02</span>",
+      "css": ".ds-turn{font-family:\"DM Sans Variable\",sans-serif;display:inline-block;color:var(--carbon,#63467d);font-size:10px;font-variant-numeric:tabular-nums;border:1px solid #d6d0e1;padding:1px 5px;line-height:1.5;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Jet age",
+    "overview": "Jet age gives the workspace a confident navy frame, warm paper reading surface, decisive red controls, and tightly organized information. The reference is expressed through proportion, typography, the stepped brand mark, numbered turns, and finite allowance segments; it does not become a physical ticket or travel interface.\n\nThe conversation stays generous while navigation and settings stay compact. Flat surfaces, fine dividers, and small tonal changes establish hierarchy. The same visual language carries into the split authentication screen without adding decorative imagery.",
+    "keyCharacteristics": [
+      "Navy structure, paper reading space, red actions.",
+      "Manrope headings paired with DM Sans interface and conversation text.",
+      "Numbered replies and visible finite allowances.",
+      "Flat surfaces, restrained corners, and short state changes."
+    ],
+    "rules": [
+      {
+        "name": "The Action Color Rule",
+        "body": "Use red for primary actions and attention; use carbon purple for measurement and turn markers.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Rhythm Rule",
+        "body": "Keep conversation text at a comfortable line height and bounded measure; compact metadata must remain subordinate.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Surface Rule",
+        "body": "Separate surfaces with color and fine borders; do not add elevation shadows to the established workspace.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the navy frame, paper canvas, and white controls as the default surface hierarchy.",
+      "Do keep allowance counts, budget, and turn numbers visually distinct from conversation prose.",
+      "Do carry visible focus, selected states, disabled states, and reduced-motion behavior into new controls.",
+      "Do switch compact screens to explicit drawers and preserve independently scrollable content."
+    ],
+    "donts": [
+      "Don't turn the Jet age reference into fake travel controls or a physical ticket costume.",
+      "Don't replace the established flat hierarchy with floating shadow cards.",
+      "Don't use red for routine measurement or carbon purple for the primary action.",
+      "Don't squeeze all three workspace columns into a narrow screen."
+    ]
+  }
+}
