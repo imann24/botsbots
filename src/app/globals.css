@@ -224,9 +224,11 @@ small {
   color: #e45b60;
 }
 .workspace {
+  --nav-width: 216px;
+  --setup-width: 310px;
   height: 100dvh;
   display: grid;
-  grid-template-columns: 216px minmax(0, 1fr) 310px;
+  grid-template-columns: var(--nav-width) minmax(0, 1fr) var(--setup-width);
   overflow: hidden;
 }
 .sidebar {
@@ -1206,11 +1208,14 @@ progress::-moz-progress-bar {
   font-size: 14px;
 }
 .mobile-only,
-.panel-toggle,
 .panel-close,
 .drawer-backdrop,
 .panel-backdrop {
   display: none;
+}
+.nav-toggle,
+.panel-toggle {
+  flex-shrink: 0;
 }
 .skip-link {
   position: fixed;
@@ -1371,7 +1376,8 @@ progress::-moz-progress-bar {
 }
 @media (min-width: 1500px) {
   .workspace {
-    grid-template-columns: 240px minmax(0, 1fr) 340px;
+    --nav-width: 240px;
+    --setup-width: 340px;
   }
   .room-builder {
     padding-top: 65px;
@@ -1387,7 +1393,8 @@ progress::-moz-progress-bar {
 }
 @media (max-width: 1180px) {
   .workspace {
-    grid-template-columns: 190px minmax(0, 1fr) 280px;
+    --nav-width: 190px;
+    --setup-width: 280px;
   }
   .sidebar {
     padding-left: 12px;
@@ -1442,7 +1449,7 @@ progress::-moz-progress-bar {
 }
 @media (max-width: 980px) {
   .workspace {
-    grid-template-columns: 190px minmax(0, 1fr);
+    grid-template-columns: var(--nav-width) minmax(0, 1fr);
   }
   .room-panel {
     position: fixed;
@@ -1490,6 +1497,28 @@ progress::-moz-progress-bar {
   }
   .auth-copy h1 {
     font-size: 44px;
+  }
+}
+@media (min-width: 641px) {
+  .workspace.nav-collapsed {
+    --nav-width: 0px;
+  }
+  .nav-collapsed .sidebar {
+    visibility: hidden;
+    overflow: hidden;
+    padding: 0;
+    min-width: 0;
+  }
+}
+@media (min-width: 981px) {
+  .workspace.setup-collapsed {
+    --setup-width: 0px;
+  }
+  .setup-collapsed .room-panel {
+    visibility: hidden;
+    overflow: hidden;
+    border: 0;
+    min-width: 0;
   }
 }
 @media (max-width: 640px) {

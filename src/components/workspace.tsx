@@ -21,6 +21,10 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Pause,
   Play,
   Plus,
@@ -121,6 +125,33 @@ export function Workspace({ email }: { email: string }) {
     [expandedBot, setExpandedBot] = useState<string | null>(null),
     [limitsOpen, setLimitsOpen] = useState(false),
     [showJump, setShowJump] = useState(false);
+  const [collapsedPanels, setCollapsedPanels] = useState({
+    nav: false,
+    setup: false,
+  });
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem("botsbots:collapsed-panels") ?? "null",
+      );
+      if (saved)
+        setCollapsedPanels({
+          nav: saved.nav === true,
+          setup: saved.setup === true,
+        });
+    } catch {
+      // Layout controls still work when browser storage is unavailable.
+    }
+  }, []);
+  function toggleCollapsedPanel(panel: "nav" | "setup") {
+    const next = { ...collapsedPanels, [panel]: !collapsedPanels[panel] };
+    setCollapsedPanels(next);
+    try {
+      localStorage.setItem("botsbots:collapsed-panels", JSON.stringify(next));
+    } catch {
+      // Keep the preference for this visit if persistence is unavailable.
+    }
+  }
   const current = useRef<Room | null>(room);
   const navRef = useRef<HTMLElement>(null),
     panelRef = useRef<HTMLElement>(null);
@@ -456,7 +487,9 @@ export function Workspace({ email }: { email: string }) {
             ? "Needs attention"
             : "Ready when you are";
   return (
-    <div className="workspace">
+    <div
+      className={`workspace ${collapsedPanels.nav ? "nav-collapsed" : ""} ${collapsedPanels.setup ? "setup-collapsed" : ""}`}
+    >
       <a className="skip-link" href="#main" inert={!!activeDrawer}>
         Skip to conversation
       </a>
@@ -474,7 +507,10 @@ export function Workspace({ email }: { email: string }) {
         id="room-navigation"
         role={activeDrawer === "nav" ? "dialog" : undefined}
         aria-modal={activeDrawer === "nav" ? true : undefined}
-        inert={(mobileNav && !navOpen) || activeDrawer === "panel"}
+        inert={
+          (mobileNav ? !navOpen : collapsedPanels.nav) ||
+          activeDrawer === "panel"
+        }
         tabIndex={-1}
         className={`sidebar ${navOpen ? "open" : ""}`}
         aria-label="Room navigation"
@@ -577,13 +613,34 @@ export function Workspace({ email }: { email: string }) {
         <header className="room-header">
           <div className="header-title">
             <button
-              className="icon-button mobile-only"
-              aria-label="Open navigation"
+              className="icon-button nav-toggle"
+              aria-label={
+                mobileNav
+                  ? "Open navigation"
+                  : collapsedPanels.nav
+                    ? "Show rooms"
+                    : "Collapse rooms"
+              }
+              title={
+                mobileNav
+                  ? "Open navigation"
+                  : collapsedPanels.nav
+                    ? "Show rooms"
+                    : "Collapse rooms"
+              }
               aria-controls="room-navigation"
-              aria-expanded={navOpen}
-              onClick={() => setNavOpen(true)}
+              aria-expanded={mobileNav ? navOpen : !collapsedPanels.nav}
+              onClick={() =>
+                mobileNav ? setNavOpen(true) : toggleCollapsedPanel("nav")
+              }
             >
-              <Menu size={21} />
+              {mobileNav ? (
+                <Menu size={21} />
+              ) : collapsedPanels.nav ? (
+                <PanelLeftOpen size={19} />
+              ) : (
+                <PanelLeftClose size={19} />
+              )}
             </button>
             <span>
               {editing
@@ -620,13 +677,43 @@ export function Workspace({ email }: { email: string }) {
               </>
             )}
             <button
-              className="button small panel-toggle"
+              className={
+                compactPanel
+                  ? "button small panel-toggle"
+                  : "icon-button panel-toggle"
+              }
+              aria-label={
+                compactPanel
+                  ? "Room setup"
+                  : collapsedPanels.setup
+                    ? "Show room setup"
+                    : "Collapse room setup"
+              }
+              title={
+                compactPanel
+                  ? "Room setup"
+                  : collapsedPanels.setup
+                    ? "Show room setup"
+                    : "Collapse room setup"
+              }
               aria-controls="room-setup"
-              aria-expanded={panelOpen}
-              onClick={() => setPanelOpen(!panelOpen)}
+              aria-expanded={compactPanel ? panelOpen : !collapsedPanels.setup}
+              onClick={() =>
+                compactPanel
+                  ? setPanelOpen(!panelOpen)
+                  : toggleCollapsedPanel("setup")
+              }
             >
-              <Users size={16} />
-              Room setup
+              {compactPanel ? (
+                <>
+                  <Users size={16} />
+                  Room setup
+                </>
+              ) : collapsedPanels.setup ? (
+                <PanelRightOpen size={19} />
+              ) : (
+                <PanelRightClose size={19} />
+              )}
             </button>
           </div>
         </header>
@@ -1065,7 +1152,10 @@ export function Workspace({ email }: { email: string }) {
         id="room-setup"
         role={activeDrawer === "panel" ? "dialog" : undefined}
         aria-modal={activeDrawer === "panel" ? true : undefined}
-        inert={(compactPanel && !panelOpen) || activeDrawer === "nav"}
+        inert={
+          (compactPanel ? !panelOpen : collapsedPanels.setup) ||
+          activeDrawer === "nav"
+        }
         tabIndex={-1}
         className={`room-panel ${panelOpen ? "open" : ""}`}
         aria-label="Room setup"
