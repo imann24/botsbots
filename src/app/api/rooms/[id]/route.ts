@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { authenticated, check, failure, jsonBody, ApiError } from "@/lib/api";
 import { roomSchema } from "@/lib/types";
+import { assignAgentColors } from "@/lib/agent-colors";
 type Context = { params: Promise<{ id: string }> };
 export async function GET(req: Request, ctx: Context) {
   try {
@@ -51,7 +52,10 @@ export async function PATCH(req: Request, ctx: Context) {
           requestId: z.uuid(),
         })
         .parse(body.payload);
-    if (body.action === "settings") payload = roomSchema.parse(body.payload);
+    if (body.action === "settings") {
+      const room = roomSchema.parse(body.payload);
+      payload = { ...room, bots: assignAgentColors(room.bots) };
+    }
     const { data, error } = await admin.rpc("room_action", {
       p_room: id,
       p_user: user.id,

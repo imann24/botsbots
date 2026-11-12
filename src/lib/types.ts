@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { MODEL_CHOICES } from "./models";
+import { AGENT_COLOR_COUNT } from "./agent-colors";
 export const settingsSchema = z.object({
   mode: z.enum(["moderated", "free"]),
   maxMessages: z.number().int().min(4).max(100),
@@ -16,6 +17,14 @@ export const botSchema = z.object({
   name: z.string().trim().min(1).max(32),
   model: z.enum(MODEL_CHOICES.map((m) => m.id)),
   perspective: z.string().trim().min(1).max(1000),
+  // Chat color slot, unique per bot in a room. Optional for rooms created
+  // before colors were stored; the server fills it in on create/save.
+  color: z
+    .number()
+    .int()
+    .min(0)
+    .max(AGENT_COLOR_COUNT - 1)
+    .optional(),
 });
 export const roomSchema = z.object({
   title: z.string().trim().min(1).max(80),
@@ -78,6 +87,7 @@ export const DEFAULT_SETTINGS: Settings = {
 export const DEFAULT_BOTS: Bot[] = [
   {
     id: "a1111111-1111-4111-8111-111111111111",
+    color: 0,
     name: "The strategist",
     model: "openai/gpt-6-luna",
     perspective:
@@ -85,6 +95,7 @@ export const DEFAULT_BOTS: Bot[] = [
   },
   {
     id: "b2222222-2222-4222-8222-222222222222",
+    color: 1,
     name: "The challenger",
     model: "anthropic/claude-haiku-5.5",
     perspective:
@@ -92,6 +103,7 @@ export const DEFAULT_BOTS: Bot[] = [
   },
   {
     id: "c3333333-3333-4333-8333-333333333333",
+    color: 2,
     name: "The explorer",
     model: "google/gemini-3.5-flash-lite",
     perspective:

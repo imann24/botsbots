@@ -61,21 +61,21 @@ export function AuthForm() {
           </p>
           <div className="auth-sample" aria-label="Example participant lineup">
             <div>
-              <span className="avatar green">S</span>
+              <span className="avatar agent agent-2">S</span>
               <span>
                 <b>The strategist</b>
                 <small>Find the next step.</small>
               </span>
             </div>
             <div>
-              <span className="avatar orange">C</span>
+              <span className="avatar agent agent-1">C</span>
               <span>
                 <b>The challenger</b>
                 <small>Ask the better question.</small>
               </span>
             </div>
             <div>
-              <span className="avatar blue">E</span>
+              <span className="avatar agent agent-0">E</span>
               <span>
                 <b>The explorer</b>
                 <small>Make a new connection.</small>

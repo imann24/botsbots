@@ -43,6 +43,12 @@ import remarkGfm from "remark-gfm";
 import { browserClient } from "@/lib/supabase/client";
 import { MODEL_CHOICES, modelInfo, type ModelPrice } from "@/lib/models";
 import {
+  agentClass,
+  agentColors,
+  assignAgentColors,
+  nextAgentColor,
+} from "@/lib/agent-colors";
+import {
   DEFAULT_BOTS,
   DEFAULT_SETTINGS,
   type Bot,
@@ -231,6 +237,12 @@ export function Workspace({ email }: { email: string }) {
     bottom = useRef<HTMLDivElement>(null),
     composer = useRef<HTMLTextAreaElement>(null);
   const draftOrRoom = editing ? draft : (room ?? draft);
+  // Saved bots plus any removed bots that still have messages: unique colors.
+  const chatColors = agentColors(
+    room?.bots ?? [],
+    messages.map((m) => m.bot_id),
+  );
+  const rosterColors = agentColors(draftOrRoom.bots);
   const count = messages.length,
     spent = [...messages, ...summaries].reduce(
       (sum, m) => sum + Number(m.cost ?? m.reserved_cost),
@@ -372,7 +384,7 @@ export function Workspace({ email }: { email: string }) {
       title: room.title,
       topic: room.topic,
       purpose: room.purpose,
-      bots: structuredClone(room.bots),
+      bots: assignAgentColors(structuredClone(room.bots)),
       settings: { ...room.settings },
     });
     setEditing(true);
@@ -956,7 +968,7 @@ export function Workspace({ email }: { email: string }) {
                     {room.bots.map((b) => (
                       <span
                         key={b.id}
-                        className={`avatar ${modelInfo(b.model).color}`}
+                        className={`avatar ${agentClass(chatColors, b.id)}`}
                       >
                         {b.name.replace(/^The /, "")[0]?.toUpperCase()}
                       </span>
@@ -994,7 +1006,7 @@ export function Workspace({ email }: { email: string }) {
                       key={m.id}
                     >
                       <span
-                        className={`avatar ${m.model ? modelInfo(m.model).color : "human-avatar"}`}
+                        className={`avatar ${m.bot_id ? agentClass(chatColors, m.bot_id) : "human-avatar"}`}
                       >
                         {m.bot_id
                           ? m.speaker.replace(/^The /, "")[0]?.toUpperCase()
@@ -1236,7 +1248,9 @@ export function Workspace({ email }: { email: string }) {
                       setExpandedBot(expandedBot === bot.id ? null : bot.id)
                     }
                   >
-                    <span className={`avatar ${info.color}`}>
+                    <span
+                      className={`avatar ${agentClass(rosterColors, bot.id)}`}
+                    >
                       {bot.name.replace(/^The /, "")[0]?.toUpperCase()}
                     </span>
                     <span className="bot-identity">
@@ -1339,6 +1353,7 @@ export function Workspace({ email }: { email: string }) {
                   id: crypto.randomUUID(),
                   name: "The specialist",
                   model: "deepseek/deepseek-v4.1-flash-1017",
+                  color: nextAgentColor(draft.bots),
                   perspective:
                     "Bring relevant expertise. Explain the details that matter and connect them to the next practical step.",
                 };

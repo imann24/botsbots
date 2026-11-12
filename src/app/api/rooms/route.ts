@@ -1,5 +1,6 @@
 import { authenticated, check, failure, jsonBody } from "@/lib/api";
 import { roomSchema } from "@/lib/types";
+import { assignAgentColors } from "@/lib/agent-colors";
 export async function GET() {
   try {
     const { db } = await authenticated();
@@ -17,7 +18,8 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const { user, admin } = await authenticated(req);
-    const draft = roomSchema.parse(await jsonBody(req));
+    const parsed = roomSchema.parse(await jsonBody(req));
+    const draft = { ...parsed, bots: assignAgentColors(parsed.bots) };
     const { data, error } = await admin
       .from("rooms")
       .insert({ ...draft, user_id: user.id })

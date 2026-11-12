@@ -863,21 +863,42 @@ small {
   color: var(--navy);
   background: #edf0f5;
 }
-.avatar.green {
-  background: var(--green);
-  color: #346149;
+/* One hue per agent slot (see AGENT_COLOR_COUNT in src/lib/agent-colors.ts).
+   Constant OKLCH lightness keeps every hue equally legible; the first six
+   slots are the most widely spaced because rooms hold at most six bots. */
+.agent-0 {
+  --agent-hue: 255;
 }
-.avatar.orange {
-  background: var(--orange);
-  color: #995130;
+.agent-1 {
+  --agent-hue: 50;
 }
-.avatar.blue {
-  background: var(--blue);
-  color: #3d6091;
+.agent-2 {
+  --agent-hue: 155;
 }
-.avatar.purple {
-  background: var(--lavender);
-  color: var(--carbon);
+.agent-3 {
+  --agent-hue: 315;
+}
+.agent-4 {
+  --agent-hue: 15;
+}
+.agent-5 {
+  --agent-hue: 200;
+}
+.agent-6 {
+  --agent-hue: 95;
+}
+.agent-7 {
+  --agent-hue: 285;
+}
+.agent-8 {
+  --agent-hue: 350;
+}
+.agent-9 {
+  --agent-hue: 130;
+}
+.avatar.agent {
+  background: oklch(0.92 0.05 var(--agent-hue));
+  color: oklch(0.42 0.09 var(--agent-hue));
 }
 .avatar.human-avatar {
   background: var(--navy);
@@ -2214,21 +2235,9 @@ progress::-moz-progress-bar {
   margin-top: 12px;
   border-radius: var(--radius);
 }
-.summary-contribution.green {
-  background: #edf5f0;
-  color: #254936;
-}
-.summary-contribution.orange {
-  background: #fcf0e8;
-  color: #713e25;
-}
-.summary-contribution.blue {
-  background: #edf2fb;
-  color: #2b456d;
-}
-.summary-contribution.purple {
-  background: #f3edf8;
-  color: #583d72;
+.summary-contribution.agent {
+  background: oklch(0.96 0.02 var(--agent-hue));
+  color: oklch(0.36 0.07 var(--agent-hue));
 }
 .summary-contribution h3 {
   display: flex;
