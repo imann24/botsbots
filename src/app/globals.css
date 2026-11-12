@@ -2286,3 +2286,277 @@ progress::-moz-progress-bar {
 .defaults-reset {
   font-size: 12px;
 }
+
+/* Command bar: the workspace's paper, fine rules, and navy selection. */
+.command-trigger kbd,
+.command-dialog kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font:
+    500 11px "DM Sans Variable",
+    sans-serif;
+  white-space: nowrap;
+}
+.command-trigger kbd {
+  color: var(--muted);
+}
+.command-dialog {
+  position: fixed;
+  inset: min(12dvh, 100px) 0 auto;
+  width: min(600px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - min(12dvh, 100px) - 24px);
+  margin: 0 auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  background: var(--paper);
+  overflow: hidden;
+}
+.command-dialog::backdrop {
+  background: rgb(12 30 56 / 48%);
+}
+.command-dialog[open] {
+  animation: command-arrive 180ms var(--ease);
+}
+.command-surface {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.command-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 6px;
+}
+.command-heading h2 {
+  font-size: 15px;
+  margin: 0;
+  font-weight: 750;
+}
+.command-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 20px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.command-search > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.command-search input {
+  min-width: 0;
+  border: 0;
+  padding: 10px 4px;
+  background: transparent;
+  font-size: 16px;
+  border-radius: 4px;
+}
+.command-search input:focus {
+  outline-offset: 2px;
+}
+.command-results {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+  padding: 0 8px 8px;
+  background: var(--white);
+}
+.command-group-label {
+  padding: 17px 12px 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.command-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.command-option > svg {
+  flex-shrink: 0;
+}
+.command-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.command-copy b {
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.command-copy small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.command-option.selected {
+  background: var(--navy);
+  color: var(--white);
+}
+.command-option.selected small {
+  color: #c8d5e6;
+}
+.command-option.selected kbd {
+  border-color: #526783;
+}
+.command-option[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+.command-option[aria-disabled="true"] > svg {
+  color: var(--muted);
+}
+.command-option[aria-disabled="true"].selected > svg {
+  color: #c8d5e6;
+}
+.command-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 20px;
+  gap: 12px;
+  overflow-wrap: anywhere;
+}
+.command-empty b {
+  max-width: 100%;
+  font-size: 14px;
+}
+.command-empty p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.command-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--line);
+}
+.command-footer > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.command-footer .text-button {
+  font-size: 12px;
+  min-height: 28px;
+}
+.command-help {
+  padding: 8px 20px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.command-help p {
+  margin: 8px 0;
+}
+.command-help label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+.command-help input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--navy);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+@keyframes command-arrive {
+  from {
+    transform: translateY(-6px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@media (max-width: 1180px) {
+  .command-trigger > span {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  .command-trigger {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 7px;
+  }
+  .command-trigger kbd {
+    display: none;
+  }
+  .command-dialog {
+    inset: 12px 0 auto;
+    width: calc(100% - 20px);
+    max-height: calc(100dvh - 24px);
+  }
+  .command-heading {
+    padding-inline: 16px;
+  }
+  .command-search {
+    padding-inline: 16px;
+  }
+  .command-footer {
+    padding: 10px 16px;
+  }
+  .command-footer > span {
+    display: none;
+  }
+  .command-footer .text-button {
+    min-height: 36px;
+  }
+  .command-footer {
+    justify-content: flex-end;
+  }
+  .command-return {
+    display: none;
+  }
+}
+@media (pointer: coarse) {
+  .command-dialog .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .command-footer .text-button {
+    min-height: 44px;
+  }
+  .command-help label {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .command-dialog[open] {
+    animation: none;
+  }
+}
