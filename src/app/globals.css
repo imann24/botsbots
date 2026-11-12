@@ -881,6 +881,50 @@ small {
   color: var(--navy);
   background: #edf0f5;
 }
+.provider-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--navy);
+  vertical-align: middle;
+}
+.provider-mark {
+  width: 12px;
+  height: 12px;
+  background: currentColor;
+  mask: var(--provider-mark) center / contain no-repeat;
+}
+.model-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+.model-label > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.model-select {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+.model-select > .provider-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.model-select:has(select:disabled) > .provider-icon {
+  opacity: 0.5;
+}
 /* One hue per agent slot (see AGENT_COLOR_COUNT in src/lib/agent-colors.ts).
    Constant OKLCH lightness keeps every hue equally legible; the first six
    slots are the most widely spaced because rooms hold at most six bots. */
@@ -2599,4 +2643,10 @@ progress::-moz-progress-bar {
   .command-dialog[open] {
     animation: none;
   }
+}
+
+/* After field variants so their padding cannot overlap the provider mark. */
+.model-select > select {
+  padding-left: 38px;
+  text-overflow: ellipsis;
 }

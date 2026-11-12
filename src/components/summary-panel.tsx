@@ -7,6 +7,7 @@ import { MODEL_CHOICES, modelInfo } from "@/lib/models";
 import { agentClass, agentColors } from "@/lib/agent-colors";
 import type { Message, Room } from "@/lib/types";
 import type { Summary } from "@/lib/summary";
+import { ModelLabel, ModelSelect, ProviderIcon } from "./model-identity";
 import { parseSummaryContent } from "@/lib/summary-content";
 
 export function SummaryPanel({
@@ -96,18 +97,12 @@ export function SummaryPanel({
       <div className="summary-controls">
         <label>
           Summary model
-          <select
+          <ModelSelect
             autoFocus
             value={model}
             disabled={busy || pending}
             onChange={(e) => setModel(e.target.value)}
-          >
-            {MODEL_CHOICES.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.provider} · {m.name}
-              </option>
-            ))}
-          </select>
+          />
         </label>
         <button
           className="button primary small"
@@ -148,24 +143,28 @@ export function SummaryPanel({
           <summary>Saved summaries ({summaries.length})</summary>
           <label>
             View saved summary
-            <select
-              value={summary?.id ?? ""}
-              onChange={(e) => setSelected(e.target.value)}
-            >
-              {summaries.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {new Date(s.created_at).toLocaleString()} ·{" "}
-                  {modelInfo(s.model).name} · {s.source_count} messages
-                </option>
-              ))}
-            </select>
+            <span className="model-select">
+              <ProviderIcon model={summary?.model ?? model} />
+              <select
+                value={summary?.id ?? ""}
+                onChange={(e) => setSelected(e.target.value)}
+              >
+                {summaries.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {new Date(s.created_at).toLocaleString()} ·{" "}
+                    {modelInfo(s.model).name} · {s.source_count} messages
+                  </option>
+                ))}
+              </select>
+            </span>
           </label>
         </details>
       )}
       {summary && (
         <div className="summary-result">
           <p className="summary-meta">
-            {modelInfo(summary.model).name} · {summary.source_count} messages ·{" "}
+            <ModelLabel model={summary.model} /> · {summary.source_count}{" "}
+            messages ·{" "}
             <time dateTime={summary.created_at}>
               {new Date(summary.created_at).toLocaleString()}
             </time>
@@ -193,7 +192,9 @@ export function SummaryPanel({
                         </span>
                         <span>
                           {part.speaker}
-                          <small>{modelInfo(part.model).name}</small>
+                          <small>
+                            <ModelLabel model={part.model} />
+                          </small>
                         </span>
                       </h3>
                       <p>{part.text}</p>
