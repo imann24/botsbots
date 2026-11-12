@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type FormEvent,
 } from "react";
 import {
@@ -72,6 +73,8 @@ import {
 } from "@/lib/account-defaults";
 import { CommandBar, type WorkspaceCommand } from "./command-bar";
 import { shortcutKey } from "@/lib/commands";
+import { ContactModal } from "./contact-modal";
+import type { ContactKind } from "@/lib/contact";
 const presets = [
   {
     id: "plan" as const,
@@ -127,7 +130,31 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 }
 const money = (n: number) => `$${n.toFixed(n > 0 && n < 0.01 ? 4 : 2)}`;
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Resolved on the client only: null on the server, on touch-only devices
+// (no keyboard to press it with), and during hydration.
+const noSubscribe = () => () => {};
+function startModifier(): "⌘" | "Ctrl" | null {
+  if (!matchMedia("(any-pointer: fine)").matches) return null;
+  return /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl";
+}
+function StartShortcutHint() {
+  const modifier = useSyncExternalStore(noSubscribe, startModifier, () => null);
+  if (!modifier) return null;
+  return (
+    <span className="shortcut-hint">
+      <kbd>{modifier}</kbd>
+      <kbd>↵</kbd>
+      to start
+    </span>
+  );
+}
 export function Workspace({ email }: { email: string }) {
+  const [contactKind, setContactKind] = useState<ContactKind | null>(null);
+  function showContact(kind: ContactKind = "support") {
+    setNavOpen(false);
+    setPanelOpen(false);
+    requestAnimationFrame(() => setContactKind(kind));
+  }
   const accountUsage = useAccountUsage();
   const accountExhausted =
     !accountUsage.error && accountUsage.usage?.remaining === 0;
@@ -510,7 +537,7 @@ export function Workspace({ email }: { email: string }) {
       if (!form?.reportValidity()) return;
       if (draft.topic.trim().length < 3) {
         form
-          .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+          .querySelector<HTMLTextAreaElement>("#room-topic")
           ?.focus();
         return;
       }
@@ -645,7 +672,7 @@ export function Workspace({ email }: { email: string }) {
     requestAnimationFrame(() => {
       if (editing)
         document
-          .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+          .querySelector<HTMLTextAreaElement>("#room-topic")
           ?.focus();
       else composer.current?.focus();
     });
@@ -677,7 +704,7 @@ export function Workspace({ email }: { email: string }) {
         newRoom();
         requestAnimationFrame(() =>
           document
-            .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+            .querySelector<HTMLTextAreaElement>("#room-topic")
             ?.focus(),
         );
       },
@@ -807,6 +834,24 @@ export function Workspace({ email }: { email: string }) {
       icon: ShieldCheck,
       shortcut: "U",
       run: showUsage,
+    },
+    {
+      id: "contact",
+      label: "Contact us",
+      description: "Get support, ask a question, or share feedback",
+      keywords: "help email feedback support",
+      group: "Actions",
+      icon: MessageSquare,
+      run: () => showContact(),
+    },
+    {
+      id: "upgrade",
+      label: "Request higher usage limits",
+      description: "Tell us how much more room you need",
+      keywords: "upgrade allowance budget premium",
+      group: "Actions",
+      icon: ArrowUp,
+      run: () => showContact("limits"),
     },
     ...rooms.map((item): WorkspaceCommand => ({
       id: `room-${item.id}`,
@@ -949,7 +994,15 @@ export function Workspace({ email }: { email: string }) {
           <AccountUsageMeter
             {...accountUsage}
             onRefresh={() => void accountUsage.refresh()}
+            onRequestUpgrade={() => showContact("limits")}
           />
+          <button
+            className="sidebar-contact"
+            aria-haspopup="dialog"
+            onClick={() => showContact()}
+          >
+            <MessageSquare size={16} aria-hidden="true" /> Contact us
+          </button>
           <div className="account">
             <span className="account-avatar">{email[0].toUpperCase()}</span>
             <span title={email}>
@@ -969,8 +1022,15 @@ export function Workspace({ email }: { email: string }) {
           </div>
         </div>
       </nav>
+      {contactKind && (
+        <ContactModal
+          email={email}
+          initialKind={contactKind}
+          onClose={() => setContactKind(null)}
+        />
+      )}
       <main className="main" id="main" inert={!!activeDrawer}>
-        <header className="room-header">
+        <header className={`room-header${editing ? " builder-header" : ""}`}>
           <div className="header-title">
             <button
               className="icon-button nav-toggle"
@@ -1180,40 +1240,43 @@ export function Workspace({ email }: { email: string }) {
                   ))}
                 </div>
               </fieldset>
-              <label className="topic-label">
-                Set the conversation in motion
-                <textarea
-                  placeholder="An idea to explore, a decision to make, a problem to untangle…"
-                  value={draft.topic}
-                  onChange={(e) =>
-                    setDraft((d) => ({ ...d, topic: e.target.value }))
-                  }
-                  minLength={3}
-                  maxLength={2000}
-                  required
-                  rows={4}
-                />
-              </label>
-              <button
-                type="button"
-                className="text-button example-button"
-                onClick={() =>
-                  setDraft((d) => ({
-                    ...d,
-                    topic: presets.find((p) => p.id === d.purpose)!.topic,
-                  }))
-                }
-              >
-                <Lightbulb size={15} />
-                Try a starting prompt
-                <ArrowRight size={14} />
-              </button>
+              <div className="topic-field">
+                <label htmlFor="room-topic">Set the conversation in motion</label>
+                <div className="topic-box">
+                  <textarea
+                    id="room-topic"
+                    placeholder="An idea to explore, a decision to make, a problem to untangle…"
+                    value={draft.topic}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, topic: e.target.value }))
+                    }
+                    minLength={3}
+                    maxLength={2000}
+                    required
+                    rows={4}
+                  />
+                  <button
+                    type="button"
+                    className="text-button example-button"
+                    onClick={() =>
+                      setDraft((d) => ({
+                        ...d,
+                        topic: presets.find((p) => p.id === d.purpose)!.topic,
+                      }))
+                    }
+                  >
+                    <Lightbulb size={15} />
+                    Try a starting prompt
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
               <label className="room-name-label">
                 <span>
                   Room name <span className="optional">optional</span>
                 </span>
                 <input
-                  placeholder="Give this conversation a name"
+                  placeholder="Name this conversation"
                   maxLength={80}
                   value={draft.title}
                   onChange={(e) =>
@@ -1261,8 +1324,39 @@ export function Workspace({ email }: { email: string }) {
                     </small>
                   </button>
                 </div>
+                <p className="mode-note">
+                  {draft.settings.mode === "moderated"
+                    ? "One at a time. Every bot gets a turn, then the room pauses for you."
+                    : "A more spontaneous exchange. Bots reply independently within your limits."}
+                </p>
               </fieldset>
               <div className="builder-submit">
+                {compactPanel && (
+                  <button
+                    type="button"
+                    className="lineup-button"
+                    aria-label={`Room setup: ${draft.bots.length} ${draft.bots.length === 1 ? "bot" : "bots"}`}
+                    aria-controls="room-setup"
+                    aria-expanded={panelOpen}
+                    onClick={() => setPanelOpen(true)}
+                  >
+                    <span className="lineup-avatars" aria-hidden="true">
+                      {draft.bots.slice(0, 4).map((bot) => (
+                        <span
+                          key={bot.id}
+                          className={`avatar ${agentClass(rosterColors, bot.id)}`}
+                        >
+                          {bot.name.replace(/^The /, "")[0]?.toUpperCase()}
+                        </span>
+                      ))}
+                    </span>
+                    <span className="lineup-count">
+                      {draft.bots.length}{" "}
+                      {draft.bots.length === 1 ? "bot" : "bots"}
+                    </span>
+                    <ChevronRight size={15} aria-hidden="true" />
+                  </button>
+                )}
                 <button
                   className="button primary"
                   disabled={busy || draft.topic.trim().length < 3}
@@ -1279,10 +1373,7 @@ export function Workspace({ email }: { email: string }) {
                     Cancel
                   </button>
                 ) : (
-                  <span>
-                    Create the room now, or press ⌘ + Enter (Mac) or Ctrl +
-                    Enter (Windows/Linux) to create and start it.
-                  </span>
+                  <StartShortcutHint />
                 )}
               </div>
             </form>

@@ -133,3 +133,22 @@ node --conditions=react-server --import tsx scripts/gateway-smoke.ts
 ```
 
 `pnpm db:stop` stops local Supabase while preserving its database volume. Do not reset the database if you want to keep your chats.
+
+### Contact and usage-limit requests
+
+The sidebar's **Contact us** opens a form for support, questions, feedback, or
+higher usage limits. **Request higher limits** beside weekly usage opens the
+same form with that topic selected. Both are also available in Search.
+Requests require a signed-in account and go through the server's Resend API call.
+The reply address is prefilled from the account; emails include the verified
+account email and account ID so an administrator can identify an upgrade request.
+Submitting a request does not change the account's allowance or tier.
+
+Set `RESEND_API_KEY` in `.env.local` and your deployment's server environment.
+Verify `botsbots.app` as a sending domain in Resend before sending from it.
+`CONTACT_ADMIN_EMAIL` defaults to `isaiahbmann@gmail.com` and
+`CONTACT_FROM_EMAIL` defaults to `noreply@botsbots.app`; either can be overridden.
+A custom sender must also belong to a verified Resend domain. Restart/redeploy
+after changing these values. These variables must never use a `NEXT_PUBLIC_` prefix.
+Identical submissions from the same account share a Resend idempotency key,
+preventing duplicate delivery on retries within Resend's 24-hour window.

@@ -12,6 +12,14 @@ Signature: each reply has a stable turn number; the room's finite message allowa
 
 Grounded directions considered before roll: workshop, academic journal, colored index tabs, publishing colophon, field guide, civic wayfinding, seminar notes. The initial field guide direction was rejected for a bolder hand. New chosen world replaces it completely.
 
+## Mobile new-room builder
+
+On phones the whole builder fits the dynamic viewport. One-row header; two-by-two
+purpose grid; composer-style topic box with the starting-prompt action inside;
+inline room name; compact mode toggles with the selected description beneath; a
+sticky footer pairing the bot lineup (opens setup) with a full-width Create room.
+Short phones drop the supporting paragraph, then visually hide the headline.
+
 ## Weekly account usage
 
 Approved addition: account usage sits above account controls in the navy sidebar;
@@ -72,3 +80,47 @@ Arrow keys navigate, Enter runs an available result, and Escape, the close butto
 or the backdrop dismisses. Combobox/listbox semantics expose selection and
 disabled states, and a live status announces the result count. Existing visible
 focus outlines remain; reduced motion removes the short arrival translation.
+
+## Contact modal
+
+Mode: Operate. Local extension of the workspace's Jet age system.
+
+### Direction contract
+
+THESIS: Keep a support or allowance request focused and short, with one shared
+form and a topic that changes the prompt and send action.
+OWN-WORLD: Paper dialog, white fields, navy Manrope heading, DM Sans labels,
+fine rules, restrained corners, red submit. No shadow or new visual identity.
+STORY: Enter from Contact us or weekly usage, choose support/question/feedback
+or higher limits, review the reply email, write a message, send, and receive
+explicit confirmation. Limit requests are individually reviewed.
+FIRST VIEWPORT: A centered 540px dialog with title and close at top, a single
+column of topic, email, and message fields, quiet helper text and character count,
+and a ruled footer with Cancel and the primary send action. On phones it keeps
+10px outer margins and scrolls within the dynamic viewport.
+FORM: Code-led local extension; inherits the established surface, no concept roll.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+Native modal focus containment, Escape/backdrop dismissal and focus return follow
+the command bar. Sending blocks repeat submits and dismissal; failed requests keep
+the draft and announce a recoverable error. Success confirms the reply address.
+The sidebar, weekly usage, and Search all expose the appropriate entry points.
+
+### Completion evidence
+
+The contact extension preserves the incumbent `PRODUCT.md` and `DESIGN.md`
+system: paper modal, white fields, Manrope heading, DM Sans controls, fine rules,
+red primary action, stroked SVG icons, and no elevation shadow. The scoped finish
+review returned **ship** after the usage-link arrow was replaced with Lucide's
+`ArrowRight`. The documentation comparison is recorded in
+`.impeccable/review/contact-documentation.md`; no visual-world change or system
+rewrite was needed.
+
+Review captures: `.impeccable/review/contact-desktop.jpg`,
+`.impeccable/review/contact-mobile-native.jpg`,
+`.impeccable/review/contact-success-native.jpg`, and
+`.impeccable/review/contact-shortcut-final.jpg`. These are review evidence from
+the local preview, not shipping raster assets. The temporary preview fixture was
+removed. Validation reported 66 passing tests, TypeScript checking, and a passing
+production build. Existing sidecar drift and the unset configuration build path
+remain outside this ordinary extension's scope.

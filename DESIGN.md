@@ -149,7 +149,7 @@ Manrope brings broad, firm headings; DM Sans keeps dense controls and sustained 
 
 ### Hierarchy
 - **Display:** authentication headline; responsive clamp and tight tracking are recorded in frontmatter. It becomes (44px) at the medium breakpoint and (36px) on mobile.
-- **Headline:** room-builder heading, semibold-heavy (750), becoming (36px) on mobile.
+- **Headline:** room-builder heading, semibold-heavy (750), becoming (23px) on phones.
 - **Title:** settings headings use the compact title token; authentication form headings use (28px), reducing to (25px) on mobile.
 - **Body:** conversation prose uses the frontmatter body role and a maximum measure of (72ch); mobile prose is (12px). Builder introduction uses (14px) and line height (1.75).
 - **Label:** field labels use the frontmatter label role. Dense participant and measurement metadata uses (10–12px); it is supporting information rather than a display treatment.
@@ -162,7 +162,9 @@ The workspace occupies (100dvh), with independently scrolling conversation, buil
 
 At (980px) and below, room setup becomes a right-hand drawer (330px); the left navigation remains a column. At (640px) and below, navigation becomes a left drawer (250px), the conversation fills the width, and setup becomes a full-width sheet with a (65px) header matching the conversation header. Explicit buttons open and close drawers. Closed drawers are hidden and inert; active drawers have dialog semantics, focus management, and inert surroundings.
 
-Desktop pane headers align at (78px); mobile conversation headers are (65px). The builder is capped at (770px) with broad internal padding; purpose chips wrap, and mode choices switch between one and two columns according to available space. Authentication uses a (1.08fr / 1fr) split with a (360px) form maximum, becoming a vertical page on mobile.
+Desktop pane headers align at (78px); mobile conversation headers are (65px), wrapping actions to a second row inside a room. The builder is capped at (770px) with broad internal padding; purpose chips wrap, and mode choices switch between one and two columns according to available space. On phones the new-room builder fits one screen without scrolling down to (568px) of height. Its header stays a single (56px) row (the headline names the screen, so the header title is dropped). Purpose chips form a two-by-two grid, the room name sits beside its label, and mode choices shrink to two (44px) toggles with the selected mode's description beneath. A sticky paper footer with a fine top rule pins the lineup button (overlapping agent avatars and a bot count, opening the setup sheet) beside a full-width Create room in thumb reach. The topic field absorbs spare height up to a cap. Below (700px) of height the supporting paragraph is dropped; below (600px) the headline is visually hidden but kept for assistive technology.
+
+Authentication uses a (1.08fr / 1fr) split with a (360px) form maximum, becoming a vertical page on mobile.
 
 Every room-panel section (heading, roster, limits, info, footer) shares one horizontal inset, `--panel-pad`: (24px) by default, (28px) at (1500px) and above, (18px) at (1180px) and below, and (20px) on phones. On tall screens the roster scrolls independently above the pinned allowance section, and expanded limit settings have their own bounded scroll area (`max-height: min(55dvh, max(190px, calc(100dvh - 310px)))`). At (640px) and below, or below (700px) of height, the panel scrolls as one column with a sticky heading instead, so the roster is never reduced to a sliver and rows are not cut off. Read-only perspective text indents to the name column (44px), not under the avatar. On coarse pointers, panel rows and actions are at least (44px) tall and panel fields use (16px) text so iOS does not zoom on focus. Dashed outlines mean "add" (Add a bot); "Edit bots & settings" uses the solid secondary style.
 
@@ -198,7 +200,7 @@ Mode choices are low, bordered selection cards with restrained corners and descr
 
 White fields have a fine cool-gray border, ink text, red caret, and visible labels. Light-surface placeholders use Slate. Focus uses a (2px) blue outline with a (1px) offset. The sidebar search is a specific inverse treatment with a transparent background and pale placeholder text. Error text and banners combine explicit wording with red tones.
 
-The composer wraps a borderless textarea and a red square send button inside a single white border; focus changes the outer border. Its textarea is non-resizable and limited to (180px) in height. The send control retains an accessible name.
+The composer wraps a borderless textarea and a red square send button inside a single white border; focus changes the outer border. The room builder's topic field uses the same frame, with the muted “Try a starting prompt” action tucked into its foot. Its textarea is non-resizable and limited to (180px) in height. The send control retains an accessible name.
 
 ### Navigation
 
