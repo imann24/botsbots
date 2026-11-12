@@ -1,5 +1,5 @@
 ---
-name: Botsbots
+name: BotsBots
 description: Different minds. Shared momentum.
 colors:
   navy: "#122747"
@@ -100,7 +100,7 @@ components:
     padding: "1px 5px"
 ---
 
-# Design System: Botsbots
+# Design System: BotsBots
 
 ## Overview
 
@@ -116,7 +116,7 @@ The conversation stays generous while navigation and settings stay compact. Flat
 - Numbered replies and visible finite allowances.
 - Flat surfaces, restrained corners, and short state changes.
 
-This record describes the implemented system in `src/app/globals.css`, `src/components/workspace.tsx`, `src/components/auth-form.tsx`, and `src/components/brand.tsx`. The fonts are bundled through Fontsource in `src/app/layout.tsx`. Botsbots remains a working product name. Surface-specific direction lives in `.impeccable/surfaces/workspace.md`.
+This record describes the implemented system in `src/app/globals.css`, `src/components/workspace.tsx`, `src/components/auth-form.tsx`, and `src/components/brand.tsx`. The fonts are bundled through Fontsource in `src/app/layout.tsx`. BotsBots remains a working product name. Surface-specific direction lives in `.impeccable/surfaces/workspace.md`.
 
 ## Colors
 

@@ -160,7 +160,7 @@ export async function startDb({ root = projectRoot, args = [] } = {}) {
     for (const [key, port] of Object.entries(ports))
       console.log(`  ${key}=${port}`);
   } else {
-    console.log("Reusing the existing Botsbots stack and its ports.");
+    console.log("Reusing the existing BotsBots stack and its ports.");
   }
   // Passing overrides also wins over any exported stale port settings.
   const started = spawnSync("pnpm", ["exec", "supabase", "start", ...args], {
