@@ -6,13 +6,11 @@ import { Brand } from "./brand";
 export function AuthForm() {
   const [signup, setSignup] = useState(false),
     [busy, setBusy] = useState(false),
-    [error, setError] = useState(""),
-    [notice, setNotice] = useState("");
+    [error, setError] = useState("");
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
     setError("");
-    setNotice("");
     const data = new FormData(e.currentTarget);
     const credentials = {
       email: String(data.get("email")),
@@ -34,8 +32,12 @@ export function AuthForm() {
         ? await client.auth.signUp(credentials)
         : await client.auth.signInWithPassword(credentials);
       if (result.error) throw result.error;
-      if (result.data.session) window.location.reload();
-      else setNotice("Check your email to confirm your account, then sign in.");
+      if (!result.data.session) {
+        throw new Error(
+          "Sign-up succeeded but no session was started. Email confirmation must be disabled in Supabase Auth settings.",
+        );
+      }
+      window.location.reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Sign-in failed. Try again.");
     } finally {
@@ -138,7 +140,6 @@ export function AuthForm() {
                 {error}
               </div>
             )}
-            {notice && <p role="status">{notice}</p>}
             <button className="button primary full" disabled={busy}>
               {busy ? "Connecting…" : signup ? "Create account" : "Sign in"}
               <ArrowRight size={17} />
@@ -151,7 +152,6 @@ export function AuthForm() {
               onClick={() => {
                 setSignup(!signup);
                 setError("");
-                setNotice("");
               }}
             >
               {signup ? "Sign in" : "Create an account"}
