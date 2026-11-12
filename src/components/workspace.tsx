@@ -44,7 +44,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { browserClient } from "@/lib/supabase/client";
-import { MODEL_CHOICES, modelInfo, type ModelPrice } from "@/lib/models";
+import { modelInfo, type ModelPrice } from "@/lib/models";
 import {
   agentClass,
   agentColors,
@@ -61,6 +61,7 @@ import {
   type Settings,
 } from "@/lib/types";
 import { Brand } from "./brand";
+import { ModelLabel, ModelSelect } from "./model-identity";
 import { SummaryPanel } from "./summary-panel";
 import type { Summary } from "@/lib/summary";
 import { AccountUsageMeter, useAccountUsage } from "./account-usage";
@@ -1459,7 +1460,7 @@ export function Workspace({ email }: { email: string }) {
                           <b>{m.speaker}</b>
                           {m.model && (
                             <>
-                              <span>{modelInfo(m.model).name}</span>
+                              <ModelLabel model={m.model} />
                               <time
                                 className="message-time"
                                 dateTime={m.completed_at ?? m.created_at}
@@ -1678,8 +1679,7 @@ export function Workspace({ email }: { email: string }) {
           </div>
           <div className="bot-list">
             {draftOrRoom.bots.map((bot) => {
-              const info = modelInfo(bot.model),
-                used = messages.filter((m) => m.bot_id === bot.id).length,
+              const used = messages.filter((m) => m.bot_id === bot.id).length,
                 price = prices.find((p) => p.id === bot.model);
               return (
                 <div className="bot-item" key={bot.id}>
@@ -1697,7 +1697,9 @@ export function Workspace({ email }: { email: string }) {
                     </span>
                     <span className="bot-identity">
                       <b>{bot.name}</b>
-                      <small>{info.name}</small>
+                      <small>
+                        <ModelLabel model={bot.model} />
+                      </small>
                     </span>
                     <ChevronDown
                       size={15}
@@ -1720,20 +1722,15 @@ export function Workspace({ email }: { email: string }) {
                           </label>
                           <label>
                             Model
-                            <select
+                            <ModelSelect
                               value={bot.model}
                               onChange={(e) =>
                                 updateBot(bot.id, {
                                   model: e.target.value as Bot["model"],
                                 })
                               }
-                            >
-                              {MODEL_CHOICES.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                  {m.provider} · {m.name} · {m.tier}
-                                </option>
-                              ))}
-                            </select>
+                              showTier
+                            />
                           </label>
                           {price && (
                             <p className="price-note">

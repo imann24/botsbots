@@ -239,3 +239,7 @@ a second row so the usage shortcut does not crowd out room controls.
 - **Don't** replace the established flat hierarchy with floating shadow cards.
 - **Don't** use red for routine measurement or carbon purple for the primary action.
 - **Don't** squeeze all three workspace columns into a narrow screen.
+
+## Model provider marks
+
+Model names carry a (20px) circular white provider mark with a fine rule and a (12px) navy logo, separated from the label by (5px). Use the shared `ModelLabel` and `ModelSelect` components across the roster, replies, summaries, and model fields. Provider marks identify the model vendor; the existing colored avatars continue to identify individual bots. Selects retain native keyboard and touch behavior, with the current provider mark inset beside the selected text. SVG assets are bundled in `public/providers` with their source license. Unknown providers use a neutral processor icon.
