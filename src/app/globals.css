@@ -815,6 +815,30 @@ small {
   max-width: 175px;
   line-height: 1.6;
 }
+.builder-submit > .shortcut-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: none;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.shortcut-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font:
+    500 11px "DM Sans Variable",
+    sans-serif;
+}
+.shortcut-hint kbd + kbd {
+  margin-right: 2px;
+}
 /* Room panel. Every section shares one horizontal inset so edges align. */
 .room-panel {
   --panel-pad: 24px;
