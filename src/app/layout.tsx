@@ -3,7 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "@fontsource-variable/dm-sans";
 import "@fontsource-variable/manrope";
 import "./globals.css";
-const title = "Botsbots — Different minds. Shared momentum.";
+const title = "BotsBots — Different minds. Shared momentum.";
 const description =
   "A room for you and a few good AI perspectives. Constructive conversations, clear limits, and models from across the spectrum.";
 const deploymentHost =
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Botsbots",
+    siteName: "BotsBots",
     title,
     description,
   },
