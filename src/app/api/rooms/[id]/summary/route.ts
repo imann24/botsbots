@@ -9,6 +9,7 @@ import {
   type Summary,
 } from "@/lib/summary";
 import type { Message, Room } from "@/lib/types";
+import { weeklyBudgets } from "@/lib/metering";
 export const runtime = "nodejs";
 export const maxDuration = 90;
 
@@ -49,9 +50,6 @@ export async function POST(
         "Current pricing for this model is unavailable. Choose another model.",
         503,
       );
-    const daily = Number(process.env.DAILY_BUDGET_USD ?? 10);
-    if (!Number.isFinite(daily) || daily <= 0)
-      throw new ApiError("DAILY_BUDGET_USD must be positive.", 503);
     const reservation = summaryReservation(
       price,
       prompt.inputReservationTokens,
@@ -65,7 +63,7 @@ export async function POST(
         p_model: body.model,
         p_source_ids: prompt.source.map((m) => m.id),
         p_quote: reservation,
-        p_daily_budget: daily,
+        ...weeklyBudgets(),
       },
     );
     check(claimError);

@@ -18,7 +18,7 @@ Supabase applies the committed migrations when creating its local database. For 
 
 `pnpm db:start` checks all configured service ports and automatically replaces occupied ports, including those used by other Docker projects. It saves the selected ports in Git-ignored `supabase/.env`, keeps the committed `config.toml` unchanged, and refreshes the Supabase URL and keys in `.env.local` after a successful start. Subsequent starts reuse the ports; an already running Botsbots stack keeps its ports. `db:stop`, `db:status`, and direct Supabase CLI commands read the same local overrides. Run `pnpm db:status` for the current URLs; the default ports below may change when another project uses them.
 
-`pnpm env:setup` creates or updates `.env.local` in an interactive terminal. It prompts for the Gateway key, Supabase connection, daily budget, and optional site URL. Key input is hidden and existing secrets are never displayed. Press Enter to keep an existing value; Ctrl+C cancels without saving. The file has owner-only permissions (`0600`) and is ignored by Git. Values are stored as plaintext for Next.js to read; hidden prompts and file permissions do not encrypt them. `NEXT_PUBLIC_` values are public in the browser; the Gateway and Supabase secret keys stay server-only.
+`pnpm env:setup` creates or updates `.env.local` in an interactive terminal. It prompts for the Gateway key, Supabase connection, standard/premium weekly budgets, and optional site URL. Key input is hidden and existing secrets are never displayed. Press Enter to keep an existing value; Ctrl+C cancels without saving. The file has owner-only permissions (`0600`) and is ignored by Git. Values are stored as plaintext for Next.js to read; hidden prompts and file permissions do not encrypt them. `NEXT_PUBLIC_` values are public in the browser; the Gateway and Supabase secret keys stay server-only.
 
 `db:setup` fills the local Supabase URL and keys while preserving your Gateway key. For hosted Supabase, run `pnpm env:setup` and enter the hosted values instead. Restart the dev server after changing configuration. Create an account at [the local app](http://127.0.0.1:3000); local email confirmation is disabled. Supabase Studio runs at [localhost:54323](http://127.0.0.1:54323).
 
@@ -39,17 +39,63 @@ Click **Summarize**, choose a model from the catalog, then click **Generate summ
 
 Summaries are saved separately with the exact source message IDs and coverage count. They include completed messages across the conversation (including human steering), not just the bots' recent context window. Pending/failed replies are excluded, and incomplete replies are identified to the summarizer. Newer messages are flagged without updating the summary automatically. Saved summaries are available after reloading.
 
-Summary calls share room and daily spending limits with bot calls, including pending reservations. They do not consume chat-message or per-bot quotas and are never fed back into the bots' conversation. Duplicate request IDs and a per-room lock prevent duplicate paid work. Each request allows up to 1,200 output tokens and 48 KB of serialized source; oversized conversations fail clearly instead of silently dropping earlier contributions. Failed calls retain their reservations and require a manual retry.
+Summary calls share room and weekly spending limits with bot calls, including pending reservations. They do not consume chat-message or per-bot quotas and are never fed back into the bots' conversation. Duplicate request IDs and a per-room lock prevent duplicate paid work. Each request allows up to 1,200 output tokens and 48 KB of serialized source; oversized conversations fail clearly instead of silently dropping earlier contributions. Failed calls retain their reservations and require a manual retry.
 
 - Server-side PostgreSQL transactions lock the account, then the room, before claiming work. A partial unique index prevents two pending replies from one bot. Run IDs fence old workers; human request IDs prevent duplicate sends.
 - Current Gateway prices are fetched and cached for five minutes. Missing pricing blocks paid calls. The app reserves bounded input plus the configured output cap, using the highest listed price tier and a 25% margin.
 - Actual reported usage settles reservations conservatively. Failed or uncertain calls retain the reservation. There are no automatic paid retries or automatic continuations of truncated replies.
-- Limits cover total attempts, per-bot attempts, per-room budget, per-account daily budget, tokens, recent context, concurrent replies, cooldown, and session duration. `DAILY_BUDGET_USD` defaults to 10 per account per UTC day.
+- Limits cover total attempts, per-bot attempts, per-room budget, per-account standard/premium weekly budgets, tokens, recent context, concurrent replies, cooldown, and session duration. `WEEKLY_BUDGET_USD` defaults to $10 per standard account per week; premium defaults to unlimited.
 - Reservations are an application guardrail, not a guaranteed billing cap. Provider pricing and usage reporting can differ; also set a spending limit in your Vercel account.
 
 The model catalog uses contemporary small/mid spending tiers from major providers, excluding Grok. See [catalog notes and sources](docs/MODELS.md). These tiers describe price/positioning, not undisclosed parameter counts.
 
 ## Persistence and deployment
+
+### Weekly metering and premium accounts
+
+`WEEKLY_BUDGET_USD=10` is the default weekly allowance for each standard account.
+`PREMIUM_WEEKLY_BUDGET_USD=unlimited` is the default for **all** premium accounts;
+set it to a dollar amount such as `50` to give each premium account that weekly cap.
+Blank/unset values use those defaults. Both settings accept `0` to block new spend;
+negative, malformed and nonfinite amounts fail closed. Restart/redeploy the server
+after changing environment variables. The previous `DAILY_BUDGET_USD` is no longer read.
+
+Weeks run Monday 00:00 UTC to the following Monday, without rollover. Replies and
+summaries share an account's allowance across every room. Pending and uncertain
+requests reserve allowance; successful requests replace their reservation with the
+recorded cost. A request can pause before the displayed remaining amount is zero
+because the next reservation must fit. Premium accounts retain all room limits.
+
+In Supabase's Table Editor, open **public.account_billing**, find the `user_id` from
+Authentication → Users, and set **is_premium** to **true**. Set it back to false to
+downgrade. Existing users are backfilled; new users get a billing row when usage is
+first checked. To upgrade an account before its first visit, use the SQL Editor:
+
+```sql
+insert into public.account_billing (user_id, is_premium)
+select id, true from auth.users where email = 'person@example.com'
+on conflict (user_id) do update set is_premium = excluded.is_premium;
+```
+
+Only administrators/service credentials can change tiers. User metadata and client
+writes cannot grant premium. Changes apply to the next server budget check and
+appear in the meter within five seconds while the page is visible. Upgrading,
+downgrading or adjusting a cap never clears spend; choose Continue to resume a
+paused room after allowance becomes available.
+
+The weekly meter lives above the sidebar account controls, with a compact shortcut
+when navigation is hidden. Details distinguish recorded spend, pending reservations
+and uncertain requests. These are estimated AI costs, not customer charges.
+The `usage_events` ledger retains spend if a room is deleted and removes it when
+the account is deleted. Historical messages and summaries are backfilled by the
+metering migration; usage already deleted before migration cannot be reconstructed.
+
+Apply the new migration before deploying the updated server (the claim RPC signatures
+change together). Stop generation during that rollout. After checking the installed
+CLI's help, use `supabase db push` for a local stack or the explicit remote target
+for your hosted project. Do not reset a database containing chats you want to keep.
+
+### Storage and hosting
 
 Rooms and messages persist in PostgreSQL. Supabase Auth issues sessions; RLS limits reads to the owning user. Mutations use authenticated Next.js routes and server-only database credentials. Public database roles cannot call orchestration functions or write tables directly.
 

@@ -212,6 +212,20 @@ The message allowance is a segmented strip (13px high, 3px gaps), pale when unus
 
 ## Do's and Don'ts
 
+### Weekly account usage
+
+The sidebar's account meter uses the existing inverse text colors with a pale
+lavender (`#c9b4e3`) progress fill for contrast against navy. Warning text uses
+apricot (`#ffd2bb`), and exhausted usage uses pale red (`#ffc4c8`). Explicit text
+accompanies each state. Its 10–13px type matches adjacent account metadata,
+increasing to 12px body text on mobile. The whole meter expands inline: two compact text rows flank a 3px bar, with
+plan status and the accounting breakdown inside. Empty reservation rows are omitted.
+Expanded details have bounded scrolling;
+short viewports let the sidebar scroll so account controls remain reachable.
+The main-pane allowance notice uses warm pale red (`#fff1ed`) and dark red
+(`#8f2931`). Unlimited plans have no progress bar. On mobile, header actions occupy
+a second row so the usage shortcut does not crowd out room controls.
+
 ### Do:
 - **Do** use the navy frame, paper canvas, and white controls as the default surface hierarchy.
 - **Do** keep allowance counts, budget, and turn numbers visually distinct from conversation prose.

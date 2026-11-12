@@ -15,6 +15,7 @@
     "db:start": "node scripts/start-db.mjs",
     "db:stop": "supabase stop",
     "db:status": "supabase status",
+    "db:migrate": "supabase db push && supabase migration list",
     "db:setup": "node scripts/local-env.mjs"
   },
   "dependencies": {
