@@ -49,7 +49,7 @@ The model catalog uses contemporary small/mid spending tiers from major provider
 
 Rooms and messages persist in PostgreSQL. Supabase Auth issues sessions; RLS limits reads to the owning user. Mutations use authenticated Next.js routes and server-only database credentials. Public database roles cannot call orchestration functions or write tables directly.
 
-For hosted Supabase, provision a project, apply the files in `supabase/migrations`, and replace `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`. Configure that project's Auth site/redirect URLs and email policy. Local CLI v3 operations target local by default; review `--help` before using an explicit hosted target.
+For hosted Supabase, provision a project, apply the files in `supabase/migrations`, and replace `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`. Configure that project's Auth site/redirect URLs and email policy; turn off "Confirm email" under Auth providers so signup starts a session immediately. Local CLI v3 operations target local by default; review `--help` before using an explicit hosted target.
 
 This first version is driven by the open room's browser tab: polling schedules bounded server requests. Closing the tab stops new work, but already-started calls may finish. Reopening a running room resumes scheduling within its limits. A hosted service should move scheduling to a durable worker and add abuse protection, rate limiting, billing, and recovery flows before opening public signup. Billing, multi-human rooms, BYOK, and production deployment are outside this version.
 
