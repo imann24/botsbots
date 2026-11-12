@@ -680,36 +680,47 @@ small {
 }
 .builder-scroll {
   overflow-y: auto;
+  min-height: 0;
+  container-type: inline-size;
   flex: 1;
 }
 .room-builder {
+  --builder-gap: clamp(10px, calc(4dvh - 22px), 22px);
   width: 100%;
   max-width: 770px;
-  padding: 42px 46px 38px;
+  padding: clamp(16px, 2dvh, 32px) 36px;
   margin: 0 auto;
 }
 .builder-heading {
-  margin-bottom: 34px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px 12px;
+  margin-bottom: var(--builder-gap);
 }
 .heading-mark {
   color: var(--red);
-  margin-bottom: 15px;
+  padding-top: 5px;
 }
 .builder-heading h1 {
-  font-size: clamp(32px, 3.1vw, 47px);
+  font-size: clamp(28px, 4.5dvh, 40px);
   line-height: 1.15;
-  margin: 0 0 17px;
+  margin: 0;
   font-weight: 750;
 }
 .builder-heading p {
+  grid-column: 1 / -1;
   max-width: 470px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
   margin: 0;
-  line-height: 1.75;
+  line-height: 1.6;
+}
+.room-builder legend {
+  margin-bottom: 8px;
 }
 .purpose-field {
-  margin-bottom: 28px;
+  margin-bottom: var(--builder-gap);
 }
 .purpose-options {
   display: flex;
@@ -739,19 +750,25 @@ small {
 }
 .topic-label textarea {
   font-size: 13px;
-  min-height: 127px;
+  height: clamp(76px, 11dvh, 112px);
+  min-height: 76px;
   resize: vertical;
 }
 .example-button {
-  margin: 11px 0 25px;
+  margin: 8px 0 var(--builder-gap);
   font-size: 11px;
   color: var(--muted);
+}
+.room-name-label > span {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 .room-builder > label input {
   font-size: 13px;
 }
 .mode-field {
-  margin-top: 27px;
+  margin-top: var(--builder-gap);
 }
 .mode-options {
   display: grid;
@@ -760,7 +777,7 @@ small {
 }
 .mode-options button {
   text-align: left;
-  padding: 17px 14px;
+  padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: white;
@@ -783,14 +800,14 @@ small {
   display: block;
   font-size: 11px;
   color: var(--muted);
-  line-height: 1.7;
-  margin-top: 10px;
+  line-height: 1.5;
+  margin-top: 7px;
 }
 .builder-submit {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin-top: 30px;
+  margin-top: var(--builder-gap);
 }
 .builder-submit > span {
   font-size: 10px;
@@ -1704,9 +1721,6 @@ progress::-moz-progress-bar {
     --nav-width: 240px;
     --setup-width: 340px;
   }
-  .room-builder {
-    padding-top: 65px;
-  }
   .room-panel {
     --panel-pad: 28px;
   }
@@ -1725,7 +1739,7 @@ progress::-moz-progress-bar {
     gap: 7px;
   }
   .room-builder {
-    padding: 35px 28px;
+    padding-inline: 24px;
   }
   .room-header {
     padding: 0 24px;
@@ -1736,9 +1750,6 @@ progress::-moz-progress-bar {
   .purpose-options button {
     font-size: 10px;
     padding: 8px;
-  }
-  .mode-options {
-    grid-template-columns: 1fr;
   }
   .mode-options button {
     padding: 13px;
@@ -1800,10 +1811,7 @@ progress::-moz-progress-bar {
   }
   .room-builder {
     max-width: 680px;
-    padding: 40px;
-  }
-  .mode-options {
-    grid-template-columns: 1fr 1fr;
+    padding-inline: 28px;
   }
   .auth-story {
     padding: 35px;
@@ -1893,29 +1901,17 @@ progress::-moz-progress-bar {
     padding: 6px 8px !important;
   }
   .room-builder {
-    padding: 30px 24px;
+    padding-inline: 20px;
   }
   .builder-heading h1 {
-    font-size: 36px;
-  }
-  .builder-heading p {
-    font-size: 13px;
-  }
-  .builder-heading {
-    margin-bottom: 28px;
-  }
-  .heading-mark {
-    margin-bottom: 15px;
+    font-size: 28px;
   }
   .purpose-options {
     gap: 7px;
   }
   .purpose-options button {
     font-size: 10px;
-    padding: 9px 10px;
-  }
-  .mode-options {
-    grid-template-columns: 1fr;
+    padding: 8px;
   }
   .builder-submit {
     align-items: flex-start;
@@ -2058,6 +2054,37 @@ progress::-moz-progress-bar {
     min-width: 36px;
   }
 }
+/* Reflow to the available pane width, including when either sidebar is hidden. */
+@container (max-width: 440px) {
+  .builder-heading {
+    grid-template-columns: 22px minmax(0, 1fr);
+    column-gap: 8px;
+  }
+  .heading-mark svg {
+    width: 22px;
+    height: 22px;
+  }
+  .purpose-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .purpose-options button {
+    min-height: 36px;
+  }
+  .mode-options {
+    gap: 8px;
+  }
+  .mode-options button {
+    padding: 10px;
+  }
+  .mode-options button > span {
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .mode-options b {
+    font-size: 11px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2099,6 +2126,16 @@ progress::-moz-progress-bar {
 }
 /* Touch: full-size targets, and 16px fields so iOS does not zoom on focus. */
 @media (pointer: coarse) {
+  .purpose-options button {
+    min-height: 44px;
+  }
+  .example-button {
+    min-height: 36px;
+  }
+  .room-builder input,
+  .room-builder textarea {
+    font-size: 16px;
+  }
   .bot-summary,
   .panel-action {
     min-height: 44px;
