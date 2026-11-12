@@ -76,7 +76,7 @@ select {
 }
 input::placeholder,
 textarea::placeholder {
-  color: #707b8d;
+  color: #657084;
 }
 textarea {
   resize: vertical;
@@ -1707,9 +1707,26 @@ progress::-moz-progress-bar {
   margin: 12px 0;
 }
 .room-panel > .limits .limits-fields {
-  max-height: 230px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   padding-right: 5px;
+}
+.room-panel {
+  overflow-y: auto;
+}
+.room-panel > .limits.expanded {
+  max-height: min(55dvh, max(190px, calc(100dvh - 310px)));
+  overflow-y: auto;
+}
+@media (max-width: 980px) {
+  .room-panel:not(.open) {
+    visibility: hidden;
+  }
+}
+@media (max-width: 640px) {
+  .sidebar:not(.open) {
+    visibility: hidden;
+  }
 }
 .panel-info {
   flex-shrink: 0;

@@ -116,6 +116,73 @@ export function Workspace({ email }: { email: string }) {
     [limitsOpen, setLimitsOpen] = useState(false),
     [showJump, setShowJump] = useState(false);
   const current = useRef<Room | null>(room);
+  const navRef = useRef<HTMLElement>(null),
+    panelRef = useRef<HTMLElement>(null);
+  const [mobileNav, setMobileNav] = useState(false),
+    [compactPanel, setCompactPanel] = useState(false);
+  const activeDrawer =
+    mobileNav && navOpen ? "nav" : compactPanel && panelOpen ? "panel" : null;
+  useEffect(() => {
+    const navQuery = window.matchMedia("(max-width: 640px)");
+    const panelQuery = window.matchMedia("(max-width: 980px)");
+    const sync = () => {
+      setMobileNav(navQuery.matches);
+      setCompactPanel(panelQuery.matches);
+    };
+    sync();
+    navQuery.addEventListener("change", sync);
+    panelQuery.addEventListener("change", sync);
+    return () => {
+      navQuery.removeEventListener("change", sync);
+      panelQuery.removeEventListener("change", sync);
+    };
+  }, []);
+  useEffect(() => {
+    if (!activeDrawer) return;
+    const drawer = activeDrawer === "nav" ? navRef.current : panelRef.current;
+    if (!drawer) return;
+    const previous =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const focusable = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [tabindex="0"]',
+        ),
+      ).filter((el) => el.getClientRects().length > 0);
+    focusable()[0]?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setNavOpen(false);
+        setPanelOpen(false);
+      } else if (event.key === "Tab") {
+        const items = focusable(),
+          first = items[0],
+          last = items.at(-1);
+        if (!first) {
+          event.preventDefault();
+          drawer.focus();
+        } else if (
+          event.shiftKey &&
+          (document.activeElement === first ||
+            document.activeElement === drawer)
+        ) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    drawer.addEventListener("keydown", onKey);
+    return () => {
+      drawer.removeEventListener("keydown", onKey);
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [activeDrawer]);
   current.current = room;
   const selectedId = useRef<string | null>(null),
     feed = useRef<HTMLDivElement>(null),
@@ -377,17 +444,25 @@ export function Workspace({ email }: { email: string }) {
             : "Ready when you are";
   return (
     <div className="workspace">
-      <a className="skip-link" href="#main">
+      <a className="skip-link" href="#main" inert={!!activeDrawer}>
         Skip to conversation
       </a>
-      {navOpen && (
+      {mobileNav && navOpen && (
         <button
           className="drawer-backdrop"
           aria-label="Close navigation"
+          tabIndex={-1}
+          aria-hidden="true"
           onClick={() => setNavOpen(false)}
         />
       )}
       <nav
+        ref={navRef}
+        id="room-navigation"
+        role={activeDrawer === "nav" ? "dialog" : undefined}
+        aria-modal={activeDrawer === "nav" ? true : undefined}
+        inert={(mobileNav && !navOpen) || activeDrawer === "panel"}
+        tabIndex={-1}
         className={`sidebar ${navOpen ? "open" : ""}`}
         aria-label="Room navigation"
       >
@@ -485,12 +560,14 @@ export function Workspace({ email }: { email: string }) {
           </div>
         </div>
       </nav>
-      <main className="main" id="main">
+      <main className="main" id="main" inert={!!activeDrawer}>
         <header className="room-header">
           <div className="header-title">
             <button
               className="icon-button mobile-only"
               aria-label="Open navigation"
+              aria-controls="room-navigation"
+              aria-expanded={navOpen}
               onClick={() => setNavOpen(true)}
             >
               <Menu size={21} />
@@ -522,6 +599,8 @@ export function Workspace({ email }: { email: string }) {
             )}
             <button
               className="button small panel-toggle"
+              aria-controls="room-setup"
+              aria-expanded={panelOpen}
               onClick={() => setPanelOpen(!panelOpen)}
             >
               <Users size={16} />
@@ -936,14 +1015,22 @@ export function Workspace({ email }: { email: string }) {
           </div>
         )}
       </main>
-      {panelOpen && (
+      {compactPanel && panelOpen && (
         <button
           className="panel-backdrop"
           aria-label="Close room setup"
+          tabIndex={-1}
+          aria-hidden="true"
           onClick={() => setPanelOpen(false)}
         />
       )}
       <aside
+        ref={panelRef}
+        id="room-setup"
+        role={activeDrawer === "panel" ? "dialog" : undefined}
+        aria-modal={activeDrawer === "panel" ? true : undefined}
+        inert={(compactPanel && !panelOpen) || activeDrawer === "nav"}
+        tabIndex={-1}
         className={`room-panel ${panelOpen ? "open" : ""}`}
         aria-label="Room setup"
       >
@@ -1111,7 +1198,9 @@ export function Workspace({ email }: { email: string }) {
             </button>
           )}
         </div>
-        <section className="limits">
+        <section
+          className={`limits ${limitsOpen && editing ? "expanded" : ""}`}
+        >
           <div className="limits-heading">
             <h2>Room limits</h2>
             {editing && (
