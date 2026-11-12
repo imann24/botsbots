@@ -7,16 +7,25 @@ export async function GET(req: Request, ctx: Context) {
     const { id } = await ctx.params;
     z.uuid().parse(id);
     const { db } = await authenticated();
-    const [{ data: room, error }, { data: messages, error: messageError }] =
-      await Promise.all([
-        db.from("rooms").select("*").eq("id", id).maybeSingle(),
-        db.from("messages").select("*").eq("room_id", id).order("sequence"),
-      ]);
+    const [
+      { data: room, error },
+      { data: messages, error: messageError },
+      { data: summaries, error: summaryError },
+    ] = await Promise.all([
+      db.from("rooms").select("*").eq("id", id).maybeSingle(),
+      db.from("messages").select("*").eq("room_id", id).order("sequence"),
+      db
+        .from("summaries")
+        .select("*")
+        .eq("room_id", id)
+        .order("created_at", { ascending: false }),
+    ]);
     check(error);
     check(messageError);
+    check(summaryError);
     if (!room) throw new ApiError("Room not found.", 404);
     return Response.json(
-      { room, messages },
+      { room, messages, summaries },
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (e) {

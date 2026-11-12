@@ -1,5 +1,6 @@
 import "server-only";
-import { createGateway, generateText } from "ai";
+import { createGateway, generateText, Output } from "ai";
+import type { z } from "zod";
 import { MODEL_CHOICES, type ModelPrice } from "./models";
 import type { Bot, Room, Message } from "./types";
 import { buildPrompt, reserveCost, usageCost } from "./prompt";
@@ -53,18 +54,39 @@ export async function reply(
   price: ModelPrice,
   signal: AbortSignal,
 ) {
+  const { system, prompt } = buildPrompt(room, bot, history);
+  return generateReply(
+    bot.model,
+    system,
+    prompt,
+    room.settings.maxTokens,
+    price,
+    signal,
+    reserveCost(price, room.settings.maxTokens),
+  );
+}
+export async function generateReply(
+  model: string,
+  system: string,
+  prompt: string,
+  maxTokens: number,
+  price: ModelPrice,
+  signal: AbortSignal,
+  reservation: number,
+  schema?: z.ZodType,
+) {
   const key = process.env.VERCEL_AI_GATEWAY_API_KEY;
   if (!key)
     throw new Error(
       "Gateway key is missing. Set VERCEL_AI_GATEWAY_API_KEY in .env.local.",
     );
   const gateway = createGateway({ apiKey: key });
-  const { system, prompt } = buildPrompt(room, bot, history);
   const result = await generateText({
-    model: gateway(bot.model),
+    model: gateway(model),
     system,
     prompt,
-    maxOutputTokens: room.settings.maxTokens,
+    ...(schema ? { output: Output.object({ schema }) } : {}),
+    maxOutputTokens: maxTokens,
     maxRetries: 0,
     abortSignal: signal,
     // Spend the small reply allowance on visible text where the model supports it.
@@ -72,7 +94,7 @@ export async function reply(
     providerOptions: {
       gateway: { sort: "cost" },
       // Gemini 3 requires thinking; explicitly select its lowest native level.
-      ...(bot.model.startsWith("google/")
+      ...(model.startsWith("google/")
         ? { google: { thinkingConfig: { thinkingLevel: "minimal" } } }
         : {}),
     },
@@ -87,7 +109,7 @@ export async function reply(
   let cost =
     result.totalUsage.inputTokens === undefined ||
     result.totalUsage.outputTokens === undefined
-      ? reserveCost(price, room.settings.maxTokens)
+      ? reservation
       : usageCost(price, input, output);
   const metadata = result.providerMetadata?.gateway;
   const reported = metadata?.cost;
@@ -99,6 +121,7 @@ export async function reply(
     cost = Math.max(cost, reported);
   return {
     text: result.text,
+    structured: schema ? result.output : undefined,
     input,
     output,
     cost,

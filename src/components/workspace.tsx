@@ -16,6 +16,7 @@ import {
   ChevronRight,
   CircleHelp,
   Download,
+  FileText,
   Lightbulb,
   LogOut,
   Menu,
@@ -47,6 +48,8 @@ import {
   type Settings,
 } from "@/lib/types";
 import { Brand } from "./brand";
+import { SummaryPanel } from "./summary-panel";
+import type { Summary } from "@/lib/summary";
 const presets = [
   {
     id: "plan" as const,
@@ -98,6 +101,9 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 const money = (n: number) => `$${n.toFixed(n > 0 && n < 0.01 ? 4 : 2)}`;
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export function Workspace({ email }: { email: string }) {
+  const [summaries, setSummaries] = useState<Summary[]>([]),
+    [summaryOpen, setSummaryOpen] = useState(false);
+  const summaryButton = useRef<HTMLButtonElement>(null);
   const [rooms, setRooms] = useState<Room[]>([]),
     [room, setRoom] = useState<Room | null>(null),
     [messages, setMessages] = useState<Message[]>([]);
@@ -190,7 +196,7 @@ export function Workspace({ email }: { email: string }) {
     composer = useRef<HTMLTextAreaElement>(null);
   const draftOrRoom = editing ? draft : (room ?? draft);
   const count = messages.length,
-    spent = messages.reduce(
+    spent = [...messages, ...summaries].reduce(
       (sum, m) => sum + Number(m.cost ?? m.reserved_cost),
       0,
     ),
@@ -200,9 +206,11 @@ export function Workspace({ email }: { email: string }) {
     setRooms(data.rooms);
   }, []);
   const refresh = useCallback(async (id: string) => {
-    const data = await api<{ room: Room; messages: Message[] }>(
-      `/api/rooms/${id}`,
-    );
+    const data = await api<{
+      room: Room;
+      messages: Message[];
+      summaries: Summary[];
+    }>(`/api/rooms/${id}`);
     if (selectedId.current !== id) return;
     if (
       current.current?.id === id &&
@@ -211,6 +219,7 @@ export function Workspace({ email }: { email: string }) {
       return;
     setRoom(data.room);
     setMessages(data.messages);
+    setSummaries(data.summaries);
     setRooms((all) => all.map((r) => (r.id === id ? data.room : r)));
   }, []);
   const selectRoom = useCallback(
@@ -220,6 +229,8 @@ export function Workspace({ email }: { email: string }) {
       setEditing(false);
       setError("");
       setMessages([]);
+      setSummaries([]);
+      setSummaryOpen(false);
       setRoom(null);
       setNavOpen(false);
       try {
@@ -307,6 +318,8 @@ export function Workspace({ email }: { email: string }) {
     refresh,
   ]);
   function newRoom() {
+    setSummaries([]);
+    setSummaryOpen(false);
     selectedId.current = null;
     setRoom(null);
     setMessages([]);
@@ -583,6 +596,15 @@ export function Workspace({ email }: { email: string }) {
           <div className="header-actions">
             {room && !editing && (
               <>
+                <button
+                  ref={summaryButton}
+                  className="button small summary-toggle"
+                  aria-expanded={summaryOpen}
+                  aria-controls="conversation-summary"
+                  onClick={() => setSummaryOpen(!summaryOpen)}
+                >
+                  <FileText size={16} /> Summarize
+                </button>
                 <span className={`status ${room.status}`}>
                   <i />
                   {status}
@@ -608,6 +630,19 @@ export function Workspace({ email }: { email: string }) {
             </button>
           </div>
         </header>
+        {room && !editing && summaryOpen && (
+          <SummaryPanel
+            key={room.id}
+            room={room}
+            messages={messages}
+            summaries={summaries}
+            onRefresh={() => refresh(room.id)}
+            onClose={() => {
+              setSummaryOpen(false);
+              summaryButton.current?.focus();
+            }}
+          />
+        )}
         {error && (
           <div className="error-banner global-error" role="alert">
             <span>{error}</span>
@@ -770,6 +805,7 @@ export function Workspace({ email }: { email: string }) {
           <>
             <div
               className="conversation"
+              hidden={summaryOpen}
               ref={feed}
               onScroll={() => {
                 const el = feed.current;
@@ -907,7 +943,7 @@ export function Workspace({ email }: { email: string }) {
               )}
               <div ref={bottom} />
             </div>
-            {showJump && (
+            {showJump && !summaryOpen && (
               <button
                 className="jump-button"
                 onClick={() => {

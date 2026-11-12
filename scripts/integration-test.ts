@@ -315,6 +315,149 @@ try {
   console.log(
     "PASS per-bot quota, session duration, old-run fencing, atomic daily budget",
   );
+  const summaryRoom = await room(user, { budget: 0.015 });
+  const { data: source, error: sourceError } = await admin
+    .from("messages")
+    .insert({
+      room_id: summaryRoom.id,
+      bot_id: DEFAULT_BOTS[0].id,
+      speaker: "Planner",
+      model: DEFAULT_BOTS[0].model,
+      content: "Try the smallest useful experiment.",
+    })
+    .select()
+    .single();
+  assert.ifError(sourceError);
+  const summaryArgs = {
+    p_room: summaryRoom.id,
+    p_user: user,
+    p_request: crypto.randomUUID(),
+    p_model: DEFAULT_BOTS[1].model,
+    p_source_ids: [source.id],
+    p_quote: 0.01,
+    p_daily_budget: 10,
+  };
+  const summaryClaims = await Promise.all(
+    Array.from({ length: 8 }, () => rpc("claim_summary", summaryArgs)),
+  );
+  assert.equal(
+    summaryClaims.filter((s) => s.claimed).length,
+    1,
+    "Repeated manual request must only claim once",
+  );
+  const summary = summaryClaims[0].summary;
+  assert.equal(summary.source_count, 1);
+  assert.deepEqual(summary.source_ids, [source.id]);
+  assert.ok(
+    (
+      await admin.rpc("claim_summary", {
+        ...summaryArgs,
+        p_request: crypto.randomUUID(),
+      })
+    ).error,
+    "Only one pending summary per room",
+  );
+  assert.ok(
+    (await clients[0].rpc("claim_summary", summaryArgs)).error,
+    "Only server can reserve summaries",
+  );
+  assert.equal(
+    (
+      await clients[1]
+        .from("summaries")
+        .select("*")
+        .eq("room_id", summaryRoom.id)
+    ).data!.length,
+    0,
+    "Other users cannot read summary",
+  );
+  assert.ok(
+    (await admin.rpc("claim_summary", { ...summaryArgs, p_user: ids[1] }))
+      .error,
+    "Owner check before idempotency lookup",
+  );
+  r = await start(summaryRoom.id, user);
+  assert.equal(
+    await claim(r, user),
+    null,
+    "Pending summary reserves budget against bot calls",
+  );
+  assert.equal(
+    (await admin.from("messages").select("id").eq("room_id", r.id)).data!
+      .length,
+    1,
+    "Summaries do not create bot turns",
+  );
+  const settlement = {
+    p_summary: summary.id,
+    p_content: "Planner proposes a small experiment.",
+    p_cost: 0.01,
+    p_finish_reason: "stop",
+  };
+  assert.equal(await rpc("finish_summary", settlement), true);
+  assert.equal(await rpc("finish_summary", settlement), false);
+  assert.ok(
+    (
+      await admin.rpc("claim_summary", {
+        ...summaryArgs,
+        p_request: crypto.randomUUID(),
+      })
+    ).error,
+    "Summary cannot exceed remaining room budget",
+  );
+  const nextRoom = await room(user);
+  const { data: nextSource } = await admin
+    .from("messages")
+    .insert({
+      room_id: nextRoom.id,
+      bot_id: DEFAULT_BOTS[0].id,
+      speaker: "Planner",
+      content: "Next experiment",
+    })
+    .select()
+    .single();
+  const nextArgs = {
+    ...summaryArgs,
+    p_room: nextRoom.id,
+    p_request: crypto.randomUUID(),
+    p_source_ids: [nextSource.id],
+  };
+  assert.ok(
+    (await admin.rpc("claim_summary", { ...nextArgs, p_daily_budget: 0.005 }))
+      .error,
+    "Daily spending includes summaries",
+  );
+  const lostSummary = (await rpc("claim_summary", nextArgs)).summary;
+  await admin
+    .from("summaries")
+    .update({ created_at: new Date(Date.now() - 130000).toISOString() })
+    .eq("id", lostSummary.id);
+  const retry = await rpc("claim_summary", {
+    ...nextArgs,
+    p_request: crypto.randomUUID(),
+  });
+  assert.equal(
+    retry.claimed,
+    true,
+    "Only a new manual request recovers stale work",
+  );
+  assert.equal(
+    await rpc("finish_summary", { ...settlement, p_summary: lostSummary.id }),
+    false,
+    "Late summary cannot overwrite recovered failure",
+  );
+  const { data: lostRecord } = await admin
+    .from("summaries")
+    .select("*")
+    .eq("id", lostSummary.id)
+    .single();
+  assert.equal(lostRecord.status, "failed");
+  assert.equal(lostRecord.cost, null);
+  assert.equal(lostRecord.reserved_cost, 0.01);
+  await rpc("finish_summary", { ...settlement, p_summary: retry.summary.id });
+  console.log(
+    "PASS summary snapshots, idempotency, permissions, shared budgets, stale work, separate quotas",
+  );
   console.log("All integration checks passed. No Gateway calls were made.");
 } finally {
   for (const id of ids)

@@ -29,6 +29,14 @@ All message attempts count toward limits, including human messages and failed bo
 
 ## Cost and concurrency controls
 
+### Manual summaries
+
+Click **Summarize**, choose a model from the catalog, then click **Generate summary**. Opening the panel, selecting a model, polling, and resuming a room never generate summaries automatically. Each result separates the bots' contributions using their existing room colors, names, and models, followed by a neutral combined synthesis.
+
+Summaries are saved separately with the exact source message IDs and coverage count. They include completed messages across the conversation (including human steering), not just the bots' recent context window. Pending/failed replies are excluded, and incomplete replies are identified to the summarizer. Newer messages are flagged without updating the summary automatically. Saved summaries are available after reloading.
+
+Summary calls share room and daily spending limits with bot calls, including pending reservations. They do not consume chat-message or per-bot quotas and are never fed back into the bots' conversation. Duplicate request IDs and a per-room lock prevent duplicate paid work. Each request allows up to 1,200 output tokens and 48 KB of serialized source; oversized conversations fail clearly instead of silently dropping earlier contributions. Failed calls retain their reservations and require a manual retry.
+
 - Server-side PostgreSQL transactions lock the account, then the room, before claiming work. A partial unique index prevents two pending replies from one bot. Run IDs fence old workers; human request IDs prevent duplicate sends.
 - Current Gateway prices are fetched and cached for five minutes. Missing pricing blocks paid calls. The app reserves bounded input plus the configured output cap, using the highest listed price tier and a 25% margin.
 - Actual reported usage settles reservations conservatively. Failed or uncertain calls retain the reservation. There are no automatic paid retries or automatic continuations of truncated replies.
