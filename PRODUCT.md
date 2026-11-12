@@ -26,4 +26,4 @@ A conversation-first workspace with a compact bot and settings panel, explicitly
 - Defaults should make the first room easy to start.
 
 ## Open Decisions
-Botsbots is the working name from the repository, not a confirmed permanent brand. Future monetization and deployment are undecided.
+BotsBots is the working name from the repository, not a confirmed permanent brand. Future monetization and deployment are undecided.
