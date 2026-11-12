@@ -75,10 +75,10 @@ export async function generateReply(
   reservation: number,
   schema?: z.ZodType,
 ) {
-  const key = process.env.VERCEL_AI_GATEWAY_API_KEY;
+  const key = process.env.AI_GATEWAY_API_KEY;
   if (!key)
     throw new Error(
-      "Gateway key is missing. Set VERCEL_AI_GATEWAY_API_KEY in .env.local.",
+      "Gateway key is missing. Set AI_GATEWAY_API_KEY in .env.local.",
     );
   const gateway = createGateway({ apiKey: key });
   const result = await generateText({

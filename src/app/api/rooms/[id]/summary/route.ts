@@ -35,7 +35,7 @@ export async function POST(
     check(error);
     check(messageError);
     if (!room) throw new ApiError("Room not found.", 404);
-    if (!process.env.VERCEL_AI_GATEWAY_API_KEY)
+    if (!process.env.AI_GATEWAY_API_KEY)
       throw new ApiError("Gateway key is missing.", 503);
     let prompt;
     try {

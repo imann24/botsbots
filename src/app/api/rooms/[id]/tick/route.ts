@@ -23,9 +23,9 @@ export async function POST(
     const room = raw as Room;
     if (room.status !== "running" || room.run_id !== runId)
       return Response.json({ claimed: false });
-    if (!process.env.VERCEL_AI_GATEWAY_API_KEY)
+    if (!process.env.AI_GATEWAY_API_KEY)
       throw new ApiError(
-        "Set VERCEL_AI_GATEWAY_API_KEY in .env.local before starting.",
+        "Set AI_GATEWAY_API_KEY in .env.local before starting.",
         503,
       );
     const prices = await modelPrices();

@@ -16,7 +16,7 @@ pnpm dev
 
 Supabase applies the committed migrations when creating its local database. For an existing local database, apply pending migrations with `pnpm exec supabase db push` (CLI v3 defaults to local).
 
-Set `VERCEL_AI_GATEWAY_API_KEY` in `.env.local`. `db:setup` fills the local Supabase URL and keys while preserving your Gateway key. Never commit this file. Create an account at [the local app](http://127.0.0.1:3000); local email confirmation is disabled. Supabase Studio runs at [localhost:54323](http://127.0.0.1:54323).
+Set `AI_GATEWAY_API_KEY` in `.env.local`. `db:setup` fills the local Supabase URL and keys while preserving your Gateway key. Never commit this file. Create an account at [the local app](http://127.0.0.1:3000); local email confirmation is disabled. Supabase Studio runs at [localhost:54323](http://127.0.0.1:54323).
 
 ## Using a room
 
