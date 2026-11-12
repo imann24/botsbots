@@ -62,6 +62,8 @@ import { SummaryPanel } from "./summary-panel";
 import type { Summary } from "@/lib/summary";
 import { AccountUsageMeter, useAccountUsage } from "./account-usage";
 import { usageMoney } from "@/lib/usage";
+import { CommandBar, type WorkspaceCommand } from "./command-bar";
+import { shortcutKey } from "@/lib/commands";
 const presets = [
   {
     id: "plan" as const,
@@ -390,8 +392,17 @@ export function Workspace({ email }: { email: string }) {
     setEditing(true);
     setError("");
   }
-  async function save(e: FormEvent) {
-    e.preventDefault();
+  const saveInFlight = useRef(false);
+  async function save(e?: FormEvent, startImmediately = false) {
+    e?.preventDefault();
+    if (busy || saveInFlight.current) return;
+    if (startImmediately && accountExhausted) {
+      setError(
+        "Your weekly allowance is used. You can still create a room and start it when your allowance resets.",
+      );
+      return;
+    }
+    saveInFlight.current = true;
     setBusy(true);
     setError("");
     try {
@@ -413,13 +424,61 @@ export function Workspace({ email }: { email: string }) {
       setEditing(false);
       setPanelOpen(false);
       window.history.replaceState(null, "", `/?room=${data.room.id}`);
+      setRooms((all) => [
+        data.room,
+        ...all.filter((item) => item.id !== data.room.id),
+      ]);
+      if (startImmediately) {
+        try {
+          const started = await api<{ room: Room }>(
+            `/api/rooms/${data.room.id}`,
+            {
+              method: "PATCH",
+              body: JSON.stringify({ action: "start" }),
+            },
+          );
+          if (selectedId.current === started.room.id) setRoom(started.room);
+        } catch (e) {
+          setError(
+            `Room created, but it couldn’t start: ${(e as Error).message} Use Start to try again.`,
+          );
+        }
+      }
       await refreshRooms();
     } catch (e) {
       setError((e as Error).message);
     } finally {
+      saveInFlight.current = false;
       setBusy(false);
     }
   }
+  useEffect(() => {
+    if (!editing || room || loading) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (
+        event.defaultPrevented ||
+        shortcutKey(event) !== "mod+enter" ||
+        activeDrawer ||
+        document.querySelector("dialog[open]")
+      )
+        return;
+      event.preventDefault();
+      if (busy || saveInFlight.current) return;
+      const form = document.getElementById(
+        "room-form",
+      ) as HTMLFormElement | null;
+      if (!form?.reportValidity()) return;
+      if (draft.topic.trim().length < 3) {
+        form
+          .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+          ?.focus();
+        return;
+      }
+      void save(undefined, true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
   async function action(name: "start" | "pause" | "stop") {
     if (!room) return;
     setBusy(true);
@@ -493,6 +552,193 @@ export function Workspace({ email }: { email: string }) {
     a.click();
     URL.revokeObjectURL(url);
   }
+  function focusMainInput() {
+    requestAnimationFrame(() => {
+      if (editing)
+        document
+          .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+          ?.focus();
+      else composer.current?.focus();
+    });
+  }
+  function showUsage() {
+    if (mobileNav) setNavOpen(true);
+    else if (collapsedPanels.nav) toggleCollapsedPanel("nav");
+    requestAnimationFrame(() =>
+      document.getElementById("weekly-usage")?.focus(),
+    );
+  }
+  const roomUnavailable = loading
+    ? "Wait for the room to load"
+    : !room || editing
+      ? "Open a saved conversation first"
+      : undefined;
+  const commands: WorkspaceCommand[] = [
+    {
+      id: "new",
+      label: "New room",
+      description: "Bring a new idea to the table",
+      keywords: "create conversation",
+      group: "Actions",
+      icon: Plus,
+      shortcut: "N",
+      globalShortcut: "mod+shift+o",
+      disabled: busy ? "Wait for the current action to finish" : undefined,
+      run: () => {
+        newRoom();
+        requestAnimationFrame(() =>
+          document
+            .querySelector<HTMLTextAreaElement>(".topic-label textarea")
+            ?.focus(),
+        );
+      },
+    },
+    {
+      id: "compose",
+      label: editing ? "Focus the topic" : "Write a message",
+      description: editing
+        ? "Set the conversation in motion"
+        : "Add your perspective to the room",
+      keywords: "compose focus input",
+      group: "Actions",
+      icon: MessageSquare,
+      shortcut: "/",
+      disabled:
+        !editing && (!room || room.status === "stopped")
+          ? "Choose an open room to write a message"
+          : undefined,
+      run: focusMainInput,
+    },
+    {
+      id: "summary",
+      label: summaryOpen ? "Close summary" : "Open summary",
+      description: "Review or create a conversation summary",
+      keywords: "summarize recap",
+      group: "Actions",
+      icon: FileText,
+      shortcut: "S",
+      disabled: roomUnavailable,
+      run: () => {
+        setSummaryOpen(!summaryOpen);
+        requestAnimationFrame(() => summaryButton.current?.focus());
+      },
+    },
+    {
+      id: "run",
+      label:
+        room?.status === "running"
+          ? "Pause conversation"
+          : "Continue conversation",
+      description:
+        room?.status === "running"
+          ? "Let replies in flight finish; pause new replies"
+          : "Start the next bot replies within your limits",
+      keywords: "start resume play",
+      group: "Actions",
+      icon: room?.status === "running" ? Pause : Play,
+      disabled:
+        roomUnavailable ||
+        (busy
+          ? "Wait for the current action to finish"
+          : room?.status === "stopped"
+            ? "This room has ended"
+            : room?.status !== "running" && pending > 0
+              ? "Wait for replies in flight to finish"
+              : room?.status !== "running" && accountExhausted
+                ? "Your weekly allowance is used"
+                : undefined),
+      run: () => void action(room?.status === "running" ? "pause" : "start"),
+    },
+    {
+      id: "export",
+      label: "Export conversation",
+      description: "Download this room as Markdown",
+      keywords: "save download",
+      group: "Actions",
+      icon: Download,
+      shortcut: "E",
+      disabled: roomUnavailable,
+      run: exportChat,
+    },
+    {
+      id: "latest",
+      label: "Jump to latest replies",
+      description: "Return to the end of the conversation",
+      group: "Actions",
+      icon: ArrowDown,
+      shortcut: "J",
+      disabled: roomUnavailable,
+      run: () => {
+        setSummaryOpen(false);
+        setShowJump(false);
+        requestAnimationFrame(() =>
+          bottom.current?.scrollIntoView({ block: "end" }),
+        );
+      },
+    },
+    {
+      id: "rooms",
+      label: mobileNav
+        ? navOpen
+          ? "Close rooms"
+          : "Open rooms"
+        : collapsedPanels.nav
+          ? "Show rooms"
+          : "Hide rooms",
+      description: "Toggle room navigation",
+      keywords: "sidebar panel",
+      group: "Actions",
+      icon: PanelLeftOpen,
+      shortcut: "[",
+      globalShortcut: "mod+shift+s",
+      run: () =>
+        mobileNav ? setNavOpen(!navOpen) : toggleCollapsedPanel("nav"),
+    },
+    {
+      id: "setup",
+      label: compactPanel
+        ? "Open room setup"
+        : collapsedPanels.setup
+          ? "Show room setup"
+          : "Hide room setup",
+      description: "Toggle bots, perspectives, and room limits",
+      keywords: "settings panel",
+      group: "Actions",
+      icon: Settings2,
+      shortcut: "]",
+      run: () =>
+        compactPanel ? setPanelOpen(true) : toggleCollapsedPanel("setup"),
+    },
+    {
+      id: "usage",
+      label: "View weekly usage",
+      description: "Check your account allowance and reset time",
+      keywords: "budget cost plan",
+      group: "Actions",
+      icon: ShieldCheck,
+      shortcut: "U",
+      run: showUsage,
+    },
+    ...rooms.map((item): WorkspaceCommand => ({
+      id: `room-${item.id}`,
+      label: item.title,
+      description:
+        item.id === room?.id
+          ? "Current room"
+          : item.status === "running"
+            ? "In conversation"
+            : item.status === "stopped"
+              ? "Ended room"
+              : "Open conversation",
+      keywords: `${item.topic} ${item.purpose}`,
+      group: "Rooms",
+      icon: MessageSquare,
+      disabled: busy ? "Wait for the current action to finish" : undefined,
+      run: () => {
+        void selectRoom(item.id);
+      },
+    })),
+  ];
   const status =
     room?.status === "running"
       ? "In conversation"
@@ -550,7 +796,11 @@ export function Workspace({ email }: { email: string }) {
             <X size={20} />
           </button>
         </div>
-        <button className="button new-room" onClick={newRoom}>
+        <button
+          className="button new-room"
+          onClick={newRoom}
+          aria-keyshortcuts="Meta+Shift+O Control+Shift+O"
+        >
           <Plus size={18} />
           New room
         </button>
@@ -672,6 +922,14 @@ export function Workspace({ email }: { email: string }) {
             </span>
           </div>
           <div className="header-actions">
+            <CommandBar
+              commands={commands}
+              shortcutsBlocked={!!activeDrawer}
+              onOpen={() => {
+                setNavOpen(false);
+                setPanelOpen(false);
+              }}
+            />
             <button
               className="button small usage-shortcut"
               aria-label="View weekly account usage"
@@ -930,7 +1188,9 @@ export function Workspace({ email }: { email: string }) {
                     Cancel
                   </button>
                 ) : (
-                  <span>No model calls until you start the conversation.</span>
+                  <span>
+                    Create now, or press Cmd/Ctrl + Enter to create and start.
+                  </span>
                 )}
               </div>
             </form>
