@@ -71,6 +71,8 @@ import {
 } from "@/lib/account-defaults";
 import { CommandBar, type WorkspaceCommand } from "./command-bar";
 import { shortcutKey } from "@/lib/commands";
+import { ContactModal } from "./contact-modal";
+import type { ContactKind } from "@/lib/contact";
 const presets = [
   {
     id: "plan" as const,
@@ -127,6 +129,12 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 const money = (n: number) => `$${n.toFixed(n > 0 && n < 0.01 ? 4 : 2)}`;
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export function Workspace({ email }: { email: string }) {
+  const [contactKind, setContactKind] = useState<ContactKind | null>(null);
+  function showContact(kind: ContactKind = "support") {
+    setNavOpen(false);
+    setPanelOpen(false);
+    requestAnimationFrame(() => setContactKind(kind));
+  }
   const accountUsage = useAccountUsage();
   const accountExhausted =
     !accountUsage.error && accountUsage.usage?.remaining === 0;
@@ -807,6 +815,24 @@ export function Workspace({ email }: { email: string }) {
       shortcut: "U",
       run: showUsage,
     },
+    {
+      id: "contact",
+      label: "Contact us",
+      description: "Get support, ask a question, or share feedback",
+      keywords: "help email feedback support",
+      group: "Actions",
+      icon: MessageSquare,
+      run: () => showContact(),
+    },
+    {
+      id: "upgrade",
+      label: "Request higher usage limits",
+      description: "Tell us how much more room you need",
+      keywords: "upgrade allowance budget premium",
+      group: "Actions",
+      icon: ArrowUp,
+      run: () => showContact("limits"),
+    },
     ...rooms.map((item): WorkspaceCommand => ({
       id: `room-${item.id}`,
       label: item.title,
@@ -948,7 +974,15 @@ export function Workspace({ email }: { email: string }) {
           <AccountUsageMeter
             {...accountUsage}
             onRefresh={() => void accountUsage.refresh()}
+            onRequestUpgrade={() => showContact("limits")}
           />
+          <button
+            className="sidebar-contact"
+            aria-haspopup="dialog"
+            onClick={() => showContact()}
+          >
+            <MessageSquare size={16} aria-hidden="true" /> Contact us
+          </button>
           <div className="account">
             <span className="account-avatar">{email[0].toUpperCase()}</span>
             <span title={email}>
@@ -968,6 +1002,13 @@ export function Workspace({ email }: { email: string }) {
           </div>
         </div>
       </nav>
+      {contactKind && (
+        <ContactModal
+          email={email}
+          initialKind={contactKind}
+          onClose={() => setContactKind(null)}
+        />
+      )}
       <main className="main" id="main" inert={!!activeDrawer}>
         <header className="room-header">
           <div className="header-title">
