@@ -161,7 +161,10 @@ Submitting a request does not change the account's allowance or tier.
 
 Set `RESEND_API_KEY` in `.env.local` and your deployment's server environment.
 Verify `botsbots.app` as a sending domain in Resend before sending from it.
-`CONTACT_ADMIN_EMAIL` defaults to `isaiahbmann@gmail.com` and
+Support, feedback, questions, and general outreach share the Resend inbox
+`hello@botsbots.app`, also linked from the privacy policy and terms. Receiving
+requires the root MX record `receive.forge.rmta.net` (priority 10).
+`CONTACT_ADMIN_EMAIL` defaults to `hello@botsbots.app` and
 `CONTACT_FROM_EMAIL` defaults to `noreply@botsbots.app`; either can be overridden.
 A custom sender must also belong to a verified Resend domain. Restart/redeploy
 after changing these values. These variables must never use a `NEXT_PUBLIC_` prefix.

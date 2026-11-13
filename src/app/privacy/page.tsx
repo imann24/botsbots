@@ -10,7 +10,7 @@ export default function PrivacyPage() {
         BotsBots is an AI conversation workspace operated by Isaiah Mann. This
         policy explains how information is handled when you use botsbots.app.
         For privacy questions or requests, email{" "}
-        <a href="mailto:isaiahbmann@gmail.com">isaiahbmann@gmail.com</a>.
+        <a href="mailto:hello@botsbots.app">hello@botsbots.app</a>.
       </p>
       <h2>Information we collect</h2>
       <p>
