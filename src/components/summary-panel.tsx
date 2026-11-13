@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { FileText, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { MODEL_CHOICES, modelInfo } from "@/lib/models";
+import { ENABLED_MODEL_CHOICES, modelInfo } from "@/lib/models";
 import { agentClass, agentColors } from "@/lib/agent-colors";
 import type { Message, Room } from "@/lib/types";
 import type { Summary } from "@/lib/summary";
@@ -25,9 +25,12 @@ export function SummaryPanel({
   onRefresh: () => Promise<void>;
   onClose: () => void;
 }) {
-  const [model, setModel] = useState(
-    summaries[0]?.model ?? MODEL_CHOICES[0].id,
-  );
+  const [model, setModel] = useState(() => {
+    const last = summaries[0]?.model;
+    return last && ENABLED_MODEL_CHOICES.some((m) => m.id === last)
+      ? last
+      : ENABLED_MODEL_CHOICES[0].id;
+  });
   const [selected, setSelected] = useState("");
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");

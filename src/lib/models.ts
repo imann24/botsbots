@@ -42,6 +42,7 @@ export const MODEL_CHOICES = [
     name: "Gemini 4 Hydrogen",
     provider: "Google",
     tier: "Mid",
+    disabled: true,
   },
   {
     id: "meta/muse-ember",
@@ -85,9 +86,23 @@ export const MODEL_CHOICES = [
     provider: "MiniMax",
     tier: "Small",
   },
-] as const;
+] as const satisfies readonly {
+  id: string;
+  name: string;
+  provider: string;
+  tier: "Small" | "Mid";
+  // Disabled models stay listed (so saved rooms, labels and prices keep
+  // working) but are hidden from selectors and can't be picked for new work.
+  disabled?: boolean;
+}[];
 // "Small"/"Mid" describe the product/cost tier, not undisclosed parameter counts.
 export type ModelId = (typeof MODEL_CHOICES)[number]["id"];
 export type ModelPrice = { id: string; input: number; output: number };
+export const isModelDisabled = (m: (typeof MODEL_CHOICES)[number]) =>
+  "disabled" in m && m.disabled === true;
+export const ENABLED_MODEL_CHOICES = MODEL_CHOICES.filter(
+  (m) => !isModelDisabled(m),
+);
+export const enabledModelIds = ENABLED_MODEL_CHOICES.map((m) => m.id);
 export const modelInfo = (id: string) =>
   MODEL_CHOICES.find((m) => m.id === id) ?? MODEL_CHOICES[0];
