@@ -12,6 +12,13 @@ export const MODEL_CHOICES = [
     name: "GPT-6.1 Terra",
     provider: "OpenAI",
     tier: "Mid",
+    featured: {
+      order: 1,
+      preview: {
+        perspective: "The strategist",
+        reply: "Start small. Find the one thing worth testing first.",
+      },
+    },
   },
   {
     id: "anthropic/claude-haiku-5.5",
@@ -24,6 +31,13 @@ export const MODEL_CHOICES = [
     name: "Claude Sonnet 5.5",
     provider: "Anthropic",
     tier: "Mid",
+    featured: {
+      order: 2,
+      preview: {
+        perspective: "The challenger",
+        reply: "What if the best version breaks your first assumption?",
+      },
+    },
   },
   {
     id: "google/gemini-3.5-flash-lite",
@@ -36,6 +50,13 @@ export const MODEL_CHOICES = [
     name: "Gemini 3.8 Flash",
     provider: "Google",
     tier: "Mid",
+    featured: {
+      order: 3,
+      preview: {
+        perspective: "The explorer",
+        reply: "Let’s connect those ideas and try a different angle.",
+      },
+    },
   },
   {
     id: "google/gemini-4-hydrogen",
@@ -61,18 +82,21 @@ export const MODEL_CHOICES = [
     name: "Mistral Medium 3.5",
     provider: "Mistral",
     tier: "Mid",
+    featured: { order: 4 },
   },
   {
     id: "deepseek/deepseek-v4.1-flash-1017",
     name: "DeepSeek V4.1 Flash",
     provider: "DeepSeek",
     tier: "Small",
+    featured: { order: 5 },
   },
   {
     id: "alibaba/qwen3.8-flash",
     name: "Qwen 3.8 Flash",
     provider: "Alibaba",
     tier: "Small",
+    featured: { order: 6 },
   },
   {
     id: "amazon/nova-2-lite",
@@ -94,6 +118,10 @@ export const MODEL_CHOICES = [
   // Disabled models stay listed (so saved rooms, labels and prices keep
   // working) but are hidden from selectors and can't be picked for new work.
   disabled?: boolean;
+  featured?: {
+    order: number;
+    preview?: { perspective: string; reply: string };
+  };
 }[];
 // "Small"/"Mid" describe the product/cost tier, not undisclosed parameter counts.
 export type ModelId = (typeof MODEL_CHOICES)[number]["id"];
@@ -103,6 +131,13 @@ export const isModelDisabled = (m: (typeof MODEL_CHOICES)[number]) =>
 export const ENABLED_MODEL_CHOICES = MODEL_CHOICES.filter(
   (m) => !isModelDisabled(m),
 );
+
+// Auth showcases follow the available catalog: disabling or removing a model
+// also removes its feature. Curate via featured.order and optional preview.
+export const FEATURED_MODELS = ENABLED_MODEL_CHOICES.filter(
+  (model) => "featured" in model,
+).sort((a, b) => a.featured.order - b.featured.order);
+
 export const enabledModelIds = ENABLED_MODEL_CHOICES.map((m) => m.id);
 export const modelInfo = (id: string) =>
   MODEL_CHOICES.find((m) => m.id === id) ?? MODEL_CHOICES[0];
