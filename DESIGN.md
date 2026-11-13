@@ -149,7 +149,7 @@ Manrope brings broad, firm headings; DM Sans keeps dense controls and sustained 
 
 ### Hierarchy
 - **Display:** authentication headline; responsive clamp and tight tracking are recorded in frontmatter. It becomes (44px) at the medium breakpoint and (36px) on mobile.
-- **Headline:** room-builder heading, semibold-heavy (750), becoming (23px) on phones.
+- **Headline:** new-room heading uses (36px) desktop and (28px) mobile, semibold-heavy (750). The existing room editor keeps its compact heading scale.
 - **Title:** settings headings use the compact title token; authentication form headings use (28px), reducing to (25px) on mobile.
 - **Body:** conversation prose uses the frontmatter body role and a maximum measure of (72ch); mobile prose is (12px). Builder introduction uses (14px) and line height (1.75).
 - **Label:** field labels use the frontmatter label role. Dense participant and measurement metadata uses (10–12px); it is supporting information rather than a display treatment.
@@ -162,7 +162,11 @@ The workspace occupies (100dvh), with independently scrolling conversation, buil
 
 At (980px) and below, room setup becomes a right-hand drawer (330px); the left navigation remains a column. At (640px) and below, navigation becomes a left drawer (`min(320px, 86vw)`) that gives its height to the room list (see Navigation), the conversation fills the width, and setup becomes a full-width sheet with a (65px) header matching the conversation header. Explicit buttons open and close drawers. Closed drawers are hidden and inert; active drawers have dialog semantics, focus management, and inert surroundings.
 
-Desktop pane headers align at (78px); mobile conversation headers are (65px), wrapping actions to a second row inside a room. The builder is capped at (770px) with broad internal padding; purpose chips wrap, and mode choices switch between one and two columns according to available space. On phones the new-room builder fits one screen without scrolling down to (568px) of height. Its header stays a single (56px) row (the headline names the screen, so the header title is dropped). Purpose chips form a two-by-two grid, the room name sits beside its label, and mode choices shrink to two (44px) toggles with the selected mode's description beneath. A sticky paper footer with a fine top rule pins the lineup button (overlapping agent avatars and a bot count, opening the setup sheet) beside a full-width Create room in thumb reach. The topic field absorbs spare height up to a cap. Below (700px) of height the supporting paragraph is dropped; below (600px) the headline is visually hidden but kept for assistive technology.
+Desktop pane headers align at (78px); mobile conversation headers are (65px), wrapping actions to a second row inside a room. New conversations use two columns on desktop: room navigation and a paper canvas. The setup panel opens as a (380px) drawer, becoming a full-width sheet on phones, without changing the saved panel preference used by existing rooms.
+
+The new-room builder is capped at (780px), with a fixed (36px) headline on desktop and (28px) on phones. The opening topic leads. Three flat setup shortcuts beneath the composer show the bot avatars/count, selected conversation style, and explicit budget/message cap. The lineup opens the roster; each bot's model, name and perspective is a second click away. The limits shortcut opens all eight numeric controls and focuses the first input. The style shortcut opens Conversation details and focuses the selected mode. Conversation details also contains purpose and optional room name; its collapsed summary shows the chosen purpose or title. The existing room editor opens these details by default.
+
+On phones the new-room header stays one (56px) row and Create room remains in a sticky paper footer. Setup shortcuts wrap into two rows at narrow widths, using (44px) targets; below (360px), slightly tighter labels keep the lineup and style together. Short phones omit the supporting paragraph. Expanded details grow the form into its scrolling region, keeping the footer from obscuring the final settings row. Existing rooms retain the three-column desktop workspace and responsive setup drawer.
 
 Authentication uses a (1.08fr / 1fr) split with a (360px) form maximum, becoming a vertical page on mobile.
 
@@ -190,7 +194,7 @@ Button color transitions last (150ms). Keyboard focus uses a (3px) blue outline 
 
 ### Chips
 
-Purpose choices use compact bordered white chips with muted text, arranged in a wrapping row. Selection fills a chip navy and turns its text white; `aria-pressed` exposes that state. Hover on an unselected chip strengthens its border and text. Chips are controls, not ornamental labels.
+Purpose choices inside Conversation details use compact bordered white chips with muted text, arranged in a wrapping row. Selection fills a chip navy and turns its text white; `aria-pressed` exposes that state. Hover on an unselected chip strengthens its border and text. Chips are controls, not ornamental labels.
 
 ### Cards / Containers
 
