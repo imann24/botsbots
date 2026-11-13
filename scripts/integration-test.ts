@@ -81,6 +81,129 @@ try {
     clients.push(c);
   }
   const user = ids[0];
+  // Archiving uses the same account/room locks as claiming a paid turn.
+  const archiveRoom = await start((await room(user)).id, user);
+  const inFlight = await claim(archiveRoom, user);
+  assert.ok(inFlight);
+  const archive = () =>
+    rpc("room_action", {
+      p_room: archiveRoom.id,
+      p_user: user,
+      p_action: "archive",
+    });
+  const archived = await archive();
+  assert.ok(archived.archived_at);
+  assert.equal(
+    archived.updated_at,
+    archiveRoom.updated_at,
+    "Archiving preserves chat order",
+  );
+  assert.equal(archived.status, "paused");
+  assert.equal(
+    (await archive()).archived_at,
+    archived.archived_at,
+    "Archive retries are idempotent",
+  );
+  assert.equal(
+    await claim(archiveRoom, user),
+    null,
+    "Archived rooms cannot claim another reply",
+  );
+  for (const p_action of ["start", "message", "settings"]) {
+    assert.ok(
+      (
+        await admin.rpc("room_action", {
+          p_room: archiveRoom.id,
+          p_user: user,
+          p_action,
+        })
+      ).error,
+      `${p_action} cannot reactivate an archived chat`,
+    );
+  }
+  assert.ok(
+    (
+      await admin.rpc("room_action", {
+        p_room: archiveRoom.id,
+        p_user: ids[1],
+        p_action: "restore",
+      })
+    ).error,
+  );
+  assert.equal(
+    (await clients[1].from("rooms").select("*").eq("id", archiveRoom.id)).data!
+      .length,
+    0,
+  );
+  await finish(inFlight);
+  const archivedMessages = await admin
+    .from("messages")
+    .select("*")
+    .eq("room_id", archiveRoom.id);
+  assert.equal(archivedMessages.data!.length, 1);
+  assert.equal(
+    archivedMessages.data![0].content,
+    "Useful response",
+    "In-flight reply is retained",
+  );
+  assert.equal(
+    (
+      await clients[0]
+        .from("rooms")
+        .select("id")
+        .is("archived_at", null)
+        .eq("id", archiveRoom.id)
+    ).data!.length,
+    0,
+  );
+  assert.equal(
+    (
+      await clients[0]
+        .from("rooms")
+        .select("id")
+        .not("archived_at", "is", null)
+        .eq("id", archiveRoom.id)
+    ).data!.length,
+    1,
+  );
+  const beforeRestore = await admin
+    .from("rooms")
+    .select("updated_at")
+    .eq("id", archiveRoom.id)
+    .single();
+  assert.ifError(beforeRestore.error);
+  const restored = await rpc("room_action", {
+    p_room: archiveRoom.id,
+    p_user: user,
+    p_action: "restore",
+  });
+  assert.equal(restored.archived_at, null);
+  assert.equal(
+    restored.updated_at,
+    beforeRestore.data!.updated_at,
+    "Restoring preserves chat order",
+  );
+  assert.equal(restored.status, "paused", "Restore never starts generation");
+  assert.deepEqual(restored.settings, archiveRoom.settings);
+  await rpc("room_action", {
+    p_room: archiveRoom.id,
+    p_user: user,
+    p_action: "stop",
+  });
+  await archive();
+  const endedRestored = await rpc("room_action", {
+    p_room: archiveRoom.id,
+    p_user: user,
+    p_action: "restore",
+  });
+  assert.equal(
+    endedRestored.status,
+    "stopped",
+    "Ended rooms stay ended after restoration",
+  );
+  console.log(
+    "PASS archive/restore persistence, ownership, pause guards, retained replies and ended rooms",
+  );
   let r = await start((await room(user)).id, user);
   let claims = await Promise.all(
     Array.from({ length: 12 }, () => claim(r, user)),

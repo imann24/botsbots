@@ -2,13 +2,19 @@ import { authenticated, check, failure, jsonBody } from "@/lib/api";
 import { createRoomSchema } from "@/lib/types";
 import { assignAgentColors } from "@/lib/agent-colors";
 import { generateRoomTitle } from "@/lib/room-title";
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const { db } = await authenticated();
-    const { data, error } = await db
-      .from("rooms")
-      .select("*")
+    const archived = new URL(req.url).searchParams.get("archived") === "true";
+    const query = db.from("rooms").select("*");
+    const { data, error } = await (
+      archived
+        ? query.not("archived_at", "is", null)
+        : query.is("archived_at", null)
+    )
       .order("updated_at", { ascending: false })
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: true })
       .limit(100);
     check(error);
     return Response.json({ rooms: data });

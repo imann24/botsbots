@@ -7,7 +7,7 @@ vi.mock("@/lib/api", async (importOriginal) => ({
 }));
 import { ApiError, authenticated } from "@/lib/api";
 import { DEFAULT_BOTS, DEFAULT_SETTINGS } from "@/lib/types";
-import { POST } from "./route";
+import { GET, POST } from "./route";
 import { PATCH } from "./[id]/route";
 
 const id = "a1111111-1111-4111-8111-111111111111";
@@ -26,7 +26,22 @@ const single = vi.fn();
 const maybeSingle = vi.fn();
 const from = vi.fn();
 const rpc = vi.fn();
-const query = { insert, update, eq, select, single, maybeSingle };
+const is = vi.fn();
+const not = vi.fn();
+const order = vi.fn();
+const limit = vi.fn();
+const query = {
+  insert,
+  update,
+  eq,
+  select,
+  single,
+  maybeSingle,
+  is,
+  not,
+  order,
+  limit,
+};
 const request = (method: string, body: unknown) =>
   new Request(`http://localhost/api/rooms/${id}`, {
     method,
@@ -39,7 +54,7 @@ const rename = (title: unknown) =>
   });
 
 beforeEach(() => {
-  for (const method of [from, insert, update, eq, select])
+  for (const method of [from, insert, update, eq, select, is, not, order])
     method.mockReturnValue(query);
   single.mockImplementation(async () => ({
     data: { ...insert.mock.calls[0][0], id },
@@ -52,7 +67,68 @@ beforeEach(() => {
   vi.mocked(authenticated).mockResolvedValue({
     user: { id: userId },
     admin: { from, rpc },
+    db: { from },
   } as unknown as Awaited<ReturnType<typeof authenticated>>);
+});
+
+describe("chat archives", () => {
+  it("filters archived chats before applying the normal room list limit", async () => {
+    limit.mockResolvedValue({ data: [], error: null });
+    expect((await GET(new Request("http://localhost/api/rooms"))).status).toBe(
+      200,
+    );
+    expect(is).toHaveBeenCalledWith("archived_at", null);
+    expect(not).not.toHaveBeenCalled();
+    expect(is.mock.invocationCallOrder[0]).toBeLessThan(
+      limit.mock.invocationCallOrder[0],
+    );
+  });
+
+  it("returns archived chats only when explicitly requested", async () => {
+    limit.mockResolvedValue({
+      data: [{ id, archived_at: "2026-11-13" }],
+      error: null,
+    });
+    const response = await GET(
+      new Request("http://localhost/api/rooms?archived=true"),
+    );
+    expect(not).toHaveBeenCalledWith("archived_at", "is", null);
+    expect(is).not.toHaveBeenCalled();
+    expect((await response.json()).rooms).toHaveLength(1);
+  });
+
+  it.each(["archive", "restore"])(
+    "routes %s through the atomic owner-scoped action",
+    async (action) => {
+      rpc.mockResolvedValue({ data: { id }, error: null });
+      const response = await PATCH(request("PATCH", { action }), {
+        params: Promise.resolve({ id }),
+      });
+      expect(response.status).toBe(200);
+      expect(rpc).toHaveBeenCalledWith("room_action", {
+        p_room: id,
+        p_user: userId,
+        p_action: action,
+        p_payload: {},
+      });
+      expect(update).not.toHaveBeenCalled();
+    },
+  );
+
+  it("requires authentication for archive and restore", async () => {
+    vi.mocked(authenticated).mockRejectedValue(
+      new ApiError("Sign in to continue.", 401),
+    );
+    for (const action of ["archive", "restore"])
+      expect(
+        (
+          await PATCH(request("PATCH", { action }), {
+            params: Promise.resolve({ id }),
+          })
+        ).status,
+      ).toBe(401);
+    expect(rpc).not.toHaveBeenCalled();
+  });
 });
 afterEach(() => vi.clearAllMocks());
 
