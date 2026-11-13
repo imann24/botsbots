@@ -47,6 +47,8 @@ export async function PATCH(req: Request, ctx: Context) {
           "message",
           "settings",
           "rename",
+          "archive",
+          "restore",
         ]),
         payload: z.unknown().optional(),
       })

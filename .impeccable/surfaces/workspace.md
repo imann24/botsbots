@@ -124,3 +124,38 @@ the local preview, not shipping raster assets. The temporary preview fixture was
 removed. Validation reported 66 passing tests, TypeScript checking, and a passing
 production build. Existing sidecar drift and the unset configuration build path
 remain outside this ordinary extension's scope.
+
+## Archive chats
+
+Mode: Operate. Local extension of the incumbent Jet age workspace.
+
+Archiving opens a paper confirmation dialog with navy heading, red Archive chat
+action and Cancel focused initially. Native modal containment, Escape/backdrop
+dismissal and focus return follow the existing dialogs. It explains that rooms
+and global room search will hide the chat, messages and summaries remain, and new
+bot replies pause while replies already in flight may finish. Errors retain the
+dialog and offer a retry; repeat submits and dismissal are blocked while saving.
+
+A quiet Archived chats entry sits below the room list. Row archive icons appear
+on hover or keyboard focus for fine pointers and remain visible on touch; coarse
+pointer targets grow to (44px). The archive list has explicit loading, error,
+empty and no-match states, a Back to your rooms action and labeled Restore chat
+controls. Restoring opens the retained conversation with generation paused.
+Archive and restore retain activity timestamps and the original activity order,
+including stable ties. The extension uses existing type, stroked icons, fine
+rules and flat surfaces; it adds no shadow or visual-world change.
+
+### Completion evidence
+
+Scoped finish review returned **SHIP**, with no material fixes. Five valid local
+preview captures cover subtle desktop controls, desktop/mobile confirmation and
+desktop/mobile archive lists: `.impeccable/review/archive/desktop-subtle.png`,
+`desktop-modal.png`, `desktop-list.png`, `mobile-modal.png` and `mobile-list.png`
+in the same directory. These are review evidence, not shipping raster assets.
+Validation reported 108 passing unit tests, TypeScript checking, full local
+Supabase integration and a passing production build; no Gateway calls were made.
+The local archive migration was applied and database security advisors reported
+no issues. The detector and automatic hook found no new non-advisory UI issues.
+System comparison and review scope are recorded in
+`.impeccable/review/archive/documentation.md`. `PRODUCT.md`, `DESIGN.md` and the
+existing stale sidecar remain unchanged; incumbent CSS advisories are outside scope.

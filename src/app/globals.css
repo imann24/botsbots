@@ -295,6 +295,113 @@ small {
   flex: 1;
   margin: 0 -5px;
 }
+.archive-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: none;
+  color: #b6c3d7;
+  padding: 10px;
+  margin: -6px 0 18px;
+  min-height: 40px;
+  border-radius: 6px;
+  font-size: 11px;
+  text-align: left;
+}
+.archive-view-toggle:hover {
+  background: #ffffff13;
+  color: white;
+}
+.archive-view-entry {
+  margin: 8px 0 0;
+  min-height: 36px;
+}
+.room-row {
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  margin-bottom: 5px;
+}
+.room-row:hover,
+.room-row.active {
+  background: #ffffff13;
+}
+.room-row .room-link {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+}
+.room-archive-action {
+  color: #b6c3d7;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+.room-archive-action:hover {
+  color: white;
+}
+@media (hover: hover) and (pointer: fine) {
+  .room-archive-action:not(.restore-chat) {
+    opacity: 0;
+  }
+  .room-row:hover .room-archive-action,
+  .room-row:focus-within .room-archive-action {
+    opacity: 1;
+  }
+}
+.room-row:has(.restore-chat) {
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ffffff20;
+}
+.room-row .archived-room {
+  flex-basis: 100%;
+}
+.restore-chat {
+  width: auto;
+  gap: 6px;
+  margin-left: 35px;
+  font-size: 12px;
+}
+.archive-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.archive-notice span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.archive-description {
+  padding: 20px 28px;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.archive-description p {
+  margin: 0 0 12px;
+}
+.archive-description p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+@media (max-width: 640px) {
+  .archive-description {
+    padding: 20px;
+  }
+}
+@media (pointer: coarse) {
+  .archive-view-toggle,
+  .room-archive-action {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
 .room-link {
   width: 100%;
   display: flex;

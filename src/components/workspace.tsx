@@ -8,6 +8,9 @@ import {
   type FormEvent,
 } from "react";
 import {
+  Archive,
+  ArchiveRestore,
+  ArrowLeft,
   ArrowDown,
   ArrowRight,
   ArrowUp,
@@ -75,6 +78,8 @@ import { CommandBar, type WorkspaceCommand } from "./command-bar";
 import { shortcutKey } from "@/lib/commands";
 import { ContactModal } from "./contact-modal";
 import type { ContactKind } from "@/lib/contact";
+import { ArchiveChatModal } from "./archive-chat-modal";
+import { compareRooms } from "@/lib/room-order";
 import { RoomTitle } from "./room-title";
 const presets = [
   {
@@ -150,6 +155,14 @@ function StartShortcutHint() {
   );
 }
 export function Workspace({ email }: { email: string }) {
+  const [archiveTarget, setArchiveTarget] = useState<Room | null>(null);
+  const [archiveView, setArchiveView] = useState(false);
+  const [archivedRooms, setArchivedRooms] = useState<Room[]>([]);
+  const [archiveLoading, setArchiveLoading] = useState(false);
+  const [archiveError, setArchiveError] = useState("");
+  const [restoreBusy, setRestoreBusy] = useState<string | null>(null);
+  const [archiveNotice, setArchiveNotice] = useState("");
+  const archiveMutation = useRef(false);
   const [contactKind, setContactKind] = useState<ContactKind | null>(null);
   function showContact(kind: ContactKind = "support") {
     setNavOpen(false);
@@ -315,6 +328,18 @@ export function Workspace({ email }: { email: string }) {
       current.current.updated_at > data.room.updated_at
     )
       return;
+    if (data.room.archived_at) {
+      selectedId.current = null;
+      setRoom(null);
+      setEditing(true);
+      setArchiveView(true);
+      setArchiveNotice(
+        "This chat is archived. Restore it from Archived chats.",
+      );
+      window.history.replaceState(null, "", "/");
+      setRooms((all) => all.filter((r) => r.id !== id));
+      return;
+    }
     setRoom(data.room);
     setMessages(data.messages);
     setSummaries(data.summaries);
@@ -333,7 +358,8 @@ export function Workspace({ email }: { email: string }) {
       setNavOpen(false);
       try {
         await refresh(id);
-        window.history.replaceState(null, "", `/?room=${id}`);
+        if (selectedId.current === id)
+          window.history.replaceState(null, "", `/?room=${id}`);
       } catch (e) {
         setError((e as Error).message);
       } finally {
@@ -435,6 +461,9 @@ export function Workspace({ email }: { email: string }) {
     refresh,
   ]);
   function newRoom() {
+    setArchiveView(false);
+    setLoading(false);
+    setText("");
     setSummaries([]);
     setSummaryOpen(false);
     selectedId.current = null;
@@ -447,6 +476,79 @@ export function Workspace({ email }: { email: string }) {
     setNavOpen(false);
     setExpandedBot(null);
     window.history.replaceState(null, "", "/");
+  }
+  const loadArchivedRooms = useCallback(async () => {
+    setArchiveLoading(true);
+    setArchiveError("");
+    try {
+      const data = await api<{ rooms: Room[] }>("/api/rooms?archived=true");
+      setArchivedRooms(data.rooms);
+    } catch (error) {
+      setArchiveError(
+        `Couldn’t load archived chats. ${(error as Error).message}`,
+      );
+    } finally {
+      setArchiveLoading(false);
+    }
+  }, []);
+  useEffect(() => {
+    if (archiveView) void loadArchivedRooms();
+  }, [archiveView, loadArchivedRooms]);
+  function confirmArchive(target: Room) {
+    setNavOpen(false);
+    setPanelOpen(false);
+    requestAnimationFrame(() => setArchiveTarget(target));
+  }
+  async function archiveChat(target: Room) {
+    const { room: archived } = await api<{ room: Room }>(
+      `/api/rooms/${target.id}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({ action: "archive" }),
+      },
+    );
+    setRooms((all) => all.filter((r) => r.id !== target.id));
+    setArchivedRooms((all) =>
+      [archived, ...all.filter((r) => r.id !== target.id)].sort(compareRooms),
+    );
+    if (selectedId.current === target.id) newRoom();
+    setArchiveNotice(
+      `“${target.title}” archived. Restore it from Archived chats.`,
+    );
+  }
+  async function restoreChat(target: Room) {
+    if (archiveMutation.current) return;
+    archiveMutation.current = true;
+    setRestoreBusy(target.id);
+    setArchiveError("");
+    try {
+      const { room: restored } = await api<{ room: Room }>(
+        `/api/rooms/${target.id}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ action: "restore" }),
+        },
+      );
+      setArchivedRooms((all) => all.filter((r) => r.id !== target.id));
+      setRooms((all) =>
+        [restored, ...all.filter((r) => r.id !== target.id)].sort(compareRooms),
+      );
+      setArchiveView(false);
+      setSearch("");
+      await selectRoom(restored.id);
+      setArchiveNotice(`“${target.title}” restored.`);
+      requestAnimationFrame(() => {
+        if (selectedId.current === restored.id)
+          document.getElementById("main")?.focus({ preventScroll: true });
+      });
+    } catch (error) {
+      setArchiveError(
+        `Couldn’t restore this chat. ${(error as Error).message}`,
+      );
+    } finally {
+      archiveMutation.current = false;
+      setRestoreBusy(null);
+    }
   }
   function editRoom() {
     if (!room) return;
@@ -537,9 +639,7 @@ export function Workspace({ email }: { email: string }) {
       ) as HTMLFormElement | null;
       if (!form?.reportValidity()) return;
       if (draft.topic.trim().length < 3) {
-        form
-          .querySelector<HTMLTextAreaElement>("#room-topic")
-          ?.focus();
+        form.querySelector<HTMLTextAreaElement>("#room-topic")?.focus();
         return;
       }
       void save(undefined, true);
@@ -682,9 +782,7 @@ export function Workspace({ email }: { email: string }) {
   function focusMainInput() {
     requestAnimationFrame(() => {
       if (editing)
-        document
-          .querySelector<HTMLTextAreaElement>("#room-topic")
-          ?.focus();
+        document.querySelector<HTMLTextAreaElement>("#room-topic")?.focus();
       else composer.current?.focus();
     });
   }
@@ -714,9 +812,7 @@ export function Workspace({ email }: { email: string }) {
       run: () => {
         newRoom();
         requestAnimationFrame(() =>
-          document
-            .querySelector<HTMLTextAreaElement>("#room-topic")
-            ?.focus(),
+          document.querySelector<HTMLTextAreaElement>("#room-topic")?.focus(),
         );
       },
     },
@@ -864,6 +960,33 @@ export function Workspace({ email }: { email: string }) {
       icon: ArrowUp,
       run: () => showContact("limits"),
     },
+    {
+      id: "archived-chats",
+      label: "Archived chats",
+      description: "Find and restore hidden conversations",
+      keywords: "archive restore hidden",
+      group: "Actions",
+      icon: Archive,
+      run: () => {
+        setArchiveView(true);
+        setSearch("");
+        if (mobileNav) setNavOpen(true);
+        else if (collapsedPanels.nav) toggleCollapsedPanel("nav");
+      },
+    },
+    {
+      id: "archive-chat",
+      label: "Archive chat",
+      description: "Hide this conversation; restore it anytime",
+      group: "Actions",
+      icon: Archive,
+      disabled:
+        roomUnavailable ||
+        (busy ? "Wait for the current action to finish" : undefined),
+      run: () => {
+        if (room) confirmArchive(room);
+      },
+    },
     ...rooms.map((item): WorkspaceCommand => ({
       id: `room-${item.id}`,
       label: item.title,
@@ -952,55 +1075,143 @@ export function Workspace({ email }: { email: string }) {
         <label className="room-search">
           <Search size={16} />
           <input
-            aria-label="Search rooms"
-            placeholder="Find a conversation"
+            aria-label={archiveView ? "Search archived chats" : "Search rooms"}
+            placeholder={
+              archiveView ? "Find an archived chat" : "Find a conversation"
+            }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </label>
+        {archiveView && (
+          <button
+            className="archive-view-toggle"
+            onClick={() => {
+              setArchiveView(false);
+              setSearch("");
+              setArchiveError("");
+            }}
+          >
+            <ArrowLeft size={16} /> Back to your rooms
+          </button>
+        )}
         <div className="nav-label">
-          Your rooms <span>{rooms.length}</span>
+          {archiveView ? "Archived chats" : "Your rooms"}
+          <span>{archiveView ? archivedRooms.length : rooms.length}</span>
         </div>
-        <div className="room-list">
-          {rooms
-            .filter((r) => r.title.toLowerCase().includes(search.toLowerCase()))
-            .map((r) => (
-              <button
-                key={r.id}
-                className={`room-link ${room?.id === r.id ? "active" : ""}`}
-                onClick={() => void selectRoom(r.id)}
-              >
-                <MessageSquare size={16} />
-                <span>
-                  {r.title}
-                  <small>
-                    {r.status === "running"
-                      ? "In conversation"
-                      : r.purpose === "plan"
-                        ? "Planning"
-                        : r.purpose === "research"
-                          ? "Research"
-                          : r.purpose === "debate"
-                            ? "Discussion"
-                            : "Exploration"}
-                  </small>
-                </span>
-                {r.status === "running" && <i className="live-dot" />}
-              </button>
-            ))}
-          {rooms.length === 0 && !loading && (
-            <p className="nav-empty">
-              A good conversation starts here.
-              <br />
-              Your rooms will appear as you create them.
+        <div className="room-list" aria-busy={archiveView && archiveLoading}>
+          {archiveView && archiveLoading ? (
+            <p className="nav-empty" role="status">
+              Loading archived chats…
             </p>
+          ) : (
+            (archiveView ? archivedRooms : rooms)
+              .filter((r) =>
+                r.title.toLowerCase().includes(search.toLowerCase()),
+              )
+              .map((r) => (
+                <div
+                  key={r.id}
+                  className={`room-row ${room?.id === r.id ? "active" : ""}`}
+                >
+                  {archiveView ? (
+                    <div className="room-link archived-room">
+                      <Archive size={16} aria-hidden="true" />
+                      <span title={r.title}>
+                        {r.title}
+                        <small>Archived</small>
+                      </span>
+                    </div>
+                  ) : (
+                    <button
+                      className="room-link"
+                      title={r.title}
+                      onClick={() => void selectRoom(r.id)}
+                    >
+                      <MessageSquare size={16} aria-hidden="true" />
+                      <span>
+                        {r.title}
+                        <small>
+                          {r.status === "running"
+                            ? "In conversation"
+                            : r.purpose === "plan"
+                              ? "Planning"
+                              : r.purpose === "research"
+                                ? "Research"
+                                : r.purpose === "debate"
+                                  ? "Discussion"
+                                  : "Exploration"}
+                        </small>
+                      </span>
+                      {r.status === "running" && <i className="live-dot" />}
+                    </button>
+                  )}
+                  <button
+                    className={`icon-button room-archive-action${archiveView ? " restore-chat" : ""}`}
+                    aria-label={`${archiveView ? "Restore" : "Archive"} chat: ${r.title}`}
+                    title={archiveView ? "Restore chat" : "Archive chat"}
+                    aria-haspopup={archiveView ? undefined : "dialog"}
+                    disabled={busy || restoreBusy !== null}
+                    onClick={() =>
+                      archiveView ? void restoreChat(r) : confirmArchive(r)
+                    }
+                  >
+                    {archiveView ? (
+                      <ArchiveRestore size={16} />
+                    ) : (
+                      <Archive size={16} />
+                    )}
+                    {archiveView && (
+                      <span>
+                        {restoreBusy === r.id ? "Restoring…" : "Restore"}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              ))
           )}
-          {rooms.length > 0 &&
+          {archiveView && archiveError && (
+            <div className="nav-empty" role="alert">
+              {archiveError}
+              <button
+                className="sidebar-contact"
+                onClick={() => void loadArchivedRooms()}
+              >
+                Retry loading
+              </button>
+            </div>
+          )}
+          {!(archiveView && (archiveLoading || archiveError)) &&
+            (archiveView ? archivedRooms : rooms).length === 0 &&
+            !loading && (
+              <p className="nav-empty">
+                {archiveView
+                  ? "No archived chats. Chats you archive will appear here, ready to restore."
+                  : "A good conversation starts here. Your rooms will appear as you create them."}
+              </p>
+            )}
+          {!(archiveView && archiveLoading) &&
             search &&
-            !rooms.some((r) =>
+            (archiveView ? archivedRooms : rooms).length > 0 &&
+            !(archiveView ? archivedRooms : rooms).some((r) =>
               r.title.toLowerCase().includes(search.toLowerCase()),
-            ) && <p className="nav-empty">No rooms match “{search}”.</p>}
+            ) && (
+              <p className="nav-empty">
+                No {archiveView ? "archived chats" : "rooms"} match “{search}”.
+              </p>
+            )}
         </div>
+        {!archiveView && (
+          <button
+            className="archive-view-toggle archive-view-entry"
+            onClick={() => {
+              setArchiveView(true);
+              setSearch("");
+            }}
+          >
+            <Archive size={14} aria-hidden="true" /> Archived chats
+          </button>
+        )}
         <div className="sidebar-bottom">
           <AccountUsageMeter
             {...accountUsage}
@@ -1033,6 +1244,13 @@ export function Workspace({ email }: { email: string }) {
           </div>
         </div>
       </nav>
+      {archiveTarget && (
+        <ArchiveChatModal
+          title={archiveTarget.title}
+          onArchive={() => archiveChat(archiveTarget)}
+          onClose={() => setArchiveTarget(null)}
+        />
+      )}
       {contactKind && (
         <ContactModal
           email={email}
@@ -1040,7 +1258,7 @@ export function Workspace({ email }: { email: string }) {
           onClose={() => setContactKind(null)}
         />
       )}
-      <main className="main" id="main" inert={!!activeDrawer}>
+      <main className="main" id="main" tabIndex={-1} inert={!!activeDrawer}>
         <header className={`room-header${editing ? " builder-header" : ""}`}>
           <div className="header-title">
             <button
@@ -1130,6 +1348,16 @@ export function Workspace({ email }: { email: string }) {
                 >
                   <FileText size={16} /> Summarize
                 </button>
+                <button
+                  className="icon-button"
+                  title="Archive chat"
+                  aria-label="Archive chat"
+                  aria-haspopup="dialog"
+                  disabled={busy}
+                  onClick={() => confirmArchive(room)}
+                >
+                  <Archive size={18} />
+                </button>
                 <span className={`status ${room.status}`}>
                   <i />
                   {status}
@@ -1185,6 +1413,19 @@ export function Workspace({ email }: { email: string }) {
             </button>
           </div>
         </header>
+        {archiveNotice && (
+          <div className="archive-notice" role="status">
+            <span>{archiveNotice}</span>
+            <button
+              className="icon-button"
+              aria-label="Dismiss archive notice"
+              onClick={() => setArchiveNotice("")}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
         {accountExhausted && (
           <p className="account-limit-notice" role="status">
             {accountUsage.usage?.limit === 0
@@ -1260,7 +1501,9 @@ export function Workspace({ email }: { email: string }) {
                 </div>
               </fieldset>
               <div className="topic-field">
-                <label htmlFor="room-topic">Set the conversation in motion</label>
+                <label htmlFor="room-topic">
+                  Set the conversation in motion
+                </label>
                 <div className="topic-box">
                   <textarea
                     id="room-topic"
