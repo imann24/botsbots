@@ -50,6 +50,12 @@ export const MODEL_CHOICES = [
     name: "Gemini 3.8 Flash",
     provider: "Google",
     tier: "Mid",
+  },
+  {
+    id: "google/gemini-4-hydrogen",
+    name: "Gemini 4 Hydrogen",
+    provider: "Google",
+    tier: "Mid",
     featured: {
       order: 3,
       preview: {
@@ -57,13 +63,6 @@ export const MODEL_CHOICES = [
         reply: "Let’s connect those ideas and try a different angle.",
       },
     },
-  },
-  {
-    id: "google/gemini-4-hydrogen",
-    name: "Gemini 4 Hydrogen",
-    provider: "Google",
-    tier: "Mid",
-    featured: { order: 4 },
   },
   {
     id: "meta/muse-ember",
@@ -82,21 +81,21 @@ export const MODEL_CHOICES = [
     name: "Mistral Medium 3.5",
     provider: "Mistral",
     tier: "Mid",
-    featured: { order: 5 },
+    featured: { order: 4 },
   },
   {
     id: "deepseek/deepseek-v4.1-flash-1017",
     name: "DeepSeek V4.1 Flash",
     provider: "DeepSeek",
     tier: "Small",
-    featured: { order: 6 },
+    featured: { order: 5 },
   },
   {
     id: "alibaba/qwen3.8-flash",
     name: "Qwen 3.8 Flash",
     provider: "Alibaba",
     tier: "Small",
-    featured: { order: 7 },
+    featured: { order: 6 },
   },
   {
     id: "amazon/nova-2-lite",
