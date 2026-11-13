@@ -43,6 +43,7 @@ describe("disabled models and authentication showcase", () => {
     const html = renderToStaticMarkup(<AuthForm />);
     expect(html).toContain(`${ENABLED_MODEL_CHOICES.length} models available`);
     expect(html).toContain("Gemini 3.8 Flash");
+    expect(html).toContain("Gemini 4 Hydrogen");
     for (const model of MODEL_CHOICES.filter(isModelDisabled)) {
       expect(html).not.toContain(model.name);
     }
