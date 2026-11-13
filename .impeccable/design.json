@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-12T03:34:51.210307+00:00",
+  "generatedAt": "2026-11-13T06:56:03Z",
   "title": "Design System: BotsBots",
   "extensions": {
     "colorMeta": {
@@ -253,6 +253,14 @@
       {
         "name": "mobile-max",
         "value": "640px"
+      },
+      {
+        "name": "short-sidebar-max-height",
+        "value": "780px"
+      },
+      {
+        "name": "short-panel-max-height",
+        "value": "700px"
       }
     ]
   },
@@ -301,9 +309,9 @@
       "name": "Room navigation",
       "kind": "nav",
       "refersTo": "navigation",
-      "description": "Inverse room rows with an explicit selected state.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Rooms\"><button class=\"ds-room\" aria-current=\"page\">Make room for reading<small>Planning</small></button><button class=\"ds-room\">A little room for ideas<small>Just for fun</small></button></nav>",
-      "css": ".ds-nav{font-family:\"DM Sans Variable\",sans-serif;background:var(--navy,#122747);padding:17px;width:216px;}.ds-room{font-family:\"DM Sans Variable\",sans-serif;display:block;width:100%;text-align:left;padding:13px 12px;border:0;border-radius:6px;background:none;color:#e1e8f2;font-size:12px;cursor:pointer;margin-bottom:5px;}.ds-room small{display:block;font-size:10px;color:#b6c3d7;margin-top:5px;}.ds-room:hover{background:#ffffff0c;}.ds-room[aria-current]{background:#ffffff13;}.ds-room:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+      "description": "Inverse room rows with an explicit selected state; the rooms heading carries its count and an Archived chats link.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Rooms\"><div class=\"ds-nav-label\"><span>Your rooms</span><span class=\"ds-nav-count\">6</span><button class=\"ds-nav-archive\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect width=\"20\" height=\"5\" x=\"2\" y=\"3\" rx=\"1\"/><path d=\"M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8\"/><path d=\"M10 12h4\"/></svg> Archived chats</button></div><button class=\"ds-room\" aria-current=\"page\">Make room for reading<small>Planning</small></button><button class=\"ds-room\">A little room for ideas<small>Exploration</small></button></nav>",
+      "css": ".ds-nav{font-family:\"DM Sans Variable\",sans-serif;background:var(--navy,#122747);padding:17px;width:260px;}.ds-nav-label{display:flex;align-items:center;color:#b1c0d7;font-size:11px;letter-spacing:.045em;text-transform:uppercase;font-weight:600;margin:0 0 8px 10px;}.ds-nav-count{margin:0 auto 0 8px;}.ds-nav-archive{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 8px;border:0;border-radius:6px;background:none;color:#c3cfe0;font:500 12px \"DM Sans Variable\",sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;}.ds-nav-archive:hover{background:#ffffff13;color:#fff;}.ds-room{font-family:\"DM Sans Variable\",sans-serif;display:block;width:100%;text-align:left;padding:13px 12px;border:0;border-radius:6px;background:none;color:#e1e8f2;font-size:12px;cursor:pointer;margin-bottom:5px;}.ds-room small{display:block;font-size:10px;color:#b6c3d7;margin-top:5px;}.ds-room:hover{background:#ffffff0c;}.ds-room[aria-current]{background:#ffffff13;}.ds-room:focus-visible,.ds-nav-archive:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
     },
     {
       "name": "Purpose chip",
@@ -336,6 +344,14 @@
       "description": "Stable bot reply number, shown as an example.",
       "html": "<span class=\"ds-turn\" aria-label=\"Turn 2\">02</span>",
       "css": ".ds-turn{font-family:\"DM Sans Variable\",sans-serif;display:inline-block;color:var(--carbon,#63467d);font-size:10px;font-variant-numeric:tabular-nums;border:1px solid #d6d0e1;padding:1px 5px;line-height:1.5;}"
+    },
+    {
+      "name": "Weekly usage meter",
+      "kind": "custom",
+      "refersTo": "navigation",
+      "description": "Sidebar account allowance: a disclosure heading with used-of-limit, a 3px lavender bar, and remaining/reset metadata; on phones the metadata folds into the disclosure.",
+      "html": "<div class=\"ds-usage\"><details class=\"ds-usage-details\"><summary><span class=\"ds-usage-heading\">Weekly usage</span><span class=\"ds-usage-amount\"><strong>$0.27</strong> of $10.00 used</span><progress max=\"10\" value=\"0.27\" aria-label=\"Weekly account allowance used\"></progress><span class=\"ds-usage-meta\"><span>$9.73 left</span><span>Resets Nov 16</span></span></summary><p class=\"ds-usage-note\">Estimated AI costs across all rooms and summaries, not charges to you.</p></details></div>",
+      "css": ".ds-usage{font:11px/1.6 \"DM Sans Variable\",sans-serif;background:var(--navy,#122747);color:#b7c5da;padding:14px 17px;width:260px;font-variant-numeric:tabular-nums;}.ds-usage-details>summary{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;list-style:none;cursor:pointer;padding:6px 0;border-radius:2px;}.ds-usage-details>summary::-webkit-details-marker{display:none;}.ds-usage-details>summary:hover .ds-usage-heading{color:#fff;}.ds-usage-details>summary:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-usage-amount{margin-left:auto;}.ds-usage-amount strong{color:#e9edf6;font-weight:600;}.ds-usage progress{flex-basis:100%;display:block;height:3px;margin:8px 0 6px;border:0;border-radius:1px;appearance:none;background:#ffffff20;overflow:hidden;}.ds-usage progress::-webkit-progress-bar{background:#ffffff20;}.ds-usage progress::-webkit-progress-value{background:#c9b4e3;}.ds-usage progress::-moz-progress-bar{background:#c9b4e3;}.ds-usage-meta{flex-basis:100%;display:flex;justify-content:space-between;font-size:10px;}.ds-usage-note{margin:10px 0 0;padding-top:10px;border-top:1px solid #ffffff20;}"
     }
   ],
   "narrative": {

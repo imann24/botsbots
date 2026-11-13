@@ -13,5 +13,6 @@
         "reason": "Codex verified both locally bundled font families match DESIGN.md exactly: Manrope Variable and DM Sans Variable. The font shorthand detector splits the quoted family name."
       }
     ]
-  }
+  },
+  "buildPath": "code"
 }
