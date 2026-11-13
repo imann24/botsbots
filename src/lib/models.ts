@@ -63,6 +63,7 @@ export const MODEL_CHOICES = [
     name: "Gemini 4 Hydrogen",
     provider: "Google",
     tier: "Mid",
+    featured: { order: 4 },
   },
   {
     id: "meta/muse-ember",
@@ -81,21 +82,21 @@ export const MODEL_CHOICES = [
     name: "Mistral Medium 3.5",
     provider: "Mistral",
     tier: "Mid",
-    featured: { order: 4 },
+    featured: { order: 5 },
   },
   {
     id: "deepseek/deepseek-v4.1-flash-1017",
     name: "DeepSeek V4.1 Flash",
     provider: "DeepSeek",
     tier: "Small",
-    featured: { order: 5 },
+    featured: { order: 6 },
   },
   {
     id: "alibaba/qwen3.8-flash",
     name: "Qwen 3.8 Flash",
     provider: "Alibaba",
     tier: "Small",
-    featured: { order: 6 },
+    featured: { order: 7 },
   },
   {
     id: "amazon/nova-2-lite",
