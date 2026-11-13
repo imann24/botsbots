@@ -1524,8 +1524,9 @@ export function Workspace({ email }: { email: string }) {
                             {m.finish_reason === "length" && (
                               <p className="reply-error">
                                 Reply reached its token limit and may be
-                                incomplete. Pause the room and raise “Tokens per
-                                reply” in room limits for future replies.
+                                incomplete. Pause the room and raise “Reply
+                                length (tokens)” in room limits for future
+                                replies.
                               </p>
                             )}
                           </>
@@ -1933,7 +1934,7 @@ export function Workspace({ email }: { email: string }) {
           />
           <div className="limit-facts">
             <span>{draftOrRoom.settings.maxPerBot} replies per bot</span>
-            <span>{draftOrRoom.settings.maxTokens} tokens per reply</span>
+            <span>Reply target: {draftOrRoom.settings.maxTokens} tokens</span>
           </div>
           {limitsOpen && editing && (
             <div className="limits-fields">
@@ -1942,7 +1943,7 @@ export function Workspace({ email }: { email: string }) {
                   ["maxMessages", "Total messages", 4, 100, 1],
                   ["maxPerBot", "Replies per bot", 1, 30, 1],
                   ["budget", "Room budget (USD)", 0.01, 5, 0.01],
-                  ["maxTokens", "Tokens per reply", 128, 2000, 1],
+                  ["maxTokens", "Reply length (tokens)", 128, 2000, 1],
                   ["contextMessages", "Recent messages in context", 2, 30, 1],
                   ["concurrency", "Concurrent bots (free-for-all)", 1, 4, 1],
                   ["cooldownSeconds", "Bot cooldown (seconds)", 1, 30, 1],
@@ -1972,8 +1973,9 @@ export function Workspace({ email }: { email: string }) {
           </p>
           {limitsOpen && (
             <p className="budget-explanation">
-              Reply tokens include any model reasoning. Try 800–1,200 if answers
-              get cut off. Higher limits can cost more.
+              This sets the answer length target. Gemini 3.8 Flash and Hydrogen
+              get up to 4,096 extra tokens for required thinking. All tokens
+              count toward your room budget.
             </p>
           )}
         </section>

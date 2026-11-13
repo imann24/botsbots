@@ -3,7 +3,12 @@ import { createGateway, generateText, Output } from "ai";
 import type { z } from "zod";
 import { MODEL_CHOICES, type ModelPrice } from "./models";
 import type { Bot, Room, Message } from "./types";
-import { buildPrompt, reserveCost, usageCost } from "./prompt";
+import {
+  buildPrompt,
+  outputTokenLimit,
+  reserveCost,
+  usageCost,
+} from "./prompt";
 export { reserveCost } from "./prompt";
 let cache: { expires: number; prices: ModelPrice[] } | undefined;
 export async function modelPrices(): Promise<ModelPrice[]> {
@@ -86,16 +91,24 @@ export async function generateReply(
     system,
     prompt,
     ...(schema ? { output: Output.object({ schema }) } : {}),
-    maxOutputTokens: maxTokens,
+    maxOutputTokens: outputTokenLimit(model, maxTokens),
     maxRetries: 0,
     abortSignal: signal,
     // Spend the small reply allowance on visible text where the model supports it.
     reasoning: "none",
     providerOptions: {
       gateway: { sort: "cost" },
-      // Gemini 3 requires thinking; explicitly select its lowest native level.
+      // Flash 3.8 and Hydrogen reject "minimal"; only Flash Lite supports it.
+      // Native options override portable reasoning, so use each model's lowest level.
       ...(model.startsWith("google/")
-        ? { google: { thinkingConfig: { thinkingLevel: "minimal" } } }
+        ? {
+            google: {
+              thinkingConfig: {
+                thinkingLevel:
+                  model === "google/gemini-3.5-flash-lite" ? "minimal" : "low",
+              },
+            },
+          }
         : {}),
     },
   });

@@ -5,6 +5,7 @@ import {
   usageCost,
   INPUT_RESERVATION_TOKENS,
   replyWordTarget,
+  outputTokenLimit,
 } from "./prompt";
 import {
   DEFAULT_BOTS,
@@ -20,6 +21,37 @@ const room = {
   settings: DEFAULT_SETTINGS,
 } as Room;
 describe("spend controls", () => {
+  it.each(["google/gemini-4-hydrogen", "google/gemini-3.8-flash"] as const)(
+    "reserves the complete output allowance including required thinking for %s",
+    (model) => {
+      const price = { id: model, input: 0.000001, output: 0.000005 };
+      for (const maxTokens of [128, 800, 2000]) {
+        const cap = outputTokenLimit(model, maxTokens);
+        expect(cap).toBe(maxTokens + 4096);
+        expect(reserveCost(price, maxTokens)).toBeGreaterThanOrEqual(
+          usageCost(price, INPUT_RESERVATION_TOKENS, cap),
+        );
+        const prompt = buildPrompt(
+          { ...room, settings: { ...DEFAULT_SETTINGS, maxTokens } },
+          {
+            ...DEFAULT_BOTS[2],
+            model,
+          },
+          [],
+        );
+        expect(prompt.system).toContain(
+          `under ${replyWordTarget(maxTokens)} words`,
+        );
+      }
+    },
+  );
+  it.each([
+    "google/gemini-3.5-flash-lite",
+    "openai/gpt-6-luna",
+    "anthropic/claude-haiku-5.5",
+  ])("preserves the configured output cap for %s", (model) =>
+    expect(outputTokenLimit(model, 800)).toBe(800),
+  );
   it("keeps the requested answer short enough to leave output headroom", () => {
     expect(replyWordTarget(450)).toBeLessThanOrEqual(100);
     expect(replyWordTarget(2000)).toBeLessThanOrEqual(160);
