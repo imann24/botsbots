@@ -23,6 +23,8 @@ export const metadata: Metadata = {
     title,
     description,
   },
+  // iOS otherwise turns the account email into a mail link.
+  formatDetection: { email: false, address: false, telephone: false },
   twitter: {
     card: "summary_large_image",
     title,

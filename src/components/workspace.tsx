@@ -24,6 +24,7 @@ import {
   FileText,
   Lightbulb,
   LogOut,
+  Mail,
   Menu,
   MessageSquare,
   PanelLeftClose,
@@ -1191,7 +1192,17 @@ export function Workspace({ email }: { email: string }) {
         )}
         <div className="nav-label">
           {archiveView ? "Archived chats" : "Your rooms"}
-          <span>{archiveView ? archivedRooms.length : rooms.length}</span>
+          <span className="nav-count">
+            {archiveView ? archivedRooms.length : rooms.length}
+          </span>
+          {!archiveView && (
+            <button
+              className="nav-archive-link mobile-only"
+              onClick={() => changeArchiveView(true)}
+            >
+              <Archive size={14} aria-hidden="true" /> Archived chats
+            </button>
+          )}
         </div>
         <div className="room-list" aria-busy={archiveView && archiveLoading}>
           {archiveView && archiveLoading ? (
@@ -1317,7 +1328,7 @@ export function Workspace({ email }: { email: string }) {
             onRequestUpgrade={() => showContact("limits")}
           />
           <button
-            className="sidebar-contact"
+            className="sidebar-contact sidebar-contact-row"
             aria-haspopup="dialog"
             onClick={() => showContact()}
           >
@@ -1330,8 +1341,18 @@ export function Workspace({ email }: { email: string }) {
               <small>Personal workspace</small>
             </span>
             <button
+              className="icon-button mobile-only"
+              aria-label="Contact us"
+              title="Contact us"
+              aria-haspopup="dialog"
+              onClick={() => showContact()}
+            >
+              <Mail size={17} />
+            </button>
+            <button
               className="icon-button"
               aria-label="Sign out"
+              title="Sign out"
               onClick={async () => {
                 try {
                   await trackAction("sign_out", {}, async () => {

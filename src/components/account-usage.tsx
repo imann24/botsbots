@@ -192,6 +192,16 @@ export function AccountUsageMeter({
                   : "; unused allowance does not roll over."}{" "}
                 Room limits still apply.
               </p>
+              {onRequestUpgrade && (
+                <button
+                  className="usage-upgrade usage-upgrade-inline"
+                  aria-haspopup="dialog"
+                  onClick={onRequestUpgrade}
+                >
+                  Request higher limits{" "}
+                  <ArrowRight size={14} aria-hidden="true" />
+                </button>
+              )}
             </div>
           </details>
           {level === "warning" && (
