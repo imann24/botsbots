@@ -25,6 +25,18 @@ Supabase applies the committed migrations when creating its local database. For 
 
 `db:setup` fills the local Supabase URL and keys while preserving your Gateway key. For hosted Supabase, run `pnpm env:setup` and enter the hosted values instead. Restart the dev server after changing configuration. Create an account at [the local app](http://127.0.0.1:3000); local email confirmation is disabled. Supabase Studio runs at [localhost:54323](http://127.0.0.1:54323).
 
+### Google sign-in
+
+Both login and signup offer **Continue with Google**. The browser Supabase client starts a PKCE flow; `/auth/callback` exchanges the one-time code for session cookies and redirects to `/`. Cancellation and expired-code errors return to the form with a retry message. The callback uses a relative redirect to preserve the browser's host behind proxies and never accepts an arbitrary destination.
+
+For hosted Supabase, enable Google under **Authentication → Sign In / Providers** and save the Google web client ID and secret there. Never add the Google client secret to source code, a `NEXT_PUBLIC_` variable, or Vercel's browser environment. In Google Cloud, set the authorized redirect URI to `https://<project-ref>.supabase.co/auth/v1/callback`. This is different from the app callback URL.
+
+In Supabase **URL Configuration**, use `https://botsbots.app` as the Site URL and allow `https://botsbots.app/auth/callback`. For local development against hosted Supabase, allow `http://127.0.0.1:3000/auth/callback` and `http://localhost:3000/auth/callback`, then run the app with the hosted public URL and publishable key. A local Supabase stack needs its own Google provider configuration; enabling the hosted provider does not enable the local stack.
+
+In Google's web client, authorize the app origin `https://botsbots.app`. In **Branding**, register `botsbots.app` and use `/privacy` and `/terms` on that domain for the public policy links. Review the policy text before publishing. The app requests only basic Google profile/email access, not Gmail, Drive, or Calendar permissions.
+
+Verification: `pnpm test`, `pnpm typecheck`, and `pnpm build`. Test both form modes, Google cancellation, successful return to the original host, and session persistence after reload. Google credentials remain in the provider dashboard; store any downloaded credentials JSON securely outside the repository.
+
 ## Using a room
 
 1. Pick a purpose and topic. Expand each participant to change its model, name, and perspective; add or remove bots.

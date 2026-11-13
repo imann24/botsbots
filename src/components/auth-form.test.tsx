@@ -27,6 +27,24 @@ vi.mock("@/lib/models", async (importOriginal) => {
 });
 
 describe("disabled models and authentication showcase", () => {
+  it("offers Google sign-in independently of required email fields", () => {
+    const html = renderToStaticMarkup(<AuthForm />);
+    expect(html).toContain("Continue with Google");
+    expect(html.indexOf("Continue with Google")).toBeLessThan(
+      html.indexOf("<form"),
+    );
+    expect(html).toContain('type="button" class="button full auth-google"');
+  });
+
+  it("renders a recoverable callback error without losing sign-in options", () => {
+    const html = renderToStaticMarkup(
+      <AuthForm initialError="Google sign-in was cancelled. Try again or sign in with email." />,
+    );
+    expect(html).toContain('role="alert"');
+    expect(html).toContain("Google sign-in was cancelled.");
+    expect(html).toContain("Continue with Google");
+    expect(html).toContain('type="email"');
+  });
   it.each(["google/gemini-4-hydrogen", "google/gemini-3.8-flash"])(
     "makes %s available for new selections",
     (id) => {
