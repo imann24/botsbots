@@ -50,7 +50,7 @@ describe("contact delivery", () => {
       const body = JSON.parse(options.body);
       expect(body).toMatchObject({
         from: "noreply@botsbots.app",
-        to: ["isaiahbmann@gmail.com"],
+        to: ["hello@botsbots.app"],
         reply_to: payload.email,
       });
       expect(body.text).toContain("Account email: account@example.test");

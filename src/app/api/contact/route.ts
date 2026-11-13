@@ -30,7 +30,7 @@ export async function POST(request: Request) {
           from:
             process.env.CONTACT_FROM_EMAIL?.trim() || "noreply@botsbots.app",
           to: [
-            process.env.CONTACT_ADMIN_EMAIL?.trim() || "isaiahbmann@gmail.com",
+            process.env.CONTACT_ADMIN_EMAIL?.trim() || "hello@botsbots.app",
           ],
           reply_to: input.email,
           subject: `[BotsBots] ${contactKinds[input.kind]}`,

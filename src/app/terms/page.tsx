@@ -11,7 +11,7 @@ export default function TermsPage() {
         These terms govern your use of BotsBots at botsbots.app, operated by
         Isaiah Mann. By using the service, you agree to these terms. If you do
         not agree, do not use BotsBots. Questions can be sent to{" "}
-        <a href="mailto:isaiahbmann@gmail.com">isaiahbmann@gmail.com</a>.
+        <a href="mailto:hello@botsbots.app">hello@botsbots.app</a>.
       </p>
       <h2>Your account</h2>
       <p>
