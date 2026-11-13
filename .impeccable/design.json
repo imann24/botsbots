@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-13T06:56:03Z",
+  "generatedAt": "2026-11-13T07:57:02Z",
   "title": "Design System: BotsBots",
   "extensions": {
     "colorMeta": {
@@ -8,56 +8,70 @@
         "role": "primary",
         "displayName": "Navigation Navy",
         "tonalRamp": [
-          "oklch(15% 0.0202 258.62)",
-          "oklch(27% 0.0417 258.62)",
-          "oklch(39% 0.0574 258.62)",
-          "oklch(51% 0.0649 258.62)",
-          "oklch(63% 0.0634 258.62)",
-          "oklch(75% 0.0529 258.62)",
-          "oklch(87% 0.0351 258.62)",
-          "oklch(95% 0.0202 258.62)"
+          "oklch(15% 0.0331 258.62)",
+          "oklch(27% 0.0428 258.62)",
+          "oklch(39% 0.0525 258.62)",
+          "oklch(51% 0.0622 258.62)",
+          "oklch(63% 0.0590 258.62)",
+          "oklch(75% 0.0493 258.62)",
+          "oklch(87% 0.0396 258.62)",
+          "oklch(95% 0.0331 258.62)"
+        ]
+      },
+      "navy-raised": {
+        "role": "primary",
+        "displayName": "Raised Navy",
+        "tonalRamp": [
+          "oklch(15% 0.0369 258.10)",
+          "oklch(27% 0.0478 258.10)",
+          "oklch(39% 0.0586 258.10)",
+          "oklch(51% 0.0695 258.10)",
+          "oklch(63% 0.0658 258.10)",
+          "oklch(75% 0.0550 258.10)",
+          "oklch(87% 0.0442 258.10)",
+          "oklch(95% 0.0369 258.10)"
         ]
       },
       "red": {
         "role": "primary",
         "displayName": "Signal Red",
         "tonalRamp": [
-          "oklch(15% 0.0592 23.59)",
-          "oklch(27% 0.1221 23.59)",
-          "oklch(39% 0.1678 23.59)",
-          "oklch(51% 0.1900 23.59)",
-          "oklch(63% 0.1855 23.59)",
-          "oklch(75% 0.1549 23.59)",
-          "oklch(87% 0.1026 23.59)",
-          "oklch(95% 0.0592 23.59)"
+          "oklch(15% 0.0968 23.59)",
+          "oklch(27% 0.1252 23.59)",
+          "oklch(39% 0.1536 23.59)",
+          "oklch(51% 0.1820 23.59)",
+          "oklch(63% 0.1725 23.59)",
+          "oklch(75% 0.1441 23.59)",
+          "oklch(87% 0.1157 23.59)",
+          "oklch(95% 0.0968 23.59)"
         ]
       },
       "red-hover": {
         "role": "primary",
         "displayName": "Signal Red Hover",
         "tonalRamp": [
-          "oklch(15% 0.0543 24.03)",
-          "oklch(27% 0.1119 24.03)",
-          "oklch(39% 0.1539 24.03)",
-          "oklch(51% 0.1742 24.03)",
-          "oklch(63% 0.1701 24.03)",
-          "oklch(75% 0.1420 24.03)",
-          "oklch(87% 0.0941 24.03)",
-          "oklch(95% 0.0543 24.03)"
+          "oklch(15% 0.0887 24.03)",
+          "oklch(27% 0.1148 24.03)",
+          "oklch(39% 0.1408 24.03)",
+          "oklch(51% 0.1669 24.03)",
+          "oklch(63% 0.1582 24.03)",
+          "oklch(75% 0.1322 24.03)",
+          "oklch(87% 0.1061 24.03)",
+          "oklch(95% 0.0887 24.03)"
         ]
       },
       "paper": {
         "role": "neutral",
         "displayName": "Warm Paper",
         "tonalRamp": [
-          "oklch(15% 0.0013 91.45)",
-          "oklch(27% 0.0026 91.45)",
-          "oklch(39% 0.0036 91.45)",
-          "oklch(51% 0.0041 91.45)",
-          "oklch(63% 0.0040 91.45)",
-          "oklch(75% 0.0033 91.45)",
-          "oklch(87% 0.0022 91.45)",
-          "oklch(95% 0.0013 91.45)"
+          "oklch(15% 0.0061 91.45)",
+          "oklch(27% 0.0078 91.45)",
+          "oklch(39% 0.0096 91.45)",
+          "oklch(51% 0.0114 91.45)",
+          "oklch(63% 0.0108 91.45)",
+          "oklch(75% 0.0090 91.45)",
+          "oklch(87% 0.0073 91.45)",
+          "oklch(95% 0.0061 91.45)"
         ]
       },
       "white": {
@@ -78,112 +92,210 @@
         "role": "neutral",
         "displayName": "Navy Ink",
         "tonalRamp": [
-          "oklch(15% 0.0182 258.60)",
-          "oklch(27% 0.0376 258.60)",
-          "oklch(39% 0.0517 258.60)",
-          "oklch(51% 0.0585 258.60)",
-          "oklch(63% 0.0571 258.60)",
-          "oklch(75% 0.0477 258.60)",
-          "oklch(87% 0.0316 258.60)",
-          "oklch(95% 0.0182 258.60)"
+          "oklch(15% 0.0298 258.60)",
+          "oklch(27% 0.0386 258.60)",
+          "oklch(39% 0.0473 258.60)",
+          "oklch(51% 0.0561 258.60)",
+          "oklch(63% 0.0532 258.60)",
+          "oklch(75% 0.0444 258.60)",
+          "oklch(87% 0.0357 258.60)",
+          "oklch(95% 0.0298 258.60)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Slate",
         "tonalRamp": [
-          "oklch(15% 0.0105 262.41)",
-          "oklch(27% 0.0217 262.41)",
-          "oklch(39% 0.0298 262.41)",
-          "oklch(51% 0.0338 262.41)",
-          "oklch(63% 0.0330 262.41)",
-          "oklch(75% 0.0275 262.41)",
-          "oklch(87% 0.0182 262.41)",
-          "oklch(95% 0.0105 262.41)"
+          "oklch(15% 0.0172 262.41)",
+          "oklch(27% 0.0223 262.41)",
+          "oklch(39% 0.0273 262.41)",
+          "oklch(51% 0.0324 262.41)",
+          "oklch(63% 0.0307 262.41)",
+          "oklch(75% 0.0256 262.41)",
+          "oklch(87% 0.0206 262.41)",
+          "oklch(95% 0.0172 262.41)"
         ]
       },
       "line": {
         "role": "neutral",
         "displayName": "Fine Rule",
         "tonalRamp": [
-          "oklch(15% 0.0022 268.54)",
-          "oklch(27% 0.0045 268.54)",
-          "oklch(39% 0.0062 268.54)",
-          "oklch(51% 0.0071 268.54)",
-          "oklch(63% 0.0069 268.54)",
-          "oklch(75% 0.0058 268.54)",
-          "oklch(87% 0.0038 268.54)",
-          "oklch(95% 0.0022 268.54)"
+          "oklch(15% 0.0061 268.54)",
+          "oklch(27% 0.0078 268.54)",
+          "oklch(39% 0.0096 268.54)",
+          "oklch(51% 0.0114 268.54)",
+          "oklch(63% 0.0108 268.54)",
+          "oklch(75% 0.0090 268.54)",
+          "oklch(87% 0.0073 268.54)",
+          "oklch(95% 0.0061 268.54)"
         ]
       },
       "carbon": {
         "role": "secondary",
         "displayName": "Carbon Purple",
         "tonalRamp": [
-          "oklch(15% 0.0287 307.34)",
-          "oklch(27% 0.0592 307.34)",
-          "oklch(39% 0.0814 307.34)",
-          "oklch(51% 0.0922 307.34)",
-          "oklch(63% 0.0900 307.34)",
-          "oklch(75% 0.0752 307.34)",
-          "oklch(87% 0.0498 307.34)",
-          "oklch(95% 0.0287 307.34)"
-        ]
-      },
-      "lavender": {
-        "role": "secondary",
-        "displayName": "Lavender",
-        "tonalRamp": [
-          "oklch(15% 0.0057 306.66)",
-          "oklch(27% 0.0118 306.66)",
-          "oklch(39% 0.0162 306.66)",
-          "oklch(51% 0.0183 306.66)",
-          "oklch(63% 0.0179 306.66)",
-          "oklch(75% 0.0149 306.66)",
-          "oklch(87% 0.0099 306.66)",
-          "oklch(95% 0.0057 306.66)"
-        ]
-      },
-      "green": {
-        "role": "secondary",
-        "displayName": "Sage",
-        "tonalRamp": [
-          "oklch(15% 0.0062 159.73)",
-          "oklch(27% 0.0127 159.73)",
-          "oklch(39% 0.0175 159.73)",
-          "oklch(51% 0.0198 159.73)",
-          "oklch(63% 0.0193 159.73)",
-          "oklch(75% 0.0161 159.73)",
-          "oklch(87% 0.0107 159.73)",
-          "oklch(95% 0.0062 159.73)"
-        ]
-      },
-      "orange": {
-        "role": "secondary",
-        "displayName": "Apricot",
-        "tonalRamp": [
-          "oklch(15% 0.0087 51.84)",
-          "oklch(27% 0.0180 51.84)",
-          "oklch(39% 0.0247 51.84)",
-          "oklch(51% 0.0279 51.84)",
-          "oklch(63% 0.0273 51.84)",
-          "oklch(75% 0.0228 51.84)",
-          "oklch(87% 0.0151 51.84)",
-          "oklch(95% 0.0087 51.84)"
+          "oklch(15% 0.0470 307.34)",
+          "oklch(27% 0.0608 307.34)",
+          "oklch(39% 0.0745 307.34)",
+          "oklch(51% 0.0883 307.34)",
+          "oklch(63% 0.0837 307.34)",
+          "oklch(75% 0.0699 307.34)",
+          "oklch(87% 0.0562 307.34)",
+          "oklch(95% 0.0470 307.34)"
         ]
       },
       "blue": {
-        "role": "secondary",
-        "displayName": "Powder Blue",
+        "role": "neutral",
+        "displayName": "Pale Sky",
         "tonalRamp": [
-          "oklch(15% 0.0066 259.19)",
-          "oklch(27% 0.0136 259.19)",
-          "oklch(39% 0.0187 259.19)",
-          "oklch(51% 0.0211 259.19)",
-          "oklch(63% 0.0206 259.19)",
-          "oklch(75% 0.0172 259.19)",
-          "oklch(87% 0.0114 259.19)",
-          "oklch(95% 0.0066 259.19)"
+          "oklch(15% 0.0108 259.19)",
+          "oklch(27% 0.0139 259.19)",
+          "oklch(39% 0.0171 259.19)",
+          "oklch(51% 0.0202 259.19)",
+          "oklch(63% 0.0192 259.19)",
+          "oklch(75% 0.0160 259.19)",
+          "oklch(87% 0.0129 259.19)",
+          "oklch(95% 0.0108 259.19)"
+        ]
+      },
+      "night-frame": {
+        "role": "primary",
+        "displayName": "Night Frame",
+        "tonalRamp": [
+          "oklch(15% 0.0321 260.52)",
+          "oklch(27% 0.0415 260.52)",
+          "oklch(39% 0.0510 260.52)",
+          "oklch(51% 0.0604 260.52)",
+          "oklch(63% 0.0572 260.52)",
+          "oklch(75% 0.0478 260.52)",
+          "oklch(87% 0.0384 260.52)",
+          "oklch(95% 0.0321 260.52)"
+        ]
+      },
+      "night-paper": {
+        "role": "neutral",
+        "displayName": "Night Paper",
+        "tonalRamp": [
+          "oklch(15% 0.0091 259.71)",
+          "oklch(27% 0.0118 259.71)",
+          "oklch(39% 0.0145 259.71)",
+          "oklch(51% 0.0171 259.71)",
+          "oklch(63% 0.0162 259.71)",
+          "oklch(75% 0.0136 259.71)",
+          "oklch(87% 0.0109 259.71)",
+          "oklch(95% 0.0091 259.71)"
+        ]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Night Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0109 260.53)",
+          "oklch(27% 0.0141 260.53)",
+          "oklch(39% 0.0173 260.53)",
+          "oklch(51% 0.0205 260.53)",
+          "oklch(63% 0.0194 260.53)",
+          "oklch(75% 0.0162 260.53)",
+          "oklch(87% 0.0130 260.53)",
+          "oklch(95% 0.0109 260.53)"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0061 259.82)",
+          "oklch(27% 0.0079 259.82)",
+          "oklch(39% 0.0097 259.82)",
+          "oklch(51% 0.0115 259.82)",
+          "oklch(63% 0.0109 259.82)",
+          "oklch(75% 0.0091 259.82)",
+          "oklch(87% 0.0073 259.82)",
+          "oklch(95% 0.0061 259.82)"
+        ]
+      },
+      "night-muted": {
+        "role": "neutral",
+        "displayName": "Night Slate",
+        "tonalRamp": [
+          "oklch(15% 0.0140 259.05)",
+          "oklch(27% 0.0181 259.05)",
+          "oklch(39% 0.0223 259.05)",
+          "oklch(51% 0.0264 259.05)",
+          "oklch(63% 0.0250 259.05)",
+          "oklch(75% 0.0209 259.05)",
+          "oklch(87% 0.0168 259.05)",
+          "oklch(95% 0.0140 259.05)"
+        ]
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Night Rule",
+        "tonalRamp": [
+          "oklch(15% 0.0162 259.68)",
+          "oklch(27% 0.0210 259.68)",
+          "oklch(39% 0.0257 259.68)",
+          "oklch(51% 0.0305 259.68)",
+          "oklch(63% 0.0289 259.68)",
+          "oklch(75% 0.0241 259.68)",
+          "oklch(87% 0.0194 259.68)",
+          "oklch(95% 0.0162 259.68)"
+        ]
+      },
+      "night-select": {
+        "role": "primary",
+        "displayName": "Night Selection",
+        "tonalRamp": [
+          "oklch(15% 0.0432 259.26)",
+          "oklch(27% 0.0559 259.26)",
+          "oklch(39% 0.0686 259.26)",
+          "oklch(51% 0.0813 259.26)",
+          "oklch(63% 0.0770 259.26)",
+          "oklch(75% 0.0643 259.26)",
+          "oklch(87% 0.0517 259.26)",
+          "oklch(95% 0.0432 259.26)"
+        ]
+      },
+      "night-accent": {
+        "role": "primary",
+        "displayName": "Night Accent",
+        "tonalRamp": [
+          "oklch(15% 0.0157 258.94)",
+          "oklch(27% 0.0203 258.94)",
+          "oklch(39% 0.0249 258.94)",
+          "oklch(51% 0.0295 258.94)",
+          "oklch(63% 0.0280 258.94)",
+          "oklch(75% 0.0234 258.94)",
+          "oklch(87% 0.0188 258.94)",
+          "oklch(95% 0.0157 258.94)"
+        ]
+      },
+      "night-carbon": {
+        "role": "secondary",
+        "displayName": "Night Carbon",
+        "tonalRamp": [
+          "oklch(15% 0.0413 304.41)",
+          "oklch(27% 0.0535 304.41)",
+          "oklch(39% 0.0656 304.41)",
+          "oklch(51% 0.0777 304.41)",
+          "oklch(63% 0.0737 304.41)",
+          "oklch(75% 0.0616 304.41)",
+          "oklch(87% 0.0494 304.41)",
+          "oklch(95% 0.0413 304.41)"
+        ]
+      },
+      "night-red-text": {
+        "role": "primary",
+        "displayName": "Night Signal",
+        "tonalRamp": [
+          "oklch(15% 0.0765 19.16)",
+          "oklch(27% 0.0990 19.16)",
+          "oklch(39% 0.1214 19.16)",
+          "oklch(51% 0.1439 19.16)",
+          "oklch(63% 0.1364 19.16)",
+          "oklch(75% 0.1139 19.16)",
+          "oklch(87% 0.0915 19.16)",
+          "oklch(95% 0.0765 19.16)"
         ]
       }
     },
@@ -194,11 +306,11 @@
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Room-builder headline."
+        "purpose": "New-room heading."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Compact settings headings."
+        "purpose": "Settings and dialog headings."
       },
       "body": {
         "displayName": "Body",
@@ -209,17 +321,33 @@
         "purpose": "Form labels."
       }
     },
-    "shadows": [],
+    "shadows": [
+      {
+        "name": "usage-lift",
+        "value": "0 14px 32px -10px #040c1ccc, 0 2px 6px #040c1c66",
+        "purpose": "Weekly usage popover floating over the room list; the only shadow in the system."
+      }
+    ],
     "motion": [
       {
         "name": "ease",
         "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Drawer movement and reply arrival."
+        "purpose": "Drawer movement, reply arrival, and dialog settling."
       },
       {
         "name": "button-state",
         "value": "150ms",
         "purpose": "Button background, color, and border changes."
+      },
+      {
+        "name": "usage-popover",
+        "value": "160ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Usage breakdown fade with a 6px upward rise; disabled for reduced motion."
+      },
+      {
+        "name": "dialog-arrive",
+        "value": "180ms",
+        "purpose": "Command bar and dialog settling arrival."
       },
       {
         "name": "drawer",
@@ -235,6 +363,11 @@
         "name": "thinking",
         "value": "1s ease-in-out infinite alternate",
         "purpose": "Staggered thinking-dot color change; disabled for reduced motion."
+      },
+      {
+        "name": "theme-switch",
+        "value": "0ms",
+        "purpose": "Transitions are suppressed for two frames while the appearance switches."
       }
     ],
     "breakpoints": [
@@ -253,6 +386,10 @@
       {
         "name": "mobile-max",
         "value": "640px"
+      },
+      {
+        "name": "narrow-max",
+        "value": "360px"
       },
       {
         "name": "short-sidebar-max-height",
@@ -279,7 +416,7 @@
       "refersTo": "button-secondary",
       "description": "Secondary conversation control.",
       "html": "<button class=\"ds-button-secondary\">Continue</button>",
-      "css": ".ds-button-secondary{font-family:\"DM Sans Variable\",sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line,#dddfe4);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s,border-color .15s;background:var(--white,#fff);color:var(--ink,#182b48);min-height:42px;padding:10px 17px;}.ds-button-secondary:hover:not(:disabled){background:#eceef2;border-color:#bfc6d1;}.ds-button-secondary:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-button-secondary:disabled{opacity:.45;cursor:not-allowed;}"
+      "css": ".ds-button-secondary{font-family:\"DM Sans Variable\",sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line,#dddfe4);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,color .15s,border-color .15s;background:var(--surface,#fff);color:var(--ink,#182b48);min-height:42px;padding:10px 17px;}.ds-button-secondary:hover:not(:disabled){background:var(--hover-fill,#eceef2);border-color:var(--hover-line,#bfc6d1);}.ds-button-secondary:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-button-secondary:disabled{opacity:.45;cursor:not-allowed;}"
     },
     {
       "name": "Text action",
@@ -287,7 +424,7 @@
       "refersTo": "button-text",
       "description": "Compact inline action.",
       "html": "<button class=\"ds-text\">Create an account</button>",
-      "css": ".ds-text{font-family:\"DM Sans Variable\",sans-serif;background:none;border:0;padding:0;color:var(--red,#c92d36);font-size:13px;font-weight:600;cursor:pointer;}.ds-text:hover:not(:disabled){text-decoration:underline;text-underline-offset:4px;}.ds-text:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-text:disabled{opacity:.45;cursor:not-allowed;}"
+      "css": ".ds-text{font-family:\"DM Sans Variable\",sans-serif;background:none;border:0;padding:0;color:var(--red-ink,#c92d36);font-size:13px;font-weight:600;cursor:pointer;}.ds-text:hover:not(:disabled){text-decoration:underline;text-underline-offset:4px;}.ds-text:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-text:disabled{opacity:.45;cursor:not-allowed;}"
     },
     {
       "name": "Icon action",
@@ -301,9 +438,9 @@
       "name": "Labeled field",
       "kind": "input",
       "refersTo": "input",
-      "description": "Standard light-surface form field.",
+      "description": "Standard surface form field.",
       "html": "<label class=\"ds-label\">Room name<input class=\"ds-field\" placeholder=\"Give your room a name\" /></label>",
-      "css": ".ds-label{font-family:\"DM Sans Variable\",sans-serif;display:grid;gap:9px;font-size:13px;font-weight:600;color:var(--ink,#182b48);}.ds-field{font-family:\"DM Sans Variable\",sans-serif;width:100%;border:1px solid #cdd1d9;border-radius:var(--radius,8px);background:var(--white,#fff);color:var(--ink,#182b48);padding:12px 14px;caret-color:var(--red,#c92d36);font-size:13px;}.ds-field::placeholder{color:var(--muted,#657084);}.ds-field:focus{outline:2px solid #8197bd;outline-offset:1px;}"
+      "css": ".ds-label{font-family:\"DM Sans Variable\",sans-serif;display:grid;gap:9px;font-size:13px;font-weight:600;color:var(--ink,#182b48);}.ds-field{font-family:\"DM Sans Variable\",sans-serif;width:100%;border:1px solid var(--field-line,#cdd1d9);border-radius:var(--radius,8px);background:var(--surface,#fff);color:var(--ink,#182b48);padding:12px 14px;caret-color:var(--red,#c92d36);font-size:13px;}.ds-field::placeholder{color:var(--muted,#657084);}.ds-field:focus{outline:2px solid #8197bd;outline-offset:1px;}"
     },
     {
       "name": "Room navigation",
@@ -311,7 +448,7 @@
       "refersTo": "navigation",
       "description": "Inverse room rows with an explicit selected state; the rooms heading carries its count and an Archived chats link.",
       "html": "<nav class=\"ds-nav\" aria-label=\"Rooms\"><div class=\"ds-nav-label\"><span>Your rooms</span><span class=\"ds-nav-count\">6</span><button class=\"ds-nav-archive\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect width=\"20\" height=\"5\" x=\"2\" y=\"3\" rx=\"1\"/><path d=\"M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8\"/><path d=\"M10 12h4\"/></svg> Archived chats</button></div><button class=\"ds-room\" aria-current=\"page\">Make room for reading<small>Planning</small></button><button class=\"ds-room\">A little room for ideas<small>Exploration</small></button></nav>",
-      "css": ".ds-nav{font-family:\"DM Sans Variable\",sans-serif;background:var(--navy,#122747);padding:17px;width:260px;}.ds-nav-label{display:flex;align-items:center;color:#b1c0d7;font-size:11px;letter-spacing:.045em;text-transform:uppercase;font-weight:600;margin:0 0 8px 10px;}.ds-nav-count{margin:0 auto 0 8px;}.ds-nav-archive{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 8px;border:0;border-radius:6px;background:none;color:#c3cfe0;font:500 12px \"DM Sans Variable\",sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;}.ds-nav-archive:hover{background:#ffffff13;color:#fff;}.ds-room{font-family:\"DM Sans Variable\",sans-serif;display:block;width:100%;text-align:left;padding:13px 12px;border:0;border-radius:6px;background:none;color:#e1e8f2;font-size:12px;cursor:pointer;margin-bottom:5px;}.ds-room small{display:block;font-size:10px;color:#b6c3d7;margin-top:5px;}.ds-room:hover{background:#ffffff0c;}.ds-room[aria-current]{background:#ffffff13;}.ds-room:focus-visible,.ds-nav-archive:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+      "css": ".ds-nav{font-family:\"DM Sans Variable\",sans-serif;background:var(--frame,#122747);padding:17px;width:260px;}.ds-nav-label{display:flex;align-items:center;color:#b1c0d7;font-size:11px;letter-spacing:.045em;text-transform:uppercase;font-weight:600;margin:0 0 8px 10px;}.ds-nav-count{margin:0 auto 0 8px;}.ds-nav-archive{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 8px;border:0;border-radius:6px;background:none;color:#c3cfe0;font:500 12px \"DM Sans Variable\",sans-serif;letter-spacing:0;text-transform:none;cursor:pointer;}.ds-nav-archive:hover{background:#ffffff13;color:#fff;}.ds-room{font-family:\"DM Sans Variable\",sans-serif;display:block;width:100%;text-align:left;padding:13px 12px;border:0;border-radius:6px;background:none;color:#e1e8f2;font-size:12px;cursor:pointer;margin-bottom:5px;}.ds-room small{display:block;font-size:10px;color:#b6c3d7;margin-top:5px;}.ds-room:hover{background:#ffffff0c;}.ds-room[aria-current]{background:#ffffff13;}.ds-room:focus-visible,.ds-nav-archive:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
     },
     {
       "name": "Purpose chip",
@@ -319,7 +456,7 @@
       "refersTo": "purpose-chip",
       "description": "Selectable purpose, shown in its selected state.",
       "html": "<button class=\"ds-purpose\" aria-pressed=\"true\">Planning</button>",
-      "css": ".ds-purpose{font-family:\"DM Sans Variable\",sans-serif;border:1px solid var(--line,#dddfe4);background:var(--white,#fff);padding:9px 11px;border-radius:5px;font-size:11px;font-weight:550;color:var(--muted,#657084);cursor:pointer;}.ds-purpose[aria-pressed=\"true\"]{background:var(--navy,#122747);border-color:var(--navy,#122747);color:var(--white,#fff);}.ds-purpose:hover:not([aria-pressed=\"true\"]){border-color:#8797ae;color:var(--ink,#182b48);}.ds-purpose:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+      "css": ".ds-purpose{font-family:\"DM Sans Variable\",sans-serif;border:1px solid var(--line,#dddfe4);background:var(--surface,#fff);padding:9px 11px;border-radius:5px;font-size:11px;font-weight:550;color:var(--muted,#657084);cursor:pointer;}.ds-purpose[aria-pressed=\"true\"]{background:var(--select-fill,#122747);border-color:var(--select-fill,#122747);color:var(--white,#fff);}.ds-purpose:hover:not([aria-pressed=\"true\"]){border-color:var(--strong-line,#8797ae);color:var(--ink,#182b48);}.ds-purpose:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
     },
     {
       "name": "Mode card",
@@ -327,7 +464,7 @@
       "refersTo": "mode-card",
       "description": "A selection card with descriptive copy.",
       "html": "<button class=\"ds-mode\" aria-pressed=\"true\"><b>Moderated rounds</b><small>Everyone gets a turn.</small></button>",
-      "css": ".ds-mode{font-family:\"DM Sans Variable\",sans-serif;text-align:left;padding:17px 14px;border:1px solid var(--line,#dddfe4);border-radius:8px;background:var(--white,#fff);color:var(--ink,#182b48);cursor:pointer;transition:background .15s,border-color .15s;}.ds-mode[aria-pressed=\"true\"]{border-color:var(--navy,#122747);background:#edf0f6;}.ds-mode b{font-size:12px;}.ds-mode small{display:block;font-size:11px;color:var(--muted,#657084);line-height:1.7;margin-top:10px;}.ds-mode:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+      "css": ".ds-mode{font-family:\"DM Sans Variable\",sans-serif;text-align:left;padding:12px;border:1px solid var(--line,#dddfe4);border-radius:8px;background:var(--surface,#fff);color:var(--ink,#182b48);cursor:pointer;transition:background .15s,border-color .15s;}.ds-mode[aria-pressed=\"true\"]{border-color:var(--select-line,#122747);background:var(--selected-fill,#edf0f6);}.ds-mode b{font-size:12px;}.ds-mode small{display:block;font-size:11px;color:var(--muted,#657084);line-height:1.7;margin-top:10px;}.ds-mode:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
     },
     {
       "name": "Finite allowance",
@@ -335,7 +472,7 @@
       "refersTo": "limit-strip",
       "description": "Explicit counts and proportional used segments.",
       "html": "<div class=\"ds-allowance\"><div class=\"ds-limit-label\"><span>Total messages</span><b>6 <span>/ 16</span></b></div><div class=\"ds-segments\" aria-label=\"6 of 16 messages used\"><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i class=\"ds-used\"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>",
-      "css": ".ds-allowance{font-family:\"DM Sans Variable\",sans-serif;width:264px;color:var(--ink,#182b48);}.ds-limit-label{display:flex;justify-content:space-between;gap:10px;font-size:11px;margin:13px 0 10px;}.ds-limit-label b{font-weight:650;font-variant-numeric:tabular-nums;color:var(--carbon,#63467d);}.ds-limit-label b span{font-weight:400;color:var(--muted,#657084);}.ds-segments{display:flex;gap:3px;height:13px;}.ds-segments i{flex:1;background:#e9eaf0;border-radius:1px;min-width:1px;}.ds-segments .ds-used{background:var(--navy,#122747);}"
+      "css": ".ds-allowance{font-family:\"DM Sans Variable\",sans-serif;width:264px;color:var(--ink,#182b48);}.ds-limit-label{display:flex;justify-content:space-between;gap:10px;font-size:11px;margin:13px 0 10px;}.ds-limit-label b{font-weight:650;font-variant-numeric:tabular-nums;color:var(--carbon,#63467d);}.ds-limit-label b span{font-weight:400;color:var(--muted,#657084);}.ds-segments{display:flex;gap:3px;height:13px;}.ds-segments i{flex:1;background:var(--measure-unused,#e9eaf0);border-radius:1px;min-width:1px;}.ds-segments .ds-used{background:var(--measure-used,#122747);}"
     },
     {
       "name": "Turn marker",
@@ -343,30 +480,57 @@
       "refersTo": "turn-number",
       "description": "Stable bot reply number, shown as an example.",
       "html": "<span class=\"ds-turn\" aria-label=\"Turn 2\">02</span>",
-      "css": ".ds-turn{font-family:\"DM Sans Variable\",sans-serif;display:inline-block;color:var(--carbon,#63467d);font-size:10px;font-variant-numeric:tabular-nums;border:1px solid #d6d0e1;padding:1px 5px;line-height:1.5;}"
+      "css": ".ds-turn{font-family:\"DM Sans Variable\",sans-serif;display:inline-block;color:var(--carbon,#63467d);font-size:10px;font-variant-numeric:tabular-nums;border:1px solid var(--carbon-line,#d6d0e1);padding:1px 5px;line-height:1.5;}"
+    },
+    {
+      "name": "Appearance toggle",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "Account-row day/night switch with a stable name and pressed state; shows a moon by day and a sun by night.",
+      "html": "<button class=\"ds-appearance\" aria-label=\"Dark appearance\" aria-pressed=\"false\" title=\"Switch to dark appearance\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\"/></svg></button>",
+      "css": ".ds-appearance{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:7px;background:var(--frame,#122747);border:0;border-radius:5px;color:#c3cfe0;cursor:pointer;transition:background .15s,color .15s;}.ds-appearance:hover{background:#ffffff13;color:#fff;}.ds-appearance:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}"
+    },
+    {
+      "name": "Setup shortcut",
+      "kind": "button",
+      "refersTo": "setup-shortcut",
+      "description": "Flat new-room shortcut beneath the topic: icon, value, chevron; opens the matching setting.",
+      "html": "<button class=\"ds-shortcut\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/></svg><span>3 bots</span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button><button class=\"ds-shortcut\"><span class=\"ds-shortcut-limit\">$2.00 · 24 messages</span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button>",
+      "css": ".ds-shortcut{font-family:\"DM Sans Variable\",sans-serif;display:inline-flex;align-items:center;gap:7px;min-height:44px;border:0;border-radius:5px;padding:4px 6px;background:transparent;color:var(--ink,#182b48);font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;margin-right:12px;}.ds-shortcut svg:last-child{color:var(--muted,#657084);}.ds-shortcut:hover{background:var(--selected-fill,#edf0f6);color:var(--accent-ink,#122747);}.ds-shortcut:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-shortcut-limit{color:var(--carbon,#63467d);font-variant-numeric:tabular-nums;}"
     },
     {
       "name": "Weekly usage meter",
       "kind": "custom",
-      "refersTo": "navigation",
-      "description": "Sidebar account allowance: a disclosure heading with used-of-limit, a 3px lavender bar, and remaining/reset metadata; on phones the metadata folds into the disclosure.",
-      "html": "<div class=\"ds-usage\"><details class=\"ds-usage-details\"><summary><span class=\"ds-usage-heading\">Weekly usage</span><span class=\"ds-usage-amount\"><strong>$0.27</strong> of $10.00 used</span><progress max=\"10\" value=\"0.27\" aria-label=\"Weekly account allowance used\"></progress><span class=\"ds-usage-meta\"><span>$9.73 left</span><span>Resets Nov 16</span></span></summary><p class=\"ds-usage-note\">Estimated AI costs across all rooms and summaries, not charges to you.</p></details></div>",
-      "css": ".ds-usage{font:11px/1.6 \"DM Sans Variable\",sans-serif;background:var(--navy,#122747);color:#b7c5da;padding:14px 17px;width:260px;font-variant-numeric:tabular-nums;}.ds-usage-details>summary{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;list-style:none;cursor:pointer;padding:6px 0;border-radius:2px;}.ds-usage-details>summary::-webkit-details-marker{display:none;}.ds-usage-details>summary:hover .ds-usage-heading{color:#fff;}.ds-usage-details>summary:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-usage-amount{margin-left:auto;}.ds-usage-amount strong{color:#e9edf6;font-weight:600;}.ds-usage progress{flex-basis:100%;display:block;height:3px;margin:8px 0 6px;border:0;border-radius:1px;appearance:none;background:#ffffff20;overflow:hidden;}.ds-usage progress::-webkit-progress-bar{background:#ffffff20;}.ds-usage progress::-webkit-progress-value{background:#c9b4e3;}.ds-usage progress::-moz-progress-bar{background:#c9b4e3;}.ds-usage-meta{flex-basis:100%;display:flex;justify-content:space-between;font-size:10px;}.ds-usage-note{margin:10px 0 0;padding-top:10px;border-top:1px solid #ffffff20;}"
+      "refersTo": "usage-popover",
+      "description": "Sidebar account allowance: a disclosure heading with used-of-limit, a 3px lavender bar, and remaining/reset metadata. Opening it floats the breakdown upward as a raised navy popover with the system's only shadow.",
+      "html": "<div class=\"ds-usage\"><details class=\"ds-usage-details\" open><summary><span class=\"ds-usage-heading\">Weekly usage</span><span class=\"ds-usage-amount\"><strong>$0.27</strong> of $10.00 used</span><progress max=\"10\" value=\"0.27\" aria-label=\"Weekly account allowance used\"></progress><span class=\"ds-usage-meta\"><span>$9.73 left</span><span>Resets Nov 16</span></span></summary><div class=\"ds-usage-pop\" role=\"group\" aria-label=\"Weekly usage breakdown\"><p class=\"ds-usage-plan\">Free plan</p><dl><div><dt>Recorded</dt><dd>$0.21</dd></div><div><dt>Reserved</dt><dd>$0.06</dd></div><div class=\"ds-usage-total\"><dt>Total used</dt><dd>$0.27</dd></div></dl><p class=\"ds-usage-note\">Estimated AI costs across all rooms and summaries, not charges to you.</p></div></details></div>",
+      "css": ".ds-usage{font:11px/1.6 \"DM Sans Variable\",sans-serif;background:var(--frame,#122747);color:#b7c5da;padding:14px 17px;width:260px;font-variant-numeric:tabular-nums;}.ds-usage-details{display:flex;flex-direction:column-reverse;gap:8px;}.ds-usage-details>summary{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;list-style:none;cursor:pointer;padding:6px 0;border-radius:2px;}.ds-usage-details>summary::-webkit-details-marker{display:none;}.ds-usage-details>summary:hover .ds-usage-heading{color:#fff;}.ds-usage-details>summary:focus-visible{outline:3px solid #778fbe;outline-offset:4px;}.ds-usage-amount{margin-left:auto;}.ds-usage-amount strong{color:#e9edf6;font-weight:600;}.ds-usage progress{flex-basis:100%;display:block;height:3px;margin:8px 0 6px;border:0;border-radius:1px;appearance:none;background:#ffffff20;overflow:hidden;}.ds-usage progress::-webkit-progress-bar{background:#ffffff20;}.ds-usage progress::-webkit-progress-value{background:#c9b4e3;}.ds-usage progress::-moz-progress-bar{background:#c9b4e3;}.ds-usage-meta{flex-basis:100%;display:flex;justify-content:space-between;font-size:10px;}.ds-usage-pop{background:#1b3459;border:1px solid #ffffff26;border-radius:8px;padding:14px 14px 12px;box-shadow:0 14px 32px -10px #040c1ccc,0 2px 6px #040c1c66;color:#e9edf6;}.ds-usage-plan{margin:0 0 8px;font-weight:600;}.ds-usage-pop dl{margin:0;}.ds-usage-pop dl div{display:flex;justify-content:space-between;padding:3px 0;}.ds-usage-pop dd{margin:0;}.ds-usage-total{border-top:1px solid #ffffff26;margin-top:4px;padding-top:7px !important;font-weight:600;}.ds-usage-note{margin:10px 0 0;color:#b7c5da;font-size:10px;}"
     }
   ],
   "narrative": {
     "northStar": "Jet age",
-    "overview": "Jet age gives the workspace a confident navy frame, warm paper reading surface, decisive red controls, and tightly organized information. The reference is expressed through proportion, typography, the stepped brand mark, numbered turns, and finite allowance segments; it does not become a physical ticket or travel interface.\n\nThe conversation stays generous while navigation and settings stay compact. Flat surfaces, fine dividers, and small tonal changes establish hierarchy. The same visual language carries into the split authentication screen without adding decorative imagery.",
+    "overview": "Jet age gives the workspace a confident navy frame, warm paper reading surface, decisive red controls, and tightly organized information. The reference is expressed through proportion, typography, the stepped brand mark, numbered turns, and finite allowance segments; it does not become a physical ticket or travel interface.\n\nThe conversation stays generous while navigation and settings stay compact. Flat surfaces, fine dividers, and small tonal changes establish hierarchy. The same visual language carries into the split authentication screen without adding decorative imagery. A night appearance keeps that hierarchy intact: the navy frame deepens around a blue-black canvas rather than becoming a different interface.",
     "keyCharacteristics": [
       "Navy structure, paper reading space, red actions.",
       "Manrope headings paired with DM Sans interface and conversation text.",
       "Numbered replies and visible finite allowances.",
-      "Flat surfaces, restrained corners, and short state changes."
+      "Flat surfaces, restrained corners, and short state changes.",
+      "One palette defined twice, day and night, switched as a whole."
     ],
     "rules": [
       {
         "name": "The Action Color Rule",
         "body": "Use red for primary actions and attention; use carbon purple for measurement and turn markers.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paired Token Rule",
+        "body": "A new surface color is declared once as a `light-dark()` pair in `:root`; no component carries a light-only hex on a light surface. Colors set on the navy frame (pale sidebar text, the usage popover) are already dark-surface colors and stay constant.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Frame Rule",
+        "body": "Switching appearance changes the whole palette in a single frame; transitions are suppressed during the switch so no control fades on its own.",
         "section": "colors"
       },
       {
@@ -376,19 +540,21 @@
       },
       {
         "name": "The Flat Surface Rule",
-        "body": "Separate surfaces with color and fine borders; do not add elevation shadows to the established workspace.",
+        "body": "Separate surfaces with color and fine borders. The usage popover is the single sanctioned shadow, and it lives inside the navy frame; paper and white surfaces never carry elevation shadows.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "Do use the navy frame, paper canvas, and white controls as the default surface hierarchy.",
+      "Do use the navy frame, paper canvas, and surface controls as the default hierarchy, by day and by night.",
+      "Do declare every new surface color as a `light-dark()` pair and check both appearances at 4.5:1 for text.",
       "Do keep allowance counts, budget, and turn numbers visually distinct from conversation prose.",
       "Do carry visible focus, selected states, disabled states, and reduced-motion behavior into new controls.",
       "Do switch compact screens to explicit drawers and preserve independently scrollable content."
     ],
     "donts": [
       "Don't turn the Jet age reference into fake travel controls or a physical ticket costume.",
-      "Don't replace the established flat hierarchy with floating shadow cards.",
+      "Don't replace the established flat hierarchy with floating shadow cards; the usage popover is the only lifted surface.",
+      "Don't hardcode a light-only color on a paper or white surface.",
       "Don't use red for routine measurement or carbon purple for the primary action.",
       "Don't squeeze all three workspace columns into a narrow screen."
     ]

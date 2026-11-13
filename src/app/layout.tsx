@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PlatformAnalytics } from "@/components/analytics";
+import { AppearanceSync } from "@/components/appearance";
+import { themeScript } from "@/lib/theme";
 import "@fontsource-variable/dm-sans";
 import "@fontsource-variable/manrope";
 import "./globals.css";
@@ -37,8 +39,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
+        <AppearanceSync />
         {children}
         <PlatformAnalytics />
       </body>
