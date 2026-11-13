@@ -1,6 +1,6 @@
 import type { ComponentProps, CSSProperties } from "react";
 import { Cpu } from "lucide-react";
-import { MODEL_CHOICES } from "@/lib/models";
+import { MODEL_CHOICES, isModelDisabled } from "@/lib/models";
 
 const providers: Record<string, { name: string; asset: string }> = {
   openai: { name: "OpenAI", asset: "openai" },
@@ -59,7 +59,11 @@ export function ModelSelect({
     <span className="model-select">
       <ProviderIcon model={value} />
       <select {...props} value={value}>
-        {MODEL_CHOICES.map((model) => (
+        {MODEL_CHOICES.filter(
+          // Disabled models are hidden, except one already selected so a
+          // saved bot's current value still renders instead of going blank.
+          (model) => !isModelDisabled(model) || model.id === value,
+        ).map((model) => (
           <option key={model.id} value={model.id}>
             {model.provider} · {model.name}
             {showTier ? ` · ${model.tier}` : ""}

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { authenticated, ApiError, check, failure, jsonBody } from "@/lib/api";
 import { generateReply, modelPrices } from "@/lib/gateway";
-import { MODEL_CHOICES } from "@/lib/models";
+import { enabledModelIds } from "@/lib/models";
 import {
   buildSummaryPrompt,
   SUMMARY_MAX_TOKENS,
@@ -24,7 +24,7 @@ export async function POST(
     const { user, db, admin } = await authenticated(req);
     const body = z
       .object({
-        model: z.enum(MODEL_CHOICES.map((m) => m.id)),
+        model: z.enum(enabledModelIds),
         requestId: z.uuid(),
       })
       .parse(await jsonBody(req));
