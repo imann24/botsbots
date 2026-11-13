@@ -1296,11 +1296,7 @@ export function Workspace({ email }: { email: string }) {
                   {!room && <span className="optional"> optional</span>}
                 </span>
                 <input
-                  placeholder={
-                    room
-                      ? "Name this conversation"
-                      : "Leave blank for a goofy name"
-                  }
+                  placeholder="Name this conversation"
                   required={!!room}
                   maxLength={80}
                   value={draft.title}
