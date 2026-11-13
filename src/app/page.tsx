@@ -2,7 +2,11 @@ import { userClient } from "@/lib/supabase/server";
 import { Workspace } from "@/components/workspace";
 import { AuthForm } from "@/components/auth-form";
 export const dynamic = "force-dynamic";
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ auth_error?: string }>;
+}) {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
@@ -17,12 +21,21 @@ export default async function Home() {
       </main>
     );
   const client = await userClient();
+  const { auth_error } = await searchParams;
   const {
     data: { user },
   } = await client.auth.getUser();
   return user ? (
     <Workspace email={user.email ?? "Your account"} />
   ) : (
-    <AuthForm />
+    <AuthForm
+      initialError={
+        auth_error === "cancelled"
+          ? "Google sign-in was cancelled. Try again or sign in with email."
+          : auth_error
+            ? "Google sign-in couldn’t be completed. Please try again."
+            : ""
+      }
+    />
   );
 }
