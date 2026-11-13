@@ -1299,7 +1299,7 @@ export function Workspace({ email }: { email: string }) {
                   placeholder={
                     room
                       ? "Name this conversation"
-                      : "Leave blank for a goofy name"
+                      : "Leave blank to name it automatically"
                   }
                   required={!!room}
                   maxLength={80}
