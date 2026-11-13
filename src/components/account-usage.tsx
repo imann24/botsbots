@@ -1,4 +1,5 @@
 "use client";
+import { trackEvent } from "@/lib/analytics";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, RefreshCw } from "lucide-react";
@@ -99,7 +100,14 @@ export function AccountUsageMeter({
         </div>
       ) : (
         <>
-          <details className="usage-details">
+          <details
+            className="usage-details"
+            onToggle={(e) =>
+              trackEvent("usage_details_toggled", {
+                open: e.currentTarget.open,
+              })
+            }
+          >
             <summary title="Weekly usage details">
               <span className="usage-heading">
                 <span>Weekly usage</span>
@@ -205,7 +213,14 @@ export function AccountUsageMeter({
           {usage && (
             <p>Couldn’t refresh usage. These figures may be out of date.</p>
           )}
-          <button type="button" onClick={onRefresh} disabled={loading}>
+          <button
+            type="button"
+            onClick={() => {
+              trackEvent("usage_retry_clicked", {});
+              onRefresh();
+            }}
+            disabled={loading}
+          >
             <RefreshCw size={13} aria-hidden="true" />{" "}
             {loading ? "Refreshing…" : "Retry usage"}
           </button>

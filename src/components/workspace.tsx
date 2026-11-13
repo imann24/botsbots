@@ -81,6 +81,12 @@ import type { ContactKind } from "@/lib/contact";
 import { ArchiveChatModal } from "./archive-chat-modal";
 import { compareRooms } from "@/lib/room-order";
 import { RoomTitle } from "./room-title";
+import {
+  trackAction,
+  trackEvent,
+  roomAnalytics,
+  lengthBucket,
+} from "@/lib/analytics";
 const presets = [
   {
     id: "plan" as const,
@@ -165,6 +171,7 @@ export function Workspace({ email }: { email: string }) {
   const archiveMutation = useRef(false);
   const [contactKind, setContactKind] = useState<ContactKind | null>(null);
   function showContact(kind: ContactKind = "support") {
+    trackEvent("contact_opened", { kind });
     setNavOpen(false);
     setPanelOpen(false);
     requestAnimationFrame(() => setContactKind(kind));
@@ -219,6 +226,11 @@ export function Workspace({ email }: { email: string }) {
   }, []);
   function toggleCollapsedPanel(panel: "nav" | "setup") {
     const next = { ...collapsedPanels, [panel]: !collapsedPanels[panel] };
+    trackEvent("panel_toggled", {
+      panel,
+      open: !next[panel],
+      layout: "desktop",
+    });
     setCollapsedPanels(next);
     try {
       localStorage.setItem("botsbots:collapsed-panels", JSON.stringify(next));
@@ -346,7 +358,10 @@ export function Workspace({ email }: { email: string }) {
     setRooms((all) => all.map((r) => (r.id === id ? data.room : r)));
   }, []);
   const selectRoom = useCallback(
-    async (id: string) => {
+    async (
+      id: string,
+      interaction?: { source: "navigation" | "command"; filtered?: boolean },
+    ) => {
       selectedId.current = id;
       setLoading(true);
       setEditing(false);
@@ -358,8 +373,10 @@ export function Workspace({ email }: { email: string }) {
       setNavOpen(false);
       try {
         await refresh(id);
-        if (selectedId.current === id)
+        if (selectedId.current === id) {
           window.history.replaceState(null, "", `/?room=${id}`);
+          if (interaction) trackEvent("room_opened", interaction);
+        }
       } catch (e) {
         setError((e as Error).message);
       } finally {
@@ -477,6 +494,30 @@ export function Workspace({ email }: { email: string }) {
     setExpandedBot(null);
     window.history.replaceState(null, "", "/");
   }
+  function openNewRoom() {
+    trackEvent("room_draft_opened", {
+      custom_defaults: accountDefaultsRef.current.custom,
+    });
+    newRoom();
+  }
+  function toggleSummary() {
+    trackEvent("panel_toggled", {
+      panel: "summary",
+      open: !summaryOpen,
+      layout: "inline",
+    });
+    setSummaryOpen(!summaryOpen);
+  }
+  function changeArchiveView(open: boolean) {
+    trackEvent("archive_view_changed", { open });
+    setArchiveView(open);
+    setSearch("");
+  }
+  function openDrawer(panel: "nav" | "setup", open: boolean) {
+    trackEvent("panel_toggled", { panel, open, layout: "drawer" });
+    if (panel === "nav") setNavOpen(open);
+    else setPanelOpen(open);
+  }
   const loadArchivedRooms = useCallback(async () => {
     setArchiveLoading(true);
     setArchiveError("");
@@ -495,17 +536,17 @@ export function Workspace({ email }: { email: string }) {
     if (archiveView) void loadArchivedRooms();
   }, [archiveView, loadArchivedRooms]);
   function confirmArchive(target: Room) {
+    trackEvent("room_archive_prompted", {});
     setNavOpen(false);
     setPanelOpen(false);
     requestAnimationFrame(() => setArchiveTarget(target));
   }
   async function archiveChat(target: Room) {
-    const { room: archived } = await api<{ room: Room }>(
-      `/api/rooms/${target.id}`,
-      {
+    const { room: archived } = await trackAction("room_archive", {}, () =>
+      api<{ room: Room }>(`/api/rooms/${target.id}`, {
         method: "PATCH",
         body: JSON.stringify({ action: "archive" }),
-      },
+      }),
     );
     setRooms((all) => all.filter((r) => r.id !== target.id));
     setArchivedRooms((all) =>
@@ -522,12 +563,11 @@ export function Workspace({ email }: { email: string }) {
     setRestoreBusy(target.id);
     setArchiveError("");
     try {
-      const { room: restored } = await api<{ room: Room }>(
-        `/api/rooms/${target.id}`,
-        {
+      const { room: restored } = await trackAction("room_restore", {}, () =>
+        api<{ room: Room }>(`/api/rooms/${target.id}`, {
           method: "PATCH",
           body: JSON.stringify({ action: "restore" }),
-        },
+        }),
       );
       setArchivedRooms((all) => all.filter((r) => r.id !== target.id));
       setRooms((all) =>
@@ -552,6 +592,7 @@ export function Workspace({ email }: { email: string }) {
   }
   function editRoom() {
     if (!room) return;
+    trackEvent("room_editor_opened", {});
     setDraft({
       title: room.title,
       topic: room.topic,
@@ -567,6 +608,7 @@ export function Workspace({ email }: { email: string }) {
     e?.preventDefault();
     if (busy || saveInFlight.current) return;
     if (startImmediately && accountExhausted) {
+      trackEvent("room_start_blocked", { reason: "account_limit" });
       setError(
         "Your weekly allowance is used. You can still create a room and start it when your allowance resets.",
       );
@@ -580,15 +622,20 @@ export function Workspace({ email }: { email: string }) {
         ...draft,
         title: draft.title.trim(),
       };
-      const data = room
-        ? await api<{ room: Room }>(`/api/rooms/${room.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({ action: "settings", payload: value }),
-          })
-        : await api<{ room: Room }>("/api/rooms", {
-            method: "POST",
-            body: JSON.stringify(value),
-          });
+      const data = await trackAction(
+        room ? "room_update" : "room_create",
+        { ...roomAnalytics(draft), start_immediately: startImmediately },
+        async () =>
+          room
+            ? await api<{ room: Room }>(`/api/rooms/${room.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({ action: "settings", payload: value }),
+              })
+            : await api<{ room: Room }>("/api/rooms", {
+                method: "POST",
+                body: JSON.stringify(value),
+              }),
+      );
       selectedId.current = data.room.id;
       setRoom(data.room);
       setEditing(false);
@@ -600,12 +647,14 @@ export function Workspace({ email }: { email: string }) {
       ]);
       if (startImmediately) {
         try {
-          const started = await api<{ room: Room }>(
-            `/api/rooms/${data.room.id}`,
-            {
-              method: "PATCH",
-              body: JSON.stringify({ action: "start" }),
-            },
+          const started = await trackAction(
+            "room_start",
+            { mode: data.room.settings.mode, source: "create" },
+            () =>
+              api<{ room: Room }>(`/api/rooms/${data.room.id}`, {
+                method: "PATCH",
+                body: JSON.stringify({ action: "start" }),
+              }),
           );
           if (selectedId.current === started.room.id) setRoom(started.room);
         } catch (e) {
@@ -652,10 +701,18 @@ export function Workspace({ email }: { email: string }) {
     setBusy(true);
     setError("");
     try {
-      const data = await api<{ room: Room }>(`/api/rooms/${room.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ action: name }),
-      });
+      const data = await trackAction(
+        `room_${name}`,
+        {
+          mode: room.settings.mode,
+          ...(name === "start" ? { source: "control" as const } : {}),
+        },
+        () =>
+          api<{ room: Room }>(`/api/rooms/${room.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ action: name }),
+          }),
+      );
       setRoom(data.room);
       await refreshRooms();
     } catch (e) {
@@ -667,10 +724,12 @@ export function Workspace({ email }: { email: string }) {
   async function renameRoom(title: string) {
     if (!room) return;
     const id = room.id;
-    const { room: renamed } = await api<{ room: Room }>(`/api/rooms/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({ action: "rename", payload: { title } }),
-    });
+    const { room: renamed } = await trackAction("room_rename", {}, () =>
+      api<{ room: Room }>(`/api/rooms/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ action: "rename", payload: { title } }),
+      }),
+    );
     if (selectedId.current === id) setRoom(renamed);
     setRooms((all) => all.map((item) => (item.id === id ? renamed : item)));
   }
@@ -683,14 +742,24 @@ export function Workspace({ email }: { email: string }) {
     const content = text.trim();
     if (messageRequest.current?.text !== content)
       messageRequest.current = { text: content, id: crypto.randomUUID() };
+    const requestId = messageRequest.current.id;
     try {
-      await api(`/api/rooms/${room.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({
-          action: "message",
-          payload: { content, requestId: messageRequest.current.id },
-        }),
-      });
+      await trackAction(
+        "message_send",
+        {
+          mode: room.settings.mode,
+          room_status: room.status,
+          length_bucket: lengthBucket(content.length),
+        },
+        () =>
+          api(`/api/rooms/${room.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              action: "message",
+              payload: { content, requestId },
+            }),
+          }),
+      );
       setText("");
       messageRequest.current = null;
       await refresh(room.id);
@@ -707,12 +776,17 @@ export function Workspace({ email }: { email: string }) {
     setDefaultsNotice("");
     setError("");
     try {
-      const { defaults } = await api<{ defaults: AccountDefaults }>(
-        "/api/account/defaults",
-        {
-          method: "PUT",
-          body: JSON.stringify({ bots: draft.bots, settings: draft.settings }),
-        },
+      const { defaults } = await trackAction(
+        "defaults_save",
+        roomAnalytics(draft),
+        () =>
+          api<{ defaults: AccountDefaults }>("/api/account/defaults", {
+            method: "PUT",
+            body: JSON.stringify({
+              bots: draft.bots,
+              settings: draft.settings,
+            }),
+          }),
       );
       setAccountDefaults(defaults);
       setDefaultsNotice(
@@ -729,9 +803,10 @@ export function Workspace({ email }: { email: string }) {
     setDefaultsNotice("");
     setError("");
     try {
-      const { defaults } = await api<{ defaults: AccountDefaults }>(
-        "/api/account/defaults",
-        { method: "DELETE" },
+      const { defaults } = await trackAction("defaults_reset", {}, () =>
+        api<{ defaults: AccountDefaults }>("/api/account/defaults", {
+          method: "DELETE",
+        }),
       );
       setAccountDefaults(defaults);
       if (!room)
@@ -752,12 +827,15 @@ export function Workspace({ email }: { email: string }) {
   }
   const draftIsDefault = sameLineup(draft, accountDefaults);
   function updateBot(id: string, patch: Partial<Bot>) {
+    if (patch.model) trackEvent("bot_model_selected", { model: patch.model });
     setDraft((d) => ({
       ...d,
       bots: d.bots.map((b) => (b.id === id ? { ...b, ...patch } : b)),
     }));
   }
   function setting<K extends keyof Settings>(key: K, value: Settings[K]) {
+    if (key === "mode" && value !== draft.settings.mode)
+      trackEvent("room_setting_changed", { setting: key, value });
     setDraft((d) => ({ ...d, settings: { ...d.settings, [key]: value } }));
   }
   function exportChat() {
@@ -778,6 +856,10 @@ export function Workspace({ email }: { email: string }) {
     a.download = `${room.title.replace(/[^a-z0-9]+/gi, "-")}.md`;
     a.click();
     URL.revokeObjectURL(url);
+    trackEvent("room_exported", {
+      message_count: messages.length,
+      format: "markdown",
+    });
   }
   function focusMainInput() {
     requestAnimationFrame(() => {
@@ -787,6 +869,7 @@ export function Workspace({ email }: { email: string }) {
     });
   }
   function showUsage() {
+    trackEvent("usage_viewed", {});
     if (mobileNav) setNavOpen(true);
     else if (collapsedPanels.nav) toggleCollapsedPanel("nav");
     requestAnimationFrame(() =>
@@ -810,7 +893,7 @@ export function Workspace({ email }: { email: string }) {
       globalShortcut: "mod+shift+o",
       disabled: busy ? "Wait for the current action to finish" : undefined,
       run: () => {
-        newRoom();
+        openNewRoom();
         requestAnimationFrame(() =>
           document.querySelector<HTMLTextAreaElement>("#room-topic")?.focus(),
         );
@@ -842,7 +925,7 @@ export function Workspace({ email }: { email: string }) {
       shortcut: "S",
       disabled: roomUnavailable,
       run: () => {
-        setSummaryOpen(!summaryOpen);
+        toggleSummary();
         requestAnimationFrame(() => summaryButton.current?.focus());
       },
     },
@@ -892,6 +975,7 @@ export function Workspace({ email }: { email: string }) {
       shortcut: "J",
       disabled: roomUnavailable,
       run: () => {
+        trackEvent("latest_replies_clicked", {});
         setSummaryOpen(false);
         setShowJump(false);
         requestAnimationFrame(() =>
@@ -915,7 +999,7 @@ export function Workspace({ email }: { email: string }) {
       shortcut: "[",
       globalShortcut: "mod+shift+s",
       run: () =>
-        mobileNav ? setNavOpen(!navOpen) : toggleCollapsedPanel("nav"),
+        mobileNav ? openDrawer("nav", !navOpen) : toggleCollapsedPanel("nav"),
     },
     {
       id: "setup",
@@ -930,7 +1014,9 @@ export function Workspace({ email }: { email: string }) {
       icon: Settings2,
       shortcut: "]",
       run: () =>
-        compactPanel ? setPanelOpen(true) : toggleCollapsedPanel("setup"),
+        compactPanel
+          ? openDrawer("setup", true)
+          : toggleCollapsedPanel("setup"),
     },
     {
       id: "usage",
@@ -968,8 +1054,7 @@ export function Workspace({ email }: { email: string }) {
       group: "Actions",
       icon: Archive,
       run: () => {
-        setArchiveView(true);
-        setSearch("");
+        changeArchiveView(true);
         if (mobileNav) setNavOpen(true);
         else if (collapsedPanels.nav) toggleCollapsedPanel("nav");
       },
@@ -1003,7 +1088,7 @@ export function Workspace({ email }: { email: string }) {
       icon: MessageSquare,
       disabled: busy ? "Wait for the current action to finish" : undefined,
       run: () => {
-        void selectRoom(item.id);
+        void selectRoom(item.id, { source: "command" });
       },
     })),
   ];
@@ -1030,7 +1115,7 @@ export function Workspace({ email }: { email: string }) {
           aria-label="Close navigation"
           tabIndex={-1}
           aria-hidden="true"
-          onClick={() => setNavOpen(false)}
+          onClick={() => openDrawer("nav", false)}
         />
       )}
       <nav
@@ -1052,21 +1137,21 @@ export function Workspace({ email }: { email: string }) {
             className="brand-button"
             aria-label="BotsBots — New chat"
             title="New chat"
-            onClick={newRoom}
+            onClick={openNewRoom}
           >
             <Brand />
           </button>
           <button
             className="icon-button mobile-only"
             aria-label="Close navigation"
-            onClick={() => setNavOpen(false)}
+            onClick={() => openDrawer("nav", false)}
           >
             <X size={20} />
           </button>
         </div>
         <button
           className="button new-room"
-          onClick={newRoom}
+          onClick={openNewRoom}
           aria-keyshortcuts="Meta+Shift+O Control+Shift+O"
         >
           <Plus size={18} />
@@ -1081,14 +1166,23 @@ export function Workspace({ email }: { email: string }) {
             }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onBlur={() => {
+              if (search.trim())
+                trackEvent("room_search_used", {
+                  scope: archiveView ? "archived" : "active",
+                  result_count: (archiveView ? archivedRooms : rooms).filter(
+                    (item) =>
+                      item.title.toLowerCase().includes(search.toLowerCase()),
+                  ).length,
+                });
+            }}
           />
         </label>
         {archiveView && (
           <button
             className="archive-view-toggle"
             onClick={() => {
-              setArchiveView(false);
-              setSearch("");
+              changeArchiveView(false);
               setArchiveError("");
             }}
           >
@@ -1126,7 +1220,12 @@ export function Workspace({ email }: { email: string }) {
                     <button
                       className="room-link"
                       title={r.title}
-                      onClick={() => void selectRoom(r.id)}
+                      onClick={() =>
+                        void selectRoom(r.id, {
+                          source: "navigation",
+                          filtered: !!search.trim(),
+                        })
+                      }
                     >
                       <MessageSquare size={16} aria-hidden="true" />
                       <span>
@@ -1205,8 +1304,7 @@ export function Workspace({ email }: { email: string }) {
           <button
             className="archive-view-toggle archive-view-entry"
             onClick={() => {
-              setArchiveView(true);
-              setSearch("");
+              changeArchiveView(true);
             }}
           >
             <Archive size={14} aria-hidden="true" /> Archived chats
@@ -1235,8 +1333,19 @@ export function Workspace({ email }: { email: string }) {
               className="icon-button"
               aria-label="Sign out"
               onClick={async () => {
-                await browserClient().auth.signOut();
-                window.location.reload();
+                try {
+                  await trackAction("sign_out", {}, async () => {
+                    const { error } = await browserClient().auth.signOut();
+                    if (error) throw error;
+                  });
+                  window.location.reload();
+                } catch (error) {
+                  setError(
+                    error instanceof Error
+                      ? error.message
+                      : "Sign-out failed. Try again.",
+                  );
+                }
               }}
             >
               <LogOut size={17} />
@@ -1280,7 +1389,9 @@ export function Workspace({ email }: { email: string }) {
               aria-controls="room-navigation"
               aria-expanded={mobileNav ? navOpen : !collapsedPanels.nav}
               onClick={() =>
-                mobileNav ? setNavOpen(true) : toggleCollapsedPanel("nav")
+                mobileNav
+                  ? openDrawer("nav", true)
+                  : toggleCollapsedPanel("nav")
               }
             >
               {mobileNav ? (
@@ -1320,14 +1431,7 @@ export function Workspace({ email }: { email: string }) {
               className="button small usage-shortcut"
               aria-label="View weekly account usage"
               aria-controls="room-navigation"
-              onClick={() => {
-                if (mobileNav) setNavOpen(true);
-                else if (collapsedPanels.nav) toggleCollapsedPanel("nav");
-                setTimeout(
-                  () => document.getElementById("weekly-usage")?.focus(),
-                  0,
-                );
-              }}
+              onClick={showUsage}
             >
               {accountUsage.error
                 ? "Usage unavailable"
@@ -1344,7 +1448,7 @@ export function Workspace({ email }: { email: string }) {
                   className="button small summary-toggle"
                   aria-expanded={summaryOpen}
                   aria-controls="conversation-summary"
-                  onClick={() => setSummaryOpen(!summaryOpen)}
+                  onClick={toggleSummary}
                 >
                   <FileText size={16} /> Summarize
                 </button>
@@ -1396,7 +1500,7 @@ export function Workspace({ email }: { email: string }) {
               aria-expanded={compactPanel ? panelOpen : !collapsedPanels.setup}
               onClick={() =>
                 compactPanel
-                  ? setPanelOpen(!panelOpen)
+                  ? openDrawer("setup", !panelOpen)
                   : toggleCollapsedPanel("setup")
               }
             >
@@ -1443,6 +1547,11 @@ export function Workspace({ email }: { email: string }) {
             accountExhausted={accountExhausted}
             onRefresh={() => refresh(room.id)}
             onClose={() => {
+              trackEvent("panel_toggled", {
+                panel: "summary",
+                open: false,
+                layout: "inline",
+              });
               setSummaryOpen(false);
               summaryButton.current?.focus();
             }}
@@ -1492,7 +1601,10 @@ export function Workspace({ email }: { email: string }) {
                       type="button"
                       className={draft.purpose === p.id ? "selected" : ""}
                       aria-pressed={draft.purpose === p.id}
-                      onClick={() => setDraft((d) => ({ ...d, purpose: p.id }))}
+                      onClick={() => {
+                        trackEvent("room_purpose_selected", { purpose: p.id });
+                        setDraft((d) => ({ ...d, purpose: p.id }));
+                      }}
                     >
                       <p.icon size={17} />
                       {p.name}
@@ -1520,12 +1632,15 @@ export function Workspace({ email }: { email: string }) {
                   <button
                     type="button"
                     className="text-button example-button"
-                    onClick={() =>
+                    onClick={() => {
+                      trackEvent("room_prompt_applied", {
+                        purpose: draft.purpose,
+                      });
                       setDraft((d) => ({
                         ...d,
                         topic: presets.find((p) => p.id === d.purpose)!.topic,
-                      }))
-                    }
+                      }));
+                    }}
                   >
                     <Lightbulb size={15} />
                     Try a starting prompt
@@ -1602,7 +1717,7 @@ export function Workspace({ email }: { email: string }) {
                     aria-label={`Room setup: ${draft.bots.length} ${draft.bots.length === 1 ? "bot" : "bots"}`}
                     aria-controls="room-setup"
                     aria-expanded={panelOpen}
-                    onClick={() => setPanelOpen(true)}
+                    onClick={() => openDrawer("setup", true)}
                   >
                     <span className="lineup-avatars" aria-hidden="true">
                       {draft.bots.slice(0, 4).map((bot) => (
@@ -1632,7 +1747,10 @@ export function Workspace({ email }: { email: string }) {
                   <button
                     type="button"
                     className="text-button"
-                    onClick={() => setEditing(false)}
+                    onClick={() => {
+                      trackEvent("room_editor_cancelled", {});
+                      setEditing(false);
+                    }}
                   >
                     Cancel
                   </button>
@@ -1794,6 +1912,7 @@ export function Workspace({ email }: { email: string }) {
               <button
                 className="jump-button"
                 onClick={() => {
+                  trackEvent("latest_replies_clicked", {});
                   setShowJump(false);
                   bottom.current?.scrollIntoView({ behavior: "smooth" });
                 }}
@@ -1904,7 +2023,7 @@ export function Workspace({ email }: { email: string }) {
           aria-label="Close room setup"
           tabIndex={-1}
           aria-hidden="true"
-          onClick={() => setPanelOpen(false)}
+          onClick={() => openDrawer("setup", false)}
         />
       )}
       <aside
@@ -1928,7 +2047,7 @@ export function Workspace({ email }: { email: string }) {
           <button
             className="icon-button panel-close"
             aria-label="Close room setup"
-            onClick={() => setPanelOpen(false)}
+            onClick={() => openDrawer("setup", false)}
           >
             <X size={20} />
           </button>
@@ -1951,9 +2070,13 @@ export function Workspace({ email }: { email: string }) {
                   <button
                     className="bot-summary"
                     aria-expanded={expandedBot === bot.id}
-                    onClick={() =>
-                      setExpandedBot(expandedBot === bot.id ? null : bot.id)
-                    }
+                    onClick={() => {
+                      trackEvent("bot_details_toggled", {
+                        open: expandedBot !== bot.id,
+                        model: bot.model,
+                      });
+                      setExpandedBot(expandedBot === bot.id ? null : bot.id);
+                    }}
                   >
                     <span
                       className={`avatar ${agentClass(rosterColors, bot.id)}`}
@@ -1979,6 +2102,19 @@ export function Workspace({ email }: { email: string }) {
                             Bot name
                             <input
                               value={bot.name}
+                              onFocus={(e) => {
+                                e.currentTarget.dataset.initialValue =
+                                  e.currentTarget.value;
+                              }}
+                              onBlur={(e) => {
+                                if (
+                                  e.currentTarget.value !==
+                                  e.currentTarget.dataset.initialValue
+                                )
+                                  trackEvent("bot_field_edited", {
+                                    field: "name",
+                                  });
+                              }}
                               maxLength={32}
                               onChange={(e) =>
                                 updateBot(bot.id, { name: e.target.value })
@@ -2008,6 +2144,19 @@ export function Workspace({ email }: { email: string }) {
                             Perspective
                             <textarea
                               value={bot.perspective}
+                              onFocus={(e) => {
+                                e.currentTarget.dataset.initialValue =
+                                  e.currentTarget.value;
+                              }}
+                              onBlur={(e) => {
+                                if (
+                                  e.currentTarget.value !==
+                                  e.currentTarget.dataset.initialValue
+                                )
+                                  trackEvent("bot_field_edited", {
+                                    field: "perspective",
+                                  });
+                              }}
                               rows={4}
                               maxLength={1000}
                               onChange={(e) =>
@@ -2020,12 +2169,16 @@ export function Workspace({ email }: { email: string }) {
                           <button
                             className="text-button danger-text"
                             disabled={draft.bots.length <= 2}
-                            onClick={() =>
+                            onClick={() => {
+                              trackEvent("bot_removed", {
+                                model: bot.model,
+                                bot_count: draft.bots.length - 1,
+                              });
                               setDraft((d) => ({
                                 ...d,
                                 bots: d.bots.filter((b) => b.id !== bot.id),
-                              }))
-                            }
+                              }));
+                            }}
                           >
                             <Trash2 size={14} />
                             Remove bot
@@ -2061,6 +2214,10 @@ export function Workspace({ email }: { email: string }) {
                   perspective:
                     "Bring relevant expertise. Explain the details that matter and connect them to the next practical step.",
                 };
+                trackEvent("bot_added", {
+                  model: bot.model,
+                  bot_count: draft.bots.length + 1,
+                });
                 setDraft((d) => ({ ...d, bots: [...d.bots, bot] }));
                 setExpandedBot(bot.id);
               }}
@@ -2127,7 +2284,14 @@ export function Workspace({ email }: { email: string }) {
                 className="icon-button"
                 aria-label="Tune room limits"
                 aria-expanded={limitsOpen}
-                onClick={() => setLimitsOpen(!limitsOpen)}
+                onClick={() => {
+                  trackEvent("panel_toggled", {
+                    panel: "limits",
+                    open: !limitsOpen,
+                    layout: "inline",
+                  });
+                  setLimitsOpen(!limitsOpen);
+                }}
               >
                 <Settings2 size={17} />
               </button>
@@ -2201,6 +2365,20 @@ export function Workspace({ email }: { email: string }) {
                     max={max}
                     step={step}
                     value={draft.settings[key]}
+                    onFocus={(e) => {
+                      e.currentTarget.dataset.initialValue =
+                        e.currentTarget.value;
+                    }}
+                    onBlur={(e) => {
+                      if (
+                        e.currentTarget.value !==
+                        e.currentTarget.dataset.initialValue
+                      )
+                        trackEvent("room_setting_changed", {
+                          setting: key,
+                          value: draft.settings[key],
+                        });
+                    }}
                     onChange={(e) =>
                       setting(key, e.target.valueAsNumber || min)
                     }
@@ -2224,7 +2402,12 @@ export function Workspace({ email }: { email: string }) {
         </section>
         <div className="panel-info">
           {modelError && <p className="price-note warning">{modelError}</p>}
-          <details className="how-it-works">
+          <details
+            className="how-it-works"
+            onToggle={(e) =>
+              trackEvent("room_help_toggled", { open: e.currentTarget.open })
+            }
+          >
             <summary>
               <CircleHelp size={15} />
               How the room works

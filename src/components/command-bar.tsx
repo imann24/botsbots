@@ -1,4 +1,5 @@
 "use client";
+import { trackEvent } from "@/lib/analytics";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -61,6 +62,8 @@ export function CommandBar({
   }, []);
 
   function close(restoreFocus = true) {
+    if (query.trim() && !help)
+      trackEvent("command_search_used", { result_count: results.length });
     dialog.current?.close();
     setOpen(false);
     if (restoreFocus) {
@@ -70,7 +73,8 @@ export function CommandBar({
     }
   }
 
-  function show(shortcuts = false) {
+  function show(shortcuts = false, source: "button" | "keyboard" = "button") {
+    trackEvent("command_bar_opened", { source, shortcuts });
     previousFocus.current =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
@@ -87,8 +91,23 @@ export function CommandBar({
     input.current?.focus();
   }, [open]);
 
-  function execute(command: WorkspaceCommand | undefined) {
+  function recordCommand(
+    command: WorkspaceCommand,
+    source: "palette" | "shortcut",
+  ) {
+    trackEvent("command_executed", {
+      command: command.group === "Rooms" ? "open_room" : command.id,
+      source,
+      filtered: source === "palette" && !!query.trim() && !help,
+    });
+  }
+
+  function execute(
+    command: WorkspaceCommand | undefined,
+    source: "palette" | "shortcut" = "palette",
+  ) {
     if (!command || command.disabled) return;
+    recordCommand(command, source);
     close();
     // Let drawers and the dialog release focus before the destination takes it.
     requestAnimationFrame(command.run);
@@ -104,16 +123,17 @@ export function CommandBar({
       if (key === "mod+k") {
         event.preventDefault();
         if (open) close();
-        else show();
+        else show(false, "keyboard");
         return;
       }
       if (key === "mod+/") {
         event.preventDefault();
         if (open) {
+          trackEvent("shortcuts_viewed", {});
           setQuery("?");
           setSelectedId(null);
           input.current?.focus();
-        } else show(true);
+        } else show(true, "keyboard");
         return;
       }
       const globalCommand = commands.find(
@@ -123,8 +143,11 @@ export function CommandBar({
         event.preventDefault();
         if (!globalCommand.disabled) {
           onOpen(); // Release drawer focus before navigating.
-          if (open) execute(globalCommand);
-          else requestAnimationFrame(globalCommand.run);
+          if (open) execute(globalCommand, "shortcut");
+          else {
+            recordCommand(globalCommand, "shortcut");
+            requestAnimationFrame(globalCommand.run);
+          }
         }
         return;
       }
@@ -137,7 +160,7 @@ export function CommandBar({
         return;
       if (key === "?") {
         event.preventDefault();
-        show(true);
+        show(true, "keyboard");
         return;
       }
       const command = commands.find(
@@ -145,6 +168,7 @@ export function CommandBar({
       );
       if (command && !command.disabled) {
         event.preventDefault();
+        recordCommand(command, "shortcut");
         command.run();
       }
     };
@@ -269,6 +293,9 @@ export function CommandBar({
                   type="checkbox"
                   checked={hotkeysEnabled}
                   onChange={(event) => {
+                    trackEvent("hotkeys_changed", {
+                      enabled: event.target.checked,
+                    });
                     setHotkeysEnabled(event.target.checked);
                     try {
                       localStorage.setItem(
@@ -362,6 +389,7 @@ export function CommandBar({
             <button
               className="text-button"
               onClick={() => {
+                if (!help) trackEvent("shortcuts_viewed", {});
                 setQuery(help ? "" : "?");
                 setSelectedId(null);
                 input.current?.focus();

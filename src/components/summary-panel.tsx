@@ -1,4 +1,5 @@
 "use client";
+import { trackEvent } from "@/lib/analytics";
 import { useRef, useState } from "react";
 import { FileText, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -55,6 +56,7 @@ export function SummaryPanel({
     : 0;
   async function generate() {
     if (inFlight.current || pending || accountExhausted) return;
+    trackEvent("summary_generate_started", { model });
     inFlight.current = true;
     setBusy(true);
     setError("");
@@ -70,9 +72,21 @@ export function SummaryPanel({
       const result = await response.json();
       if (!response.ok)
         throw new Error(result.error ?? "Summary failed. Try again manually.");
+      // A 200 can contain a failed generation or an already-pending request.
+      if (result.summary?.status === "complete") {
+        trackEvent("summary_generate_succeeded", { model });
+      } else if (result.summary?.status === "failed") {
+        trackEvent("summary_generate_failed", { model, reason: "generation" });
+      } else if (result.summary?.status === "pending") {
+        trackEvent("summary_generate_pending", { model });
+      } else {
+        throw new Error("Summary response was incomplete. Try again.");
+      }
       request.current = null;
-      await onRefresh();
+      // A refresh failure does not change the generation's recorded outcome.
+      await onRefresh().catch((e) => setError((e as Error).message));
     } catch (e) {
+      trackEvent("summary_generate_failed", { model, reason: "request" });
       setError((e as Error).message);
     } finally {
       inFlight.current = false;
@@ -104,7 +118,10 @@ export function SummaryPanel({
             autoFocus
             value={model}
             disabled={busy || pending}
-            onChange={(e) => setModel(e.target.value)}
+            onChange={(e) => {
+              trackEvent("summary_model_selected", { model: e.target.value });
+              setModel(e.target.value);
+            }}
           />
         </label>
         <button
@@ -142,7 +159,14 @@ export function SummaryPanel({
         </p>
       )}
       {summaries.length > 1 && (
-        <details className="summary-history">
+        <details
+          className="summary-history"
+          onToggle={(e) =>
+            trackEvent("summary_history_toggled", {
+              open: e.currentTarget.open,
+            })
+          }
+        >
           <summary>Saved summaries ({summaries.length})</summary>
           <label>
             View saved summary
@@ -150,7 +174,17 @@ export function SummaryPanel({
               <ProviderIcon model={summary?.model ?? model} />
               <select
                 value={summary?.id ?? ""}
-                onChange={(e) => setSelected(e.target.value)}
+                onChange={(e) => {
+                  const saved = summaries.find(
+                    (item) => item.id === e.target.value,
+                  );
+                  if (saved)
+                    trackEvent("summary_selected", {
+                      model: saved.model,
+                      status: saved.status,
+                    });
+                  setSelected(e.target.value);
+                }}
               >
                 {summaries.map((s) => (
                   <option key={s.id} value={s.id}>

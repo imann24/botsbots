@@ -155,3 +155,10 @@ A custom sender must also belong to a verified Resend domain. Restart/redeploy
 after changing these values. These variables must never use a `NEXT_PUBLIC_` prefix.
 Identical submissions from the same account share a Resend idempotency key,
 preventing duplicate delivery on retries within Resend's 24-hour window.
+
+## Web Analytics
+
+Vercel custom events cover authentication, room configuration and lifecycle, messages,
+summaries, exports, search and shortcuts, account defaults, and contact requests.
+See [the event catalog and dashboard setup](docs/ANALYTICS.md) for event names,
+properties, privacy rules, and measurement examples.

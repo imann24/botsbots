@@ -1,4 +1,5 @@
 "use client";
+import { trackAction, trackEvent } from "@/lib/analytics";
 import { useState, type FormEvent } from "react";
 import { ArrowRight, MessagesSquare, ShieldCheck } from "lucide-react";
 import { browserClient } from "@/lib/supabase/client";
@@ -30,6 +31,7 @@ export function AuthForm() {
       signup &&
       credentials.password !== String(data.get("confirmPassword"))
     ) {
+      trackEvent("auth_validation_failed", { reason: "password_mismatch" });
       setError(
         "Passwords don’t match. Enter the same password in both fields.",
       );
@@ -37,16 +39,18 @@ export function AuthForm() {
       return;
     }
     try {
-      const client = browserClient();
-      const result = signup
-        ? await client.auth.signUp(credentials)
-        : await client.auth.signInWithPassword(credentials);
-      if (result.error) throw result.error;
-      if (!result.data.session) {
-        throw new Error(
-          "Sign-up succeeded but no session was started. Email confirmation must be disabled in Supabase Auth settings.",
-        );
-      }
+      await trackAction(signup ? "sign_up" : "sign_in", {}, async () => {
+        const client = browserClient();
+        const result = signup
+          ? await client.auth.signUp(credentials)
+          : await client.auth.signInWithPassword(credentials);
+        if (result.error) throw result.error;
+        if (!result.data.session) {
+          throw new Error(
+            "Sign-up succeeded but no session was started. Email confirmation must be disabled in Supabase Auth settings.",
+          );
+        }
+      });
       window.location.reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Sign-in failed. Try again.");
@@ -179,6 +183,9 @@ export function AuthForm() {
               className="text-button"
               disabled={busy}
               onClick={() => {
+                trackEvent("auth_mode_changed", {
+                  mode: signup ? "sign_in" : "sign_up",
+                });
                 setSignup(!signup);
                 setError("");
               }}
