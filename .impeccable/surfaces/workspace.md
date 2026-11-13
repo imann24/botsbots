@@ -164,3 +164,17 @@ no issues. The detector and automatic hook found no new non-advisory UI issues.
 System comparison and review scope are recorded in
 `.impeccable/review/archive/documentation.md`. `PRODUCT.md`, `DESIGN.md` and the
 existing stale sidecar remain unchanged; incumbent CSS advisories are outside scope.
+
+## Mobile navigation drawer
+
+Mode: Operate. Refinement of the incumbent drawer; no visual-world change.
+Problem: on a phone with browser chrome (about 520px tall) usage, Request higher
+limits, Contact us and the account row left room for one and a half rooms.
+The drawer widens to `min(320px, 86vw)`, tightens the brand row, and moves
+secondary routes into rows that already exist: Archived chats joins the rooms
+heading, Contact us becomes a mail icon in the account row, and usage folds to
+"Weekly usage · $used of $limit used" with its bar. Remaining, reset date and
+Request higher limits appear on expansion; warning and exhausted states keep
+the link visible. Search becomes a bordered field with 16px text so iOS does not
+zoom; touch targets stay at 44px; footer respects the bottom safe area. iOS
+email auto-linking is disabled through `formatDetection`. Desktop is unchanged.
