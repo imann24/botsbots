@@ -228,8 +228,13 @@ The sidebar's account meter uses the existing inverse text colors with a pale
 lavender (`#c9b4e3`) progress fill for contrast against navy. Warning text uses
 apricot (`#ffd2bb`), and exhausted usage uses pale red (`#ffc4c8`). Explicit text
 accompanies each state. Its 10–13px type matches adjacent account metadata,
-increasing to 12px body text on mobile. The whole meter expands inline: two compact text rows flank a 3px bar, with
-plan status and the accounting breakdown inside. Empty reservation rows are omitted.
+increasing to 12px body text on mobile. The whole meter expands inline: a
+“Weekly usage” heading precedes an explicit used-of-limit amount, a 3px bar,
+and the remaining allowance and reset date. Plan status and a two-part accounting
+breakdown appear inside: recorded cost plus reserved cost, followed by a ruled
+total used. Reserved cost groups requests in progress and requests that ended
+without a confirmed cost, with a shared explanation of how reservations count
+toward usage and why unconfirmed costs remain reserved. Empty reservation rows are omitted.
 Expanded details have bounded scrolling;
 short viewports let the sidebar scroll so account controls remain reachable.
 The main-pane allowance notice uses warm pale red (`#fff1ed`) and dark red
