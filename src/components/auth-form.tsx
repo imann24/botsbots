@@ -2,7 +2,7 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight, MessagesSquare, ShieldCheck } from "lucide-react";
 import { browserClient } from "@/lib/supabase/client";
-import { FEATURED_MODELS, MODEL_CHOICES } from "@/lib/models";
+import { FEATURED_MODELS, ENABLED_MODEL_CHOICES } from "@/lib/models";
 import { Brand } from "./brand";
 import { ProviderIcon } from "./model-identity";
 
@@ -100,7 +100,7 @@ export function AuthForm() {
           <div className="auth-models">
             <div className="auth-models-heading">
               <h2>More minds to bring along</h2>
-              <span>{MODEL_CHOICES.length} models available</span>
+              <span>{ENABLED_MODEL_CHOICES.length} models available</span>
             </div>
             <ul className="auth-model-list">
               {moreModels.map((model) => (

@@ -11,3 +11,7 @@
 - Independent finish review: **ship**. No material fixes requested.
 
 Desktop and mobile JPEGs in this directory are production-preview review evidence, not shipping image assets. Existing licensed provider SVGs are reused. Narrow-phone and tablet captures were inspected locally; they are not added to the repository.
+
+## Merge validation
+
+After integrating main’s disabled-model support, 68 tests, TypeScript checking, and the production build passed. Regression coverage checks the enabled-model count, exclusion of disabled models from the auth showcase and new selectors, and retained labels/selections for existing rooms. The Google preview now features Gemini 3.8 Flash; the count includes only enabled models. Desktop and mobile previews were refreshed.

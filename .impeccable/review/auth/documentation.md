@@ -25,7 +25,7 @@ At 760px and below, the page becomes brand → form → story. The form title be
 
 ## Catalog and asset provenance
 
-`src/lib/models.ts` owns the curated presentation. `FEATURED_MODELS` filters `MODEL_CHOICES` by `featured` metadata and sorts by `featured.order`; `featured.preview` selects the three example replies. The remaining featured entries populate the additional-model list. Names, providers, ordering, illustrative perspectives, and reply text are not duplicated in `auth-form.tsx`. The available-model count derives from `MODEL_CHOICES.length` (14 in the reviewed build).
+`src/lib/models.ts` owns the curated presentation. `FEATURED_MODELS` filters `ENABLED_MODEL_CHOICES` by `featured` metadata and sorts by `featured.order`; `featured.preview` selects the three example replies. The remaining featured entries populate the additional-model list. Names, providers, ordering, illustrative perspectives, and reply text are not duplicated in `auth-form.tsx`. The available-model count derives from `ENABLED_MODEL_CHOICES.length` (13 after merging disabled-model support).
 
 `src/components/model-identity.tsx` supplies the shared `ProviderIcon`. Existing local SVGs in `public/providers` come from Lobe Icons under the bundled MIT license; `public/providers/README.md` and `LICENSE` retain provenance. No new raster assets were created for the interface. The JPEGs below are review evidence only, not shipping product imagery or generated artwork.
 
@@ -40,3 +40,7 @@ At 760px and below, the page becomes brand → form → story. The form title be
 ## Preserved drift
 
 The global `DESIGN.md` and `.impeccable/design.json` are preserved. The existing sidecar predates later `DESIGN.md` additions (including provider-mark guidance) and was already reported stale. Global auth measurements also describe the previous split and type sizes; the current local measurements are recorded above. The palette, type families, flat hierarchy, and identity remain consistent. An ordinary scoped auth extension does not authorize an unrelated global documentation reconciliation. No advisory detector finding or local size has been canonized as a new global rule.
+
+## Merge compatibility
+
+Merged disabled-model support from main. Gemini 4 Hydrogen stays disabled and available for saved labels; Gemini 3.8 Flash supplies the Google preview. Disabled entries are excluded from the showcase and available-model count. Post-merge validation: 68 tests, TypeScript checking, and production build passed.
