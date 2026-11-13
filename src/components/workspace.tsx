@@ -204,6 +204,7 @@ export function Workspace({ email }: { email: string }) {
   accountDefaultsRef.current = accountDefaults;
   const [navOpen, setNavOpen] = useState(false),
     [panelOpen, setPanelOpen] = useState(false),
+    [conversationDetailsOpen, setConversationDetailsOpen] = useState(false),
     [expandedBot, setExpandedBot] = useState<string | null>(null),
     [limitsOpen, setLimitsOpen] = useState(false),
     [showJump, setShowJump] = useState(false);
@@ -244,8 +245,11 @@ export function Workspace({ email }: { email: string }) {
     panelRef = useRef<HTMLElement>(null);
   const [mobileNav, setMobileNav] = useState(false),
     [compactPanel, setCompactPanel] = useState(false);
+  const newChat = editing && !room;
+  const setupIsDrawer = compactPanel || newChat;
+  const setupEntry = useRef<"bots" | "limits">("bots");
   const activeDrawer =
-    mobileNav && navOpen ? "nav" : compactPanel && panelOpen ? "panel" : null;
+    mobileNav && navOpen ? "nav" : setupIsDrawer && panelOpen ? "panel" : null;
   useEffect(() => {
     const navQuery = window.matchMedia("(max-width: 640px)");
     const panelQuery = window.matchMedia("(max-width: 980px)");
@@ -275,7 +279,11 @@ export function Workspace({ email }: { email: string }) {
           'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [tabindex="0"]',
         ),
       ).filter((el) => el.getClientRects().length > 0);
-    focusable()[0]?.focus();
+    const entry =
+      activeDrawer === "panel" && setupEntry.current === "limits"
+        ? drawer.querySelector<HTMLInputElement>(".limits-fields input")
+        : null;
+    (entry ?? focusable()[0])?.focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -492,6 +500,9 @@ export function Workspace({ email }: { email: string }) {
     setDefaultsNotice("");
     setError("");
     setNavOpen(false);
+    setPanelOpen(false);
+    setConversationDetailsOpen(false);
+    setLimitsOpen(false);
     setExpandedBot(null);
     window.history.replaceState(null, "", "/");
   }
@@ -518,6 +529,12 @@ export function Workspace({ email }: { email: string }) {
     trackEvent("panel_toggled", { panel, open, layout: "drawer" });
     if (panel === "nav") setNavOpen(open);
     else setPanelOpen(open);
+  }
+  function openSetup(section: "bots" | "limits" = "bots") {
+    setupEntry.current = section;
+    setLimitsOpen(section === "limits");
+    if (setupIsDrawer) openDrawer("setup", true);
+    else if (collapsedPanels.setup) toggleCollapsedPanel("setup");
   }
   const loadArchivedRooms = useCallback(async () => {
     setArchiveLoading(true);
@@ -1004,7 +1021,7 @@ export function Workspace({ email }: { email: string }) {
     },
     {
       id: "setup",
-      label: compactPanel
+      label: setupIsDrawer
         ? "Open room setup"
         : collapsedPanels.setup
           ? "Show room setup"
@@ -1014,10 +1031,7 @@ export function Workspace({ email }: { email: string }) {
       group: "Actions",
       icon: Settings2,
       shortcut: "]",
-      run: () =>
-        compactPanel
-          ? openDrawer("setup", true)
-          : toggleCollapsedPanel("setup"),
+      run: () => (setupIsDrawer ? openSetup() : toggleCollapsedPanel("setup")),
     },
     {
       id: "usage",
@@ -1105,7 +1119,7 @@ export function Workspace({ email }: { email: string }) {
             : "Ready when you are";
   return (
     <div
-      className={`workspace ${collapsedPanels.nav ? "nav-collapsed" : ""} ${collapsedPanels.setup ? "setup-collapsed" : ""}`}
+      className={`workspace ${newChat ? "new-chat" : ""} ${collapsedPanels.nav ? "nav-collapsed" : ""} ${!newChat && collapsedPanels.setup ? "setup-collapsed" : ""}`}
     >
       <a className="skip-link" href="#main" inert={!!activeDrawer}>
         Skip to conversation
@@ -1499,35 +1513,37 @@ export function Workspace({ email }: { email: string }) {
             )}
             <button
               className={
-                compactPanel
+                setupIsDrawer
                   ? "button small panel-toggle"
                   : "icon-button panel-toggle"
               }
               aria-label={
-                compactPanel
+                setupIsDrawer
                   ? "Room setup"
                   : collapsedPanels.setup
                     ? "Show room setup"
                     : "Collapse room setup"
               }
               title={
-                compactPanel
+                setupIsDrawer
                   ? "Room setup"
                   : collapsedPanels.setup
                     ? "Show room setup"
                     : "Collapse room setup"
               }
               aria-controls="room-setup"
-              aria-expanded={compactPanel ? panelOpen : !collapsedPanels.setup}
+              aria-expanded={setupIsDrawer ? panelOpen : !collapsedPanels.setup}
               onClick={() =>
-                compactPanel
-                  ? openDrawer("setup", !panelOpen)
+                setupIsDrawer
+                  ? panelOpen
+                    ? openDrawer("setup", false)
+                    : openSetup()
                   : toggleCollapsedPanel("setup")
               }
             >
-              {compactPanel ? (
+              {setupIsDrawer ? (
                 <>
-                  <Users size={16} />
+                  <Settings2 size={16} />
                   Room setup
                 </>
               ) : collapsedPanels.setup ? (
@@ -1613,26 +1629,6 @@ export function Workspace({ email }: { email: string }) {
                     : "Bring different models to the same table. Give each a perspective. See where the conversation takes you."}
                 </p>
               </div>
-              <fieldset className="purpose-field">
-                <legend>What are we here to do?</legend>
-                <div className="purpose-options">
-                  {presets.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      className={draft.purpose === p.id ? "selected" : ""}
-                      aria-pressed={draft.purpose === p.id}
-                      onClick={() => {
-                        trackEvent("room_purpose_selected", { purpose: p.id });
-                        setDraft((d) => ({ ...d, purpose: p.id }));
-                      }}
-                    >
-                      <p.icon size={17} />
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
               <div className="topic-field">
                 <label htmlFor="room-topic">
                   Set the conversation in motion
@@ -1669,69 +1665,188 @@ export function Workspace({ email }: { email: string }) {
                   </button>
                 </div>
               </div>
-              <label className="room-name-label">
-                <span>
-                  Room name
-                  {!room && <span className="optional"> optional</span>}
-                </span>
-                <input
-                  placeholder="Name this conversation"
-                  required={!!room}
-                  maxLength={80}
-                  value={draft.title}
-                  onChange={(e) =>
-                    setDraft((d) => ({ ...d, title: e.target.value }))
-                  }
-                />
-              </label>
-              <fieldset className="mode-field">
-                <legend>How should the bots talk?</legend>
-                <div className="mode-options">
+              {newChat && (
+                <div
+                  className="setup-shortcuts"
+                  aria-label="Current room setup"
+                >
                   <button
                     type="button"
-                    className={
-                      draft.settings.mode === "moderated" ? "selected" : ""
-                    }
-                    aria-pressed={draft.settings.mode === "moderated"}
-                    onClick={() => setting("mode", "moderated")}
+                    className="lineup-button setup-shortcut"
+                    aria-label={`Edit lineup: ${draft.bots.length} bots`}
+                    aria-controls="room-setup"
+                    aria-haspopup="dialog"
+                    aria-expanded={panelOpen}
+                    onClick={() => openSetup("bots")}
                   >
-                    <span>
-                      <Users size={18} />
-                      <b>Moderated rounds</b>
-                      {draft.settings.mode === "moderated" && (
-                        <Check size={16} />
-                      )}
+                    <span className="lineup-avatars" aria-hidden="true">
+                      {draft.bots.slice(0, 4).map((bot) => (
+                        <span
+                          key={bot.id}
+                          className={`avatar ${agentClass(rosterColors, bot.id)}`}
+                        >
+                          {bot.name.replace(/^The /, "")[0]?.toUpperCase()}
+                        </span>
+                      ))}
                     </span>
-                    <small>
-                      One at a time. Every bot gets a turn, then the room pauses
-                      for you.
-                    </small>
+                    <span>{draft.bots.length} bots</span>
+                    <ChevronDown size={14} aria-hidden="true" />
                   </button>
                   <button
                     type="button"
-                    className={draft.settings.mode === "free" ? "selected" : ""}
-                    aria-pressed={draft.settings.mode === "free"}
-                    onClick={() => setting("mode", "free")}
+                    className="setup-shortcut"
+                    aria-label="Change conversation style"
+                    aria-controls="conversation-details"
+                    aria-expanded={conversationDetailsOpen}
+                    onClick={() => {
+                      setConversationDetailsOpen(true);
+                      requestAnimationFrame(() =>
+                        document
+                          .querySelector<HTMLButtonElement>(
+                            "#conversation-mode button.selected",
+                          )
+                          ?.focus(),
+                      );
+                    }}
                   >
+                    {draft.settings.mode === "moderated" ? (
+                      <Users size={16} />
+                    ) : (
+                      <MessageSquare size={16} />
+                    )}
                     <span>
-                      <MessageSquare size={18} />
-                      <b>Free-for-all</b>
-                      {draft.settings.mode === "free" && <Check size={16} />}
+                      {draft.settings.mode === "moderated"
+                        ? "Moderated rounds"
+                        : "Free-for-all"}
                     </span>
-                    <small>
-                      A more spontaneous exchange. Bots reply independently
-                      within your limits.
-                    </small>
+                    <ChevronDown size={14} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    className="setup-shortcut limits-shortcut"
+                    aria-label={`Edit limits: ${money(draft.settings.budget)} budget, ${draft.settings.maxMessages} messages`}
+                    aria-controls="room-setup"
+                    aria-haspopup="dialog"
+                    aria-expanded={panelOpen && limitsOpen}
+                    onClick={() => openSetup("limits")}
+                  >
+                    <ShieldCheck size={16} />
+                    <span>
+                      {money(draft.settings.budget)} ·{" "}
+                      {draft.settings.maxMessages} messages
+                    </span>
+                    <ChevronDown size={14} aria-hidden="true" />
                   </button>
                 </div>
-                <p className="mode-note">
-                  {draft.settings.mode === "moderated"
-                    ? "One at a time. Every bot gets a turn, then the room pauses for you."
-                    : "A more spontaneous exchange. Bots reply independently within your limits."}
-                </p>
-              </fieldset>
+              )}
+              <details
+                id="conversation-details"
+                className="conversation-details"
+                open={!!room || conversationDetailsOpen}
+                onToggle={(e) =>
+                  setConversationDetailsOpen(e.currentTarget.open)
+                }
+              >
+                <summary>
+                  <ChevronRight size={15} aria-hidden="true" />
+                  Conversation details
+                  <span>
+                    {draft.title ||
+                      presets.find((p) => p.id === draft.purpose)?.name}
+                  </span>
+                </summary>
+                <div className="conversation-detail-fields">
+                  <fieldset className="purpose-field">
+                    <legend>What are we here to do?</legend>
+                    <div className="purpose-options">
+                      {presets.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          className={draft.purpose === p.id ? "selected" : ""}
+                          aria-pressed={draft.purpose === p.id}
+                          onClick={() => {
+                            trackEvent("room_purpose_selected", {
+                              purpose: p.id,
+                            });
+                            setDraft((d) => ({ ...d, purpose: p.id }));
+                          }}
+                        >
+                          <p.icon size={17} />
+                          {p.name}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                  <label className="room-name-label">
+                    <span>
+                      Room name
+                      {!room && <span className="optional"> optional</span>}
+                    </span>
+                    <input
+                      placeholder="Name this conversation"
+                      required={!!room}
+                      maxLength={80}
+                      value={draft.title}
+                      onChange={(e) =>
+                        setDraft((d) => ({ ...d, title: e.target.value }))
+                      }
+                    />
+                  </label>
+                  <fieldset className="mode-field" id="conversation-mode">
+                    <legend>How should the bots talk?</legend>
+                    <div className="mode-options">
+                      <button
+                        type="button"
+                        className={
+                          draft.settings.mode === "moderated" ? "selected" : ""
+                        }
+                        aria-pressed={draft.settings.mode === "moderated"}
+                        onClick={() => setting("mode", "moderated")}
+                      >
+                        <span>
+                          <Users size={18} />
+                          <b>Moderated rounds</b>
+                          {draft.settings.mode === "moderated" && (
+                            <Check size={16} />
+                          )}
+                        </span>
+                        <small>
+                          One at a time. Every bot gets a turn, then the room
+                          pauses for you.
+                        </small>
+                      </button>
+                      <button
+                        type="button"
+                        className={
+                          draft.settings.mode === "free" ? "selected" : ""
+                        }
+                        aria-pressed={draft.settings.mode === "free"}
+                        onClick={() => setting("mode", "free")}
+                      >
+                        <span>
+                          <MessageSquare size={18} />
+                          <b>Free-for-all</b>
+                          {draft.settings.mode === "free" && (
+                            <Check size={16} />
+                          )}
+                        </span>
+                        <small>
+                          A more spontaneous exchange. Bots reply independently
+                          within your limits.
+                        </small>
+                      </button>
+                    </div>
+                    <p className="mode-note">
+                      {draft.settings.mode === "moderated"
+                        ? "One at a time. Every bot gets a turn, then the room pauses for you."
+                        : "A more spontaneous exchange. Bots reply independently within your limits."}
+                    </p>
+                  </fieldset>
+                </div>
+              </details>
               <div className="builder-submit">
-                {compactPanel && (
+                {compactPanel && !newChat && (
                   <button
                     type="button"
                     className="lineup-button"
@@ -2038,7 +2153,7 @@ export function Workspace({ email }: { email: string }) {
           </div>
         )}
       </main>
-      {compactPanel && panelOpen && (
+      {setupIsDrawer && panelOpen && (
         <button
           className="panel-backdrop"
           aria-label="Close room setup"
@@ -2053,7 +2168,7 @@ export function Workspace({ email }: { email: string }) {
         role={activeDrawer === "panel" ? "dialog" : undefined}
         aria-modal={activeDrawer === "panel" ? true : undefined}
         inert={
-          (compactPanel ? !panelOpen : collapsedPanels.setup) ||
+          (setupIsDrawer ? !panelOpen : collapsedPanels.setup) ||
           activeDrawer === "nav"
         }
         tabIndex={-1}

@@ -6,19 +6,48 @@ User selected Jet age on the Impeccable decision page after requesting a bolder 
 FORM: vernacular-ephemera-jet-age-ticket-wallet, seed:ca50380d7a0b0d50.
 Build path: code. Approved sketch: .impeccable/mocks/decision/bold-1.html.
 
-First viewport: navy room navigation at left; generous white conversation and bottom composer center; compact participant roster, turn counts, and budget at right. Initial room builder takes the central area with topic and purpose; roster remains alongside. Red primary actions, navy ink, restrained carbon-purple measurements. DM Sans body and Manrope headings. No physical ticket costume or fake travel controls.
+First viewport: navy room navigation at left; generous white conversation and bottom composer center; compact participant roster, turn counts, and budget at right. The initial room builder centers the topic in a two-column layout with navigation; bot setup opens on demand as a drawer. Red primary actions, navy ink, restrained carbon-purple measurements. DM Sans body and Manrope headings. No physical ticket costume or fake travel controls.
 
 Signature: each reply has a stable turn number; the room's finite message allowance is a segmented strip, so users can see what remains before starting. Failed replies remain visible. Motion: short change-of-state reveal on new replies, respect reduced motion. Mobile: navigation drawer, full-width conversation, settings panel via explicit button, never squeeze three columns.
 
 Grounded directions considered before roll: workshop, academic journal, colored index tabs, publishing colophon, field guide, civic wayfinding, seminar notes. The initial field guide direction was rejected for a bolder hand. New chosen world replaces it completely.
 
-## Mobile new-room builder
+## New-room starting screen
 
-On phones the whole builder fits the dynamic viewport. One-row header; two-by-two
-purpose grid; composer-style topic box with the starting-prompt action inside;
-inline room name; compact mode toggles with the selected description beneath; a
-sticky footer pairing the bot lineup (opens setup) with a full-width Create room.
-Short phones drop the supporting paragraph, then visually hide the headline.
+Mode: Operate. Refinement of the existing Jet age workspace.
+
+The opening message is the primary task. The roster is initially closed at every
+size, independent of a user's saved panel preference for existing rooms. Beneath
+the topic, flat editable summaries show the bot lineup, conversation style and
+explicit room budget/message cap. One click opens the lineup or all numeric
+limits; a second click exposes a bot's name, model and perspective. Opening the
+lineup collapses expanded limits so the roster has room to breathe.
+
+Conversation details discloses purpose, optional room name and mode choices.
+Its summary shows the current purpose or custom title. The style shortcut opens
+this disclosure and focuses the selected mode. All values continue to live in
+the same draft; closing drawers and disclosures retains edits. Existing saved
+rooms retain their panel layout, editor and creation/start semantics.
+
+Phones keep one header row and a sticky Create room footer. Setup summaries
+wrap, with narrower labels below 360px keeping lineup and style on one row.
+Short phones omit the supporting paragraph; details remain visible above the
+footer. Expanded settings scroll naturally. Setup uses the existing drawer's
+focus containment, Escape/backdrop dismissal, inert background and focus return.
+
+### Completion evidence
+
+Scoped manual review: **SHIP**. Mocked browser checks passed at 1440×900,
+1024×768, 768×1024, 390×844, 390×568 and 320×568. Coverage includes direct limits
+access, all eight numeric fields, bot name/model/perspective edits, add/remove,
+mode and purpose, optional title, prompt selection, creation payload, save-error
+recovery, saved-room editing, new-draft reset, focus containment and focus return.
+No browser runtime errors. Review captures and results are stored under
+`.impeccable/review/new-chat/`; they are local review evidence, not shipping assets.
+The implementation retains the incumbent palette, fonts, components, shortcuts,
+and server-enforced limits. No shipping rasters were added. TypeScript checking,
+all 126 existing tests, and the production build passed. The temporary preview
+route was removed before the production build; no Gateway calls were made.
 
 ## Weekly account usage
 
