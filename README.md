@@ -89,8 +89,10 @@ downgrading or adjusting a cap never clears spend; choose Continue to resume a
 paused room after allowance becomes available.
 
 The weekly meter lives above the sidebar account controls, with a compact shortcut
-when navigation is hidden. Details distinguish recorded spend, pending reservations
-and uncertain requests. These are estimated AI costs, not customer charges.
+when navigation is hidden. Details show recorded cost plus reserved cost as the
+total used. Reserved cost combines requests in progress and requests that ended
+without a confirmed cost; both count toward the allowance. These are estimated
+AI costs, not customer charges.
 The `usage_events` ledger retains spend if a room is deleted and removes it when
 the account is deleted. Historical messages and summaries are backfilled by the
 metering migration; usage already deleted before migration cannot be reconstructed.

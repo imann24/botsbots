@@ -75,6 +75,7 @@ export function AccountUsageMeter({
   onRequestUpgrade?: () => void;
 }) {
   const level = usage ? usageLevel(usage) : "normal";
+  const reserved = usage ? usage.pending + usage.uncertain : 0;
   const resetDate = usage
     ? new Intl.DateTimeFormat("en-US", {
         month: "short",
@@ -91,7 +92,7 @@ export function AccountUsageMeter({
     >
       {!usage ? (
         <div className="usage-placeholder">
-          <span>This week</span>
+          <span>Weekly usage</span>
           <p role="status">
             {error ? "Usage is unavailable." : "Loading usage…"}
           </p>
@@ -101,20 +102,19 @@ export function AccountUsageMeter({
           <details className="usage-details">
             <summary title="Weekly usage details">
               <span className="usage-heading">
-                <span>This week</span>
-                <span className="usage-amount">
-                  <strong>{usageMoney(usage.used)}</strong>
-                  {usage.limit === null ? (
-                    " used"
-                  ) : (
-                    <> / {usageMoney(usage.limit)}</>
-                  )}
-                </span>
+                <span>Weekly usage</span>
                 <ChevronDown
                   className="usage-chevron"
                   size={12}
                   aria-hidden="true"
                 />
+              </span>
+              <span className="usage-amount">
+                <strong>{usageMoney(usage.used)}</strong>
+                {usage.limit !== null && (
+                  <> of {usageMoney(usage.limit)}</>
+                )}{" "}
+                used
               </span>
               {usage.limit !== null && (
                 <progress
@@ -146,36 +146,34 @@ export function AccountUsageMeter({
               </div>
               <dl>
                 <div>
-                  <dt>Recorded spend</dt>
+                  <dt>Recorded cost</dt>
                   <dd>{usageMoney(usage.spent)}</dd>
                 </div>
-                {usage.pending > 0 && (
+                {reserved > 0 && (
                   <div>
-                    <dt>In progress</dt>
-                    <dd>{usageMoney(usage.pending)}</dd>
+                    <dt>Reserved cost</dt>
+                    <dd>{usageMoney(reserved)}</dd>
                   </div>
                 )}
-                {usage.uncertain > 0 && (
-                  <div>
-                    <dt>Uncertain requests</dt>
-                    <dd>{usageMoney(usage.uncertain)}</dd>
-                  </div>
-                )}
+                <div className="usage-total">
+                  <dt>Total used</dt>
+                  <dd>{usageMoney(usage.used)}</dd>
+                </div>
               </dl>
               <p>
                 Estimated AI costs across all rooms and summaries, not charges
                 to you.
               </p>
-              {usage.pending + usage.uncertain > 0 && (
+              {reserved > 0 && (
                 <p>
-                  Pending and uncertain requests reserve allowance before their
-                  final cost is known.
-                </p>
-              )}
-              {usage.uncertain > 0 && (
-                <p>
-                  Uncertain requests may have been billed by the provider, so
-                  their reservation is held.
+                  Reserved cost counts as used until final costs are known.
+                  {usage.uncertain > 0 && (
+                    <>
+                      {" "}
+                      Requests that end with unknown costs stay reserved in case
+                      the provider billed for them.
+                    </>
+                  )}
                 </p>
               )}
               <p>
