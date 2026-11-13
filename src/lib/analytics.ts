@@ -1,6 +1,7 @@
 import { track, type BeforeSendEvent } from "@vercel/analytics";
 import type { RoomDraft, Settings } from "./types";
 import type { ContactKind } from "./contact";
+import type { Theme } from "./theme";
 
 // Only aggregate configuration belongs here. Never pass user text, IDs, URLs,
 // credentials, API responses, or error messages to analytics.
@@ -85,6 +86,10 @@ type EventData = {
   command_search_used: { result_count: number };
   shortcuts_viewed: Record<string, never>;
   hotkeys_changed: { enabled: boolean };
+  appearance_changed: {
+    theme: Theme;
+    source: "account" | "header" | "command";
+  };
 };
 
 function emit(name: string, data: object) {

@@ -27,6 +27,7 @@ import {
   Mail,
   Menu,
   MessageSquare,
+  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
@@ -39,6 +40,7 @@ import {
   Settings2,
   ShieldCheck,
   Square,
+  Sun,
   Swords,
   Target,
   Trash2,
@@ -78,6 +80,7 @@ import {
 import { CommandBar, type WorkspaceCommand } from "./command-bar";
 import { shortcutKey } from "@/lib/commands";
 import { ContactModal } from "./contact-modal";
+import { AppearanceButton, useTheme } from "./appearance";
 import type { ContactKind } from "@/lib/contact";
 import { ArchiveChatModal } from "./archive-chat-modal";
 import { compareRooms } from "@/lib/room-order";
@@ -899,6 +902,7 @@ export function Workspace({ email }: { email: string }) {
     : !room || editing
       ? "Open a saved conversation first"
       : undefined;
+  const theme = useTheme();
   const commands: WorkspaceCommand[] = [
     {
       id: "new",
@@ -1060,6 +1064,17 @@ export function Workspace({ email }: { email: string }) {
       group: "Actions",
       icon: ArrowUp,
       run: () => showContact("limits"),
+    },
+    {
+      id: "appearance",
+      label: theme.dark ? "Use light appearance" : "Use dark appearance",
+      description: theme.dark
+        ? "Switch to the paper workspace"
+        : "Switch to the night workspace",
+      keywords: "theme dark light mode night appearance colors",
+      group: "Actions",
+      icon: theme.dark ? Sun : Moon,
+      run: () => theme.toggle("command"),
     },
     {
       id: "archived-chats",
@@ -1363,6 +1378,7 @@ export function Workspace({ email }: { email: string }) {
             >
               <Mail size={17} />
             </button>
+            <AppearanceButton />
             <button
               className="icon-button"
               aria-label="Sign out"
@@ -1452,6 +1468,11 @@ export function Workspace({ email }: { email: string }) {
                   : (room?.title ?? "Loading room…")}
               </span>
             )}
+            <AppearanceButton
+              className="icon-button title-appearance"
+              source="header"
+              iconSize={18}
+            />
           </div>
           <div className="header-actions">
             <CommandBar
@@ -1476,6 +1497,11 @@ export function Workspace({ email }: { email: string }) {
                     : `${usageMoney(accountUsage.usage.remaining)} left`
                   : "Usage…"}
             </button>
+            <AppearanceButton
+              className="icon-button header-appearance"
+              source="header"
+              iconSize={18}
+            />
             {room && !editing && (
               <>
                 <button
@@ -1544,7 +1570,7 @@ export function Workspace({ email }: { email: string }) {
               {setupIsDrawer ? (
                 <>
                   <Settings2 size={16} />
-                  Room setup
+                  <span className="panel-toggle-label">Room setup</span>
                 </>
               ) : collapsedPanels.setup ? (
                 <PanelRightOpen size={19} />
