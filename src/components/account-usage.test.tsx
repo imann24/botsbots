@@ -25,22 +25,65 @@ const render = (value: AccountUsage | null, error = false) =>
   );
 
 describe("account usage presentation", () => {
-  it("shows the server allowance, reservations and unambiguous UTC reset", () => {
+  it("explains the weekly total, allowance and unambiguous UTC reset", () => {
     const html = render(usage);
     for (const text of [
       "Standard",
+      "Weekly usage",
       "$3.20",
       "$10.00",
       "$6.80 left",
       "Nov 16",
       "00:00 UTC",
-      "Recorded spend",
-      "$0.15",
-      "$0.05",
+      "Recorded cost",
+      "Reserved cost",
+      "$0.20",
+      "Total used",
     ])
       expect(html).toContain(text);
     expect(html).toContain('aria-label="Weekly account allowance used"');
     expect(html).toContain("not charges to you");
+  });
+  it.each([
+    { pending: 0.15, uncertain: 0, reserved: "$0.15" },
+    { pending: 0, uncertain: 0.17, reserved: "$0.17" },
+    { pending: 0.15, uncertain: 0.17, reserved: "$0.32" },
+  ])(
+    "consolidates request reservations: $pending pending, $uncertain unknown",
+    (values) => {
+      const html = render({
+        ...usage,
+        spent: 0.07,
+        pending: values.pending,
+        uncertain: values.uncertain,
+        used: 0.07 + values.pending + values.uncertain,
+        remaining: 10 - 0.07 - values.pending - values.uncertain,
+      });
+      expect(html).toContain(
+        `<dt>Reserved cost</dt><dd>${values.reserved}</dd>`,
+      );
+      expect(html).toContain(
+        "Reserved cost counts as used until final costs are known.",
+      );
+      expect(html.includes("Requests that end with unknown costs")).toBe(
+        values.uncertain > 0,
+      );
+      expect(html).not.toContain("Uncertain requests");
+      expect(html).not.toContain("In progress");
+    },
+  );
+  it("omits reservation details when all costs are recorded", () => {
+    const html = render({
+      ...usage,
+      pending: 0,
+      uncertain: 0,
+      used: 3,
+      remaining: 7,
+    });
+    expect(html).toContain("Recorded cost");
+    expect(html).toContain("Total used");
+    expect(html).not.toContain("Reserved cost");
+    expect(html).not.toContain("reservation");
   });
   it("keeps finite premium metered and unlimited premium free of a fake percentage", () => {
     const capped = render({ ...usage, tier: "premium" });

@@ -26,9 +26,14 @@ Approved addition: account usage sits above account controls in the navy sidebar
 room limits remain in the setup panel. Finite accounts show used/limit, remaining,
 a thin lavender measurement bar and the next Monday 00:00 UTC reset. Unlimited
 premium shows used spend and “No weekly limit,” without a percentage or progress bar.
-The whole compact meter is a native disclosure control: two text rows flank a
-3px progress bar. Plan status, exact reset time, recorded costs, pending reservations
-and uncertain requests appear on expansion; zero-value reservation rows are omitted. Explain that these are estimated AI costs, not customer charges.
+The whole compact meter is a native disclosure control: “Weekly usage” heads an
+explicit used-of-limit amount, a 3px progress bar, then remaining allowance and
+reset date. Plan status, exact reset time, and recorded cost plus reserved cost
+with a ruled total used appear on expansion. Reserved cost consolidates pending
+and uncertain requests; explain that it counts toward usage and that requests
+ending without confirmed costs retain their reservation because the provider
+may still bill for them. Zero-value reservation rows are omitted. Explain that
+these are estimated AI costs, not customer charges.
 
 At 80% show a text warning; at exhaustion explain why generation is paused while
 keeping reading, exporting and human notes available. Show loading and recoverable

@@ -42,8 +42,10 @@ describe("disabled models and authentication showcase", () => {
   it("advertises enabled models and an accurate available-model count", () => {
     const html = renderToStaticMarkup(<AuthForm />);
     expect(html).toContain(`${ENABLED_MODEL_CHOICES.length} models available`);
-    expect(html).toContain("Gemini 3.8 Flash");
     expect(html).toContain("Gemini 4 Hydrogen");
+    expect(html).toContain("The explorer");
+    // Still available in the app, but intentionally not advertised here.
+    expect(html).not.toContain("Gemini 3.8 Flash");
     for (const model of MODEL_CHOICES.filter(isModelDisabled)) {
       expect(html).not.toContain(model.name);
     }
