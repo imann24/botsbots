@@ -206,6 +206,14 @@ The composer wraps a borderless textarea and a red square send button inside a s
 
 The navy sidebar contains a white new-room action, compact search, room rows, and account controls. Room rows use pale text, a subtle translucent hover, and a stronger selected fill. Long titles truncate within their available width. Mobile uses the explicit navigation drawer described in Layout, with Escape dismissal and focus return.
 
+Conversation titles have a persistent pencil action in the main header. Renaming
+uses an inline white input, a save check and cancel icon with accessible names;
+Enter saves, Escape cancels, and focus returns to the pencil. The field uses
+(16px) text and icon targets grow to (44px) on coarse pointers. Save failures stay
+beside the retained draft with explicit error text. Renaming is available in every
+room state and leaves bot orchestration unchanged. Blank new-room names receive
+a saved adjective–noun name such as `cosmic-capybara` on creation.
+
 ### Numbered conversation and finite allowances
 
 Bot replies carry a stable padded turn number in a thin rectangular carbon-purple marker. Failed and interrupted replies remain visible with explanatory text. Message rows arrive with a short (350ms) clipped reveal and a (5px) upward settling motion. Thinking dots use a staggered (1s) color animation. Reduced-motion preferences remove animations and transitions.

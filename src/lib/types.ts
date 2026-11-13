@@ -26,8 +26,9 @@ export const botSchema = z.object({
     .max(AGENT_COLOR_COUNT - 1)
     .optional(),
 });
+export const roomTitleSchema = z.string().trim().min(1).max(80);
 export const roomSchema = z.object({
-  title: z.string().trim().min(1).max(80),
+  title: roomTitleSchema,
   topic: z.string().trim().min(3).max(2000),
   purpose: z.enum(["plan", "research", "debate", "explore"]),
   bots: z
@@ -39,6 +40,10 @@ export const roomSchema = z.object({
       "Bot IDs must be unique",
     ),
   settings: settingsSchema,
+});
+// Only creation accepts an unnamed room. Settings and renames require a title.
+export const createRoomSchema = roomSchema.extend({
+  title: z.string().trim().max(80).default(""),
 });
 export type Settings = z.infer<typeof settingsSchema>;
 export type Bot = z.infer<typeof botSchema>;
