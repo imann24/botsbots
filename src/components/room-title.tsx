@@ -1,4 +1,5 @@
 "use client";
+import { trackEvent } from "@/lib/analytics";
 
 import { useRef, useState, type FormEvent } from "react";
 import { Check, Pencil, X } from "lucide-react";
@@ -21,6 +22,10 @@ export function RoomTitle({
     setEditing(false);
     setError("");
     requestAnimationFrame(() => trigger.current?.focus());
+  }
+  function cancel() {
+    trackEvent("room_rename_cancelled", {});
+    close();
   }
   async function save(event: FormEvent) {
     event.preventDefault();
@@ -51,7 +56,7 @@ export function RoomTitle({
             if (event.key === "Escape" && !inFlight.current) {
               event.preventDefault();
               event.stopPropagation();
-              close();
+              cancel();
             }
           }}
         >
@@ -82,7 +87,7 @@ export function RoomTitle({
               aria-label="Cancel rename"
               title="Cancel rename"
               disabled={saving}
-              onClick={close}
+              onClick={cancel}
             >
               <X size={17} />
             </button>
@@ -104,6 +109,7 @@ export function RoomTitle({
             aria-label="Rename conversation"
             title="Rename conversation"
             onClick={() => {
+              trackEvent("room_rename_opened", {});
               setValue(title);
               setError("");
               setEditing(true);

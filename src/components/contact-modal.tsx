@@ -1,4 +1,5 @@
 "use client";
+import { trackAction, trackEvent } from "@/lib/analytics";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
@@ -39,6 +40,11 @@ export function ContactModal({
     };
   }, []);
 
+  function close() {
+    trackEvent("contact_closed", { kind, sent: status === "sent" });
+    onClose();
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (sending.current) return;
@@ -46,21 +52,23 @@ export function ContactModal({
     setStatus("sending");
     setError("");
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind,
-          email: replyTo.trim(),
-          message: message.trim(),
-        }),
-        signal: AbortSignal.timeout(20000),
+      await trackAction("contact_send", { kind }, async () => {
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            kind,
+            email: replyTo.trim(),
+            message: message.trim(),
+          }),
+          signal: AbortSignal.timeout(20000),
+        });
+        const body = await response.json();
+        if (!response.ok)
+          throw new Error(
+            body.error || "Your message couldn’t be sent. Please try again.",
+          );
       });
-      const body = await response.json();
-      if (!response.ok)
-        throw new Error(
-          body.error || "Your message couldn’t be sent. Please try again.",
-        );
       setStatus("sent");
     } catch (error) {
       setError(
@@ -82,10 +90,10 @@ export function ContactModal({
       aria-describedby="contact-description"
       onCancel={(event) => {
         event.preventDefault();
-        if (!sending.current) onClose();
+        if (!sending.current) close();
       }}
       onClick={(event) => {
-        if (event.target === event.currentTarget && !sending.current) onClose();
+        if (event.target === event.currentTarget && !sending.current) close();
       }}
     >
       <div className="contact-surface">
@@ -108,7 +116,7 @@ export function ContactModal({
             className="icon-button"
             aria-label="Close contact form"
             disabled={status === "sending"}
-            onClick={onClose}
+            onClick={close}
           >
             <X size={20} />
           </button>
@@ -125,7 +133,7 @@ export function ContactModal({
             {limits && (
               <p>Your current usage limits stay in place while we review.</p>
             )}
-            <button className="button primary" onClick={onClose}>
+            <button className="button primary" onClick={close}>
               Back to workspace <ArrowRight size={17} />
             </button>
           </div>
@@ -140,9 +148,11 @@ export function ContactModal({
                 <select
                   ref={firstField}
                   value={kind}
-                  onChange={(event) =>
-                    setKind(event.target.value as ContactKind)
-                  }
+                  onChange={(event) => {
+                    const kind = event.target.value as ContactKind;
+                    trackEvent("contact_kind_selected", { kind });
+                    setKind(kind);
+                  }}
                 >
                   {Object.entries(contactKinds).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -206,7 +216,7 @@ export function ContactModal({
                 type="button"
                 className="button"
                 disabled={status === "sending"}
-                onClick={onClose}
+                onClick={close}
               >
                 Cancel
               </button>

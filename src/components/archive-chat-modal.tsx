@@ -1,4 +1,5 @@
 "use client";
+import { trackEvent } from "@/lib/analytics";
 
 import { useEffect, useRef, useState } from "react";
 import { Archive, X } from "lucide-react";
@@ -35,6 +36,11 @@ export function ArchiveChatModal({
     };
   }, []);
 
+  function cancelArchive() {
+    trackEvent("room_archive_cancelled", {});
+    onClose();
+  }
+
   async function confirm() {
     if (inFlight.current) return;
     inFlight.current = true;
@@ -62,11 +68,11 @@ export function ArchiveChatModal({
       aria-busy={busy}
       onCancel={(event) => {
         event.preventDefault();
-        if (!inFlight.current) onClose();
+        if (!inFlight.current) cancelArchive();
       }}
       onClick={(event) => {
         if (event.target === event.currentTarget && !inFlight.current)
-          onClose();
+          cancelArchive();
       }}
     >
       <div>
@@ -76,7 +82,7 @@ export function ArchiveChatModal({
             className="icon-button"
             aria-label="Close archive confirmation"
             disabled={busy}
-            onClick={onClose}
+            onClick={cancelArchive}
           >
             <X size={20} />
           </button>
@@ -101,7 +107,7 @@ export function ArchiveChatModal({
             ref={cancel}
             className="button"
             disabled={busy}
-            onClick={onClose}
+            onClick={cancelArchive}
           >
             Cancel
           </button>
