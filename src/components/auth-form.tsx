@@ -2,7 +2,17 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight, MessagesSquare, ShieldCheck } from "lucide-react";
 import { browserClient } from "@/lib/supabase/client";
+import { FEATURED_MODELS, MODEL_CHOICES } from "@/lib/models";
 import { Brand } from "./brand";
+import { ProviderIcon } from "./model-identity";
+
+const previewModels = FEATURED_MODELS.flatMap(({ featured, ...model }) =>
+  "preview" in featured ? [{ ...model, preview: featured.preview }] : [],
+);
+const moreModels = FEATURED_MODELS.filter(
+  (model) => !("preview" in model.featured),
+);
+
 export function AuthForm() {
   const [signup, setSignup] = useState(false),
     [busy, setBusy] = useState(false),
@@ -46,59 +56,75 @@ export function AuthForm() {
   }
   return (
     <main className="auth-layout">
-      <section className="auth-story">
+      <header className="auth-brand">
         <Brand />
+      </header>
+      <section className="auth-story" aria-labelledby="auth-product-title">
         <div className="auth-copy">
-          <h1>
-            Different minds.
+          <h1 id="auth-product-title">
+            Your favorite AIs.
             <br />
-            Shared momentum.
+            One conversation.
           </h1>
           <p>
-            A strategist. A challenger. A fresh pair of eyes.
-            <br />
-            Bring your own perspective to the conversation.
+            Bring leading AI models into one chat. Give each a perspective and
+            build on their best ideas.
           </p>
-          <div className="auth-sample" aria-label="Example participant lineup">
-            <div>
-              <span className="avatar agent agent-2">S</span>
-              <span>
-                <b>The strategist</b>
-                <small>Find the next step.</small>
-              </span>
+          <div
+            className="auth-room"
+            aria-label="Example conversation with AI models"
+          >
+            <div className="auth-room-heading">
+              <MessagesSquare size={16} aria-hidden="true" />
+              <span>A fresh take on your next idea</span>
+              <small>Example room</small>
             </div>
-            <div>
-              <span className="avatar agent agent-1">C</span>
-              <span>
-                <b>The challenger</b>
-                <small>Ask the better question.</small>
-              </span>
+            <p className="auth-room-topic">
+              “How can we make this idea better?”
+            </p>
+            <ul className="auth-replies">
+              {previewModels.map((model) => (
+                <li key={model.id}>
+                  <ProviderIcon model={model.id} />
+                  <div>
+                    <div className="auth-reply-heading">
+                      <b>{model.name}</b>
+                      <span>{model.preview.perspective}</span>
+                    </div>
+                    <p>{model.preview.reply}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="auth-models">
+            <div className="auth-models-heading">
+              <h2>More minds to bring along</h2>
+              <span>{MODEL_CHOICES.length} models available</span>
             </div>
-            <div>
-              <span className="avatar agent agent-0">E</span>
-              <span>
-                <b>The explorer</b>
-                <small>Make a new connection.</small>
-              </span>
-            </div>
-            <span className="sample-caption">
-              Your room. Your mix of minds.
-            </span>
+            <ul className="auth-model-list">
+              {moreModels.map((model) => (
+                <li key={model.id}>
+                  <ProviderIcon model={model.id} />
+                  <span>
+                    <b>{model.provider}</b>
+                    <small>{model.name}</small>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-        <span className="auth-footer">
-          <MessagesSquare size={16} /> One conversation. More possibilities.
-        </span>
       </section>
-      <section className="auth-form-section">
+      <section className="auth-form-section" aria-labelledby="auth-form-title">
         <div className="auth-form-wrap">
-          <h2>
-            {signup ? "Make room for good ideas." : "Welcome to the room."}
+          <h2 id="auth-form-title">
+            {signup ? "Create your account." : "Welcome back."}
           </h2>
           <p>
             {signup
-              ? "Create an account to save your conversations."
-              : "Sign in to pick up where your ideas left off."}
+              ? "Bring your first room of AIs together."
+              : "Sign in to your AI workspace."}
           </p>
           <form onSubmit={submit}>
             <label>
@@ -118,7 +144,9 @@ export function AuthForm() {
                 type="password"
                 minLength={8}
                 autoComplete={signup ? "new-password" : "current-password"}
-                placeholder="At least 8 characters"
+                placeholder={
+                  signup ? "At least 8 characters" : "Enter your password"
+                }
                 required
               />
             </label>
@@ -149,6 +177,7 @@ export function AuthForm() {
             {signup ? "Already have an account?" : "First time here?"}{" "}
             <button
               className="text-button"
+              disabled={busy}
               onClick={() => {
                 setSignup(!signup);
                 setError("");
@@ -158,12 +187,8 @@ export function AuthForm() {
             </button>
           </p>
           <div className="local-note">
-            <ShieldCheck size={18} />
-            <span>
-              Your conversations are private to your account.
-              <br />
-              Model replies run through Vercel AI Gateway.
-            </span>
+            <ShieldCheck size={16} aria-hidden="true" />
+            <span>Your conversations, saved to your account.</span>
           </div>
         </div>
       </section>

@@ -1,0 +1,6 @@
+{
+  "scope": "Auth redesign; inherited Jet age system",
+  "nonAdvisory": [],
+  "advisoryCount": 212,
+  "note": "Existing design sidecar predates DESIGN.md. Advisories cover literal type sizes and tonal colors in the shared stylesheet; no unrelated drift repaired. Auth tones are navy-derived secondary text and pass contrast."
+}
