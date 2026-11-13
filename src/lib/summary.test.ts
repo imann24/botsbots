@@ -5,6 +5,7 @@ import {
   SUMMARY_MAX_TOKENS,
 } from "./summary";
 import type { Message } from "./types";
+import { outputTokenLimit, usageCost } from "./prompt";
 describe("manual summary snapshot", () => {
   const messages = Array.from(
     { length: 20 },
@@ -68,4 +69,17 @@ describe("manual summary snapshot", () => {
         SUMMARY_MAX_TOKENS * price.output,
     );
   });
+  it.each(["google/gemini-4-hydrogen", "google/gemini-3.8-flash"])(
+    "covers the extra thinking allowance for a %s summary",
+    (id) => {
+      const price = { id, input: 0.000001, output: 0.000005 };
+      const input = 56000;
+      expect(summaryReservation(price, input)).toBeGreaterThanOrEqual(
+        usageCost(price, input, outputTokenLimit(id, SUMMARY_MAX_TOKENS)),
+      );
+      expect(summaryReservation(price, input)).toBeGreaterThan(
+        usageCost(price, input, SUMMARY_MAX_TOKENS),
+      );
+    },
+  );
 });

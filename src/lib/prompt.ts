@@ -2,6 +2,15 @@ import type { ModelPrice } from "./models";
 import type { Bot, Message, Room } from "./types";
 export const CONTEXT_BYTES = 16000;
 export const INPUT_RESERVATION_TOKENS = 32000;
+export function outputTokenLimit(model: string, maxTokens: number) {
+  // These models cannot disable thinking. It shares the provider's output cap,
+  // so reserve bounded headroom without increasing the requested answer length.
+  const thinkingHeadroom =
+    model === "google/gemini-4-hydrogen" || model === "google/gemini-3.8-flash"
+      ? 4096
+      : 0;
+  return maxTokens + thinkingHeadroom;
+}
 export function replyWordTarget(maxTokens: number) {
   // Leave room for tokenization, Markdown, and models that require reasoning.
   return Math.max(25, Math.min(160, Math.floor(maxTokens * 0.22)));
@@ -9,7 +18,8 @@ export function replyWordTarget(maxTokens: number) {
 export function reserveCost(price: ModelPrice, maxTokens: number) {
   return (
     Math.ceil(
-      (INPUT_RESERVATION_TOKENS * price.input + maxTokens * price.output) *
+      (INPUT_RESERVATION_TOKENS * price.input +
+        outputTokenLimit(price.id, maxTokens) * price.output) *
         1.25 *
         1e8,
     ) / 1e8

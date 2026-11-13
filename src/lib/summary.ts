@@ -1,6 +1,6 @@
 import type { Message, Room } from "./types";
 import type { ModelPrice } from "./models";
-import { usageCost } from "./prompt";
+import { outputTokenLimit, usageCost } from "./prompt";
 import { z } from "zod";
 
 export const SUMMARY_MAX_TOKENS = 1200;
@@ -90,5 +90,9 @@ export function buildSummaryPrompt(
   };
 }
 export function summaryReservation(price: ModelPrice, inputTokens: number) {
-  return usageCost(price, inputTokens, SUMMARY_MAX_TOKENS);
+  return usageCost(
+    price,
+    inputTokens,
+    outputTokenLimit(price.id, SUMMARY_MAX_TOKENS),
+  );
 }

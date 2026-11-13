@@ -63,7 +63,6 @@ export const MODEL_CHOICES = [
     name: "Gemini 4 Hydrogen",
     provider: "Google",
     tier: "Mid",
-    disabled: true,
   },
   {
     id: "meta/muse-ember",
