@@ -38,6 +38,12 @@ export const MODEL_CHOICES = [
     tier: "Mid",
   },
   {
+    id: "google/gemini-4-hydrogen",
+    name: "Gemini 4 Hydrogen",
+    provider: "Google",
+    tier: "Mid",
+  },
+  {
     id: "meta/muse-ember",
     name: "Muse Ember",
     provider: "Meta",
