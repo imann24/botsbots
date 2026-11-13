@@ -75,6 +75,7 @@ import { CommandBar, type WorkspaceCommand } from "./command-bar";
 import { shortcutKey } from "@/lib/commands";
 import { ContactModal } from "./contact-modal";
 import type { ContactKind } from "@/lib/contact";
+import { RoomTitle } from "./room-title";
 const presets = [
   {
     id: "plan" as const,
@@ -475,7 +476,7 @@ export function Workspace({ email }: { email: string }) {
     try {
       const value = {
         ...draft,
-        title: draft.title.trim() || draft.topic.trim().slice(0, 64),
+        title: draft.title.trim(),
       };
       const data = room
         ? await api<{ room: Room }>(`/api/rooms/${room.id}`, {
@@ -562,6 +563,16 @@ export function Workspace({ email }: { email: string }) {
     } finally {
       setBusy(false);
     }
+  }
+  async function renameRoom(title: string) {
+    if (!room) return;
+    const id = room.id;
+    const { room: renamed } = await api<{ room: Room }>(`/api/rooms/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ action: "rename", payload: { title } }),
+    });
+    if (selectedId.current === id) setRoom(renamed);
+    setRooms((all) => all.map((item) => (item.id === id ? renamed : item)));
   }
   const messageRequest = useRef<{ text: string; id: string } | null>(null);
   async function send(e?: FormEvent) {
@@ -1062,13 +1073,21 @@ export function Workspace({ email }: { email: string }) {
                 <PanelLeftClose size={19} />
               )}
             </button>
-            <span>
-              {editing
-                ? room
-                  ? "Edit room"
-                  : "New conversation"
-                : (room?.title ?? "Loading room…")}
-            </span>
+            {room && !editing ? (
+              <RoomTitle
+                key={room.id}
+                title={room.title}
+                onRename={renameRoom}
+              />
+            ) : (
+              <span>
+                {editing
+                  ? room
+                    ? "Edit room"
+                    : "New conversation"
+                  : (room?.title ?? "Loading room…")}
+              </span>
+            )}
           </div>
           <div className="header-actions">
             <CommandBar
@@ -1273,10 +1292,16 @@ export function Workspace({ email }: { email: string }) {
               </div>
               <label className="room-name-label">
                 <span>
-                  Room name <span className="optional">optional</span>
+                  Room name
+                  {!room && <span className="optional"> optional</span>}
                 </span>
                 <input
-                  placeholder="Name this conversation"
+                  placeholder={
+                    room
+                      ? "Name this conversation"
+                      : "Leave blank for a goofy name"
+                  }
+                  required={!!room}
                   maxLength={80}
                   value={draft.title}
                   onChange={(e) =>

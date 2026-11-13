@@ -657,6 +657,52 @@ small {
   gap: 12px;
   flex-shrink: 0;
 }
+.room-title,
+.room-title-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.room-title {
+  flex: 1;
+}
+.room-title-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.room-title .icon-button {
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+}
+.room-title-editor {
+  width: 100%;
+  min-width: 0;
+}
+.room-title-controls input {
+  min-width: 0;
+  width: 100%;
+  padding: 7px 9px;
+  font-size: 16px;
+}
+.room-title-error {
+  color: var(--red);
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 4px 0 0;
+}
+.room-header:has(.room-title-error) {
+  height: auto;
+  padding-block: 12px;
+}
+@media (pointer: coarse) {
+  .room-title .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
 .status {
   display: inline-flex;
   align-items: center;
