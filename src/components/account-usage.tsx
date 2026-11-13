@@ -75,6 +75,29 @@ export function AccountUsageMeter({
   onRefresh: () => void;
   onRequestUpgrade?: () => void;
 }) {
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const [open, setOpen] = useState(false);
+  // The breakdown is a popover: Escape or a click elsewhere dismisses it.
+  useEffect(() => {
+    if (!open) return;
+    const close = () => {
+      if (detailsRef.current) detailsRef.current.open = false;
+    };
+    const onPointer = (e: PointerEvent) => {
+      if (!detailsRef.current?.contains(e.target as Node)) close();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      close();
+      detailsRef.current?.querySelector("summary")?.focus();
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
   const level = usage ? usageLevel(usage) : "normal";
   const reserved = usage ? usage.pending + usage.uncertain : 0;
   const resetDate = usage
@@ -101,12 +124,14 @@ export function AccountUsageMeter({
       ) : (
         <>
           <details
+            ref={detailsRef}
             className="usage-details"
-            onToggle={(e) =>
+            onToggle={(e) => {
+              setOpen(e.currentTarget.open);
               trackEvent("usage_details_toggled", {
                 open: e.currentTarget.open,
-              })
-            }
+              });
+            }}
           >
             <summary title="Weekly usage details">
               <span className="usage-heading">
