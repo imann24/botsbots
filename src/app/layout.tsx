@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   ),
   title,
   description,
+  verification: {
+    google: "izeuEoDFKES-iIajBy-d83xD62jrRsU24-9aAhR1fSc",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
