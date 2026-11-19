@@ -126,7 +126,7 @@ This first version is driven by the open room's browser tab: polling schedules b
 
 The favicon uses the stepped brand mark, with a signal-red final step. The social preview uses the existing tagline, fonts, and participant colors. Next.js serves these static assets without authentication.
 
-Edit `src/app/icon.svg` or `assets/brand/social-preview.html`, then run `pnpm assets:brand` to regenerate the multi-size ICO, Apple touch icon, and 1200 × 630 Open Graph PNG. Install Playwright Chromium with `pnpm exec playwright install chromium` first, or use `PLAYWRIGHT_CHANNEL=chrome pnpm assets:brand` with installed Google Chrome. Review the PNG at full size and at a typical 600 × 315 share size.
+Edit `src/app/icon.svg` or `assets/brand/social-preview.html`, then run `pnpm assets:brand` to regenerate the multi-size ICO, Apple touch icon, 1024 × 1024 brand icon PNG (`assets/brand/icon.png`), and 1200 × 630 Open Graph PNG. Install Playwright Chromium with `pnpm exec playwright install chromium` first, or use `PLAYWRIGHT_CHANNEL=chrome pnpm assets:brand` with installed Google Chrome. Review the PNG at full size and at a typical 600 × 315 share size.
 
 Open Graph and Twitter/X use the same preview. Vercel's production domain supplies the absolute image origin; set `SITE_URL` to the public origin when deploying elsewhere or overriding the domain.
 
