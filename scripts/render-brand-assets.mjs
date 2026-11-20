@@ -6,33 +6,44 @@ import { chromium } from "@playwright/test";
 // Uses Playwright's Chromium by default; PLAYWRIGHT_CHANNEL=chrome uses installed Chrome.
 const root = new URL("../", import.meta.url);
 const app = new URL("src/app/", root);
+const brand = new URL("assets/brand/", root);
 const browser = await chromium.launch({
   headless: true,
   channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
+  args: ["--disable-gpu"],
 });
 
 try {
-  const page = await browser.newPage({
+  const previewPage = await browser.newPage({
     viewport: { width: 1200, height: 630 },
     deviceScaleFactor: 1,
   });
-  await page.goto(new URL("assets/brand/social-preview.html", root).href);
-  await page.evaluate(() => document.fonts.ready);
-  await page.screenshot({
+  await previewPage.goto(new URL("social-preview.html", brand).href);
+  await previewPage.evaluate(() => document.fonts.ready);
+  await previewPage.screenshot({
     path: fileURLToPath(new URL("opengraph-image.png", app)),
   });
+  await previewPage.close();
 
   const svg = await readFile(new URL("icon.svg", app), "utf8");
-  const sizes = [16, 32, 48, 180];
+  const sizes = [16, 32, 48, 180, 1024];
   const icons = [];
   for (const size of sizes) {
-    await page.setViewportSize({ width: size, height: size });
-    await page.setContent(
-      `<style>body{margin:0}svg{display:block;width:100%;height:100%}</style>${svg}`,
-    );
-    icons.push(await page.screenshot({ omitBackground: true }));
+    const iconPage = await browser.newPage({
+      viewport: { width: size, height: size },
+      deviceScaleFactor: 1,
+    });
+    try {
+      await iconPage.setContent(
+        `<!doctype html><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}svg{display:block;width:${size}px;height:${size}px}</style>${svg}`,
+      );
+      icons.push(await iconPage.screenshot({ omitBackground: true }));
+    } finally {
+      await iconPage.close();
+    }
   }
   await writeFile(new URL("apple-icon.png", app), icons[3]);
+  await writeFile(new URL("icon.png", brand), icons[4]);
 
   // ICO supports PNG entries; retain native resolutions for small browser tabs.
   const header = Buffer.alloc(6 + 16 * 3);
@@ -54,7 +65,7 @@ try {
     Buffer.concat([header, ...icons.slice(0, 3)]),
   );
   console.log(
-    "Rendered social preview, favicon (16/32/48px), and Apple icon (180px).",
+    "Rendered social preview, favicon (16/32/48px), Apple icon (180px), and brand icon PNG (1024px).",
   );
 } finally {
   await browser.close();
