@@ -85,6 +85,7 @@ import type { ContactKind } from "@/lib/contact";
 import { ArchiveChatModal } from "./archive-chat-modal";
 import { compareRooms } from "@/lib/room-order";
 import { RoomTitle } from "./room-title";
+import { RoomActionsMenu } from "./room-actions-menu";
 import {
   trackAction,
   trackEvent,
@@ -185,7 +186,7 @@ export function Workspace({ email }: { email: string }) {
     !accountUsage.error && accountUsage.usage?.remaining === 0;
   const [summaries, setSummaries] = useState<Summary[]>([]),
     [summaryOpen, setSummaryOpen] = useState(false);
-  const summaryButton = useRef<HTMLButtonElement>(null);
+  const roomActionsButton = useRef<HTMLButtonElement>(null);
   const [rooms, setRooms] = useState<Room[]>([]),
     [roomsLoading, setRoomsLoading] = useState(true),
     [roomsError, setRoomsError] = useState(""),
@@ -982,7 +983,7 @@ export function Workspace({ email }: { email: string }) {
       disabled: roomUnavailable,
       run: () => {
         toggleSummary();
-        requestAnimationFrame(() => summaryButton.current?.focus());
+        requestAnimationFrame(() => roomActionsButton.current?.focus());
       },
     },
     {
@@ -1570,37 +1571,19 @@ export function Workspace({ email }: { email: string }) {
             />
             {room && !editing && (
               <>
-                <button
-                  ref={summaryButton}
-                  className="button small summary-toggle"
-                  aria-expanded={summaryOpen}
-                  aria-controls="conversation-summary"
-                  onClick={toggleSummary}
-                >
-                  <FileText size={16} /> Summarize
-                </button>
-                <button
-                  className="icon-button"
-                  title="Archive chat"
-                  aria-label="Archive chat"
-                  aria-haspopup="dialog"
-                  disabled={busy}
-                  onClick={() => confirmArchive(room)}
-                >
-                  <Archive size={18} />
-                </button>
+                <RoomActionsMenu
+                  key={room.id}
+                  triggerRef={roomActionsButton}
+                  summaryOpen={summaryOpen}
+                  busy={busy}
+                  onSummarize={toggleSummary}
+                  onExport={exportChat}
+                  onArchive={() => confirmArchive(room)}
+                />
                 <span className={`status ${room.status}`}>
                   <i />
                   {status}
                 </span>
-                <button
-                  className="icon-button export-button"
-                  title="Export conversation"
-                  aria-label="Export conversation"
-                  onClick={exportChat}
-                >
-                  <Download size={18} />
-                </button>
               </>
             )}
             <button
@@ -1682,7 +1665,7 @@ export function Workspace({ email }: { email: string }) {
                 layout: "inline",
               });
               setSummaryOpen(false);
-              summaryButton.current?.focus();
+              roomActionsButton.current?.focus();
             }}
           />
         )}

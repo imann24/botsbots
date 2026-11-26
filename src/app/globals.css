@@ -915,6 +915,45 @@ small {
   gap: 12px;
   flex-shrink: 0;
 }
+.room-actions {
+  position: relative;
+}
+.room-actions-menu {
+  position: absolute;
+  inset-block-start: calc(100% + 6px);
+  inset-inline-end: 0;
+  z-index: 20;
+  min-width: 180px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.room-actions-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  text-align: start;
+  font-size: 13px;
+}
+.room-actions-menu button:focus-visible,
+.room-actions-menu button:hover:not(:disabled) {
+  background: var(--paper);
+}
+@media (pointer: coarse) {
+  .room-actions-trigger {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
 .room-title,
 .room-title-controls {
   display: flex;
@@ -2669,8 +2708,7 @@ progress::-moz-progress-bar {
   .header-actions {
     gap: 6px;
   }
-  .header-actions .status,
-  .export-button {
+  .header-actions .status {
     display: none;
   }
   .panel-toggle {
@@ -3169,21 +3207,21 @@ progress::-moz-progress-bar {
   font-size: 14px;
 }
 @media (max-width: 1180px) {
-  .header-actions:has(.summary-toggle) .status {
+  .header-actions:has(.room-actions) .status {
     display: none;
   }
 }
 @media (max-width: 640px) {
-  .room-header:has(.summary-toggle) {
+  .room-header:has(.room-actions) {
     flex-wrap: wrap;
     height: auto;
     min-height: 96px;
     padding-block: 10px;
   }
-  .room-header:has(.summary-toggle) .header-title {
+  .room-header:has(.room-actions) .header-title {
     width: 100%;
   }
-  .room-header:has(.summary-toggle) .header-actions {
+  .room-header:has(.room-actions) .header-actions {
     width: 100%;
     justify-content: flex-end;
   }
