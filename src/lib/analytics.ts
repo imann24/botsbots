@@ -17,6 +17,7 @@ type ActionData = {
   room_create: RoomContext & { start_immediately: boolean };
   room_update: RoomContext & { start_immediately: boolean };
   room_start: { mode: Settings["mode"]; source: "control" | "create" };
+  room_extend: { mode: Settings["mode"] };
   room_pause: { mode: Settings["mode"] };
   room_stop: { mode: Settings["mode"] };
   room_rename: Record<string, never>;
