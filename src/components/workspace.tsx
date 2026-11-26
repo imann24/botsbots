@@ -1293,6 +1293,7 @@ export function Workspace({ email }: { email: string }) {
                   <button
                     className="room-link"
                     title={r.title}
+                    aria-current={room?.id === r.id ? "page" : undefined}
                     onClick={() =>
                       void selectRoom(r.id, {
                         source: "navigation",
