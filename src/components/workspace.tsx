@@ -187,12 +187,14 @@ export function Workspace({ email }: { email: string }) {
     [summaryOpen, setSummaryOpen] = useState(false);
   const summaryButton = useRef<HTMLButtonElement>(null);
   const [rooms, setRooms] = useState<Room[]>([]),
+    [roomsLoading, setRoomsLoading] = useState(true),
+    [roomsError, setRoomsError] = useState(""),
     [room, setRoom] = useState<Room | null>(null),
     [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState<RoomDraft>(freshDraft),
     [editing, setEditing] = useState(true),
     [busy, setBusy] = useState(false),
-    [loading, setLoading] = useState(true),
+    [loading, setLoading] = useState(false),
     [error, setError] = useState("");
   const [text, setText] = useState(""),
     [search, setSearch] = useState(""),
@@ -339,7 +341,19 @@ export function Workspace({ email }: { email: string }) {
   const refreshRooms = useCallback(async () => {
     const data = await api<{ rooms: Room[] }>("/api/rooms");
     setRooms(data.rooms);
+    setRoomsError("");
   }, []);
+  const loadRooms = useCallback(async () => {
+    setRoomsLoading(true);
+    setRoomsError("");
+    try {
+      await refreshRooms();
+    } catch (error) {
+      setRoomsError(`Couldn’t load your rooms. ${(error as Error).message}`);
+    } finally {
+      setRoomsLoading(false);
+    }
+  }, [refreshRooms]);
   const refresh = useCallback(async (id: string) => {
     const data = await api<{
       room: Room;
@@ -398,9 +412,7 @@ export function Workspace({ email }: { email: string }) {
     [refresh],
   );
   useEffect(() => {
-    void refreshRooms()
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+    void loadRooms();
     const id = new URLSearchParams(window.location.search).get("room");
     if (id) void selectRoom(id);
     void api<{ defaults: AccountDefaults }>("/api/account/defaults")
@@ -429,7 +441,7 @@ export function Workspace({ email }: { email: string }) {
           "Live prices are unavailable. Starting a discussion requires a fresh price check.",
         ),
       );
-  }, [refreshRooms, selectRoom]);
+  }, [loadRooms, selectRoom]);
   useEffect(() => {
     if (!room?.id) return;
     const id = room.id;
@@ -1132,6 +1144,13 @@ export function Workspace({ email }: { email: string }) {
           : room?.status === "error"
             ? "Needs attention"
             : "Ready when you are";
+  const sidebarRooms = archiveView ? archivedRooms : rooms;
+  const filteredSidebarRooms = sidebarRooms.filter((item) =>
+    item.title.toLowerCase().includes(search.toLowerCase()),
+  );
+  const sidebarError = archiveView ? archiveError : roomsError;
+  const showRoomSkeleton = !archiveView && roomsLoading && rooms.length === 0;
+  const sidebarLoading = archiveView ? archiveLoading : showRoomSkeleton;
   return (
     <div
       className={`workspace ${newChat ? "new-chat" : ""} ${collapsedPanels.nav ? "nav-collapsed" : ""} ${!newChat && collapsedPanels.setup ? "setup-collapsed" : ""}`}
@@ -1200,10 +1219,7 @@ export function Workspace({ email }: { email: string }) {
               if (search.trim())
                 trackEvent("room_search_used", {
                   scope: archiveView ? "archived" : "active",
-                  result_count: (archiveView ? archivedRooms : rooms).filter(
-                    (item) =>
-                      item.title.toLowerCase().includes(search.toLowerCase()),
-                  ).length,
+                  result_count: filteredSidebarRooms.length,
                 });
             }}
           />
@@ -1221,8 +1237,13 @@ export function Workspace({ email }: { email: string }) {
         )}
         <div className="nav-label">
           {archiveView ? "Archived chats" : "Your rooms"}
-          <span className="nav-count">
-            {archiveView ? archivedRooms.length : rooms.length}
+          <span
+            className={
+              showRoomSkeleton ? "nav-count nav-count-skeleton" : "nav-count"
+            }
+            aria-hidden={showRoomSkeleton || undefined}
+          >
+            {!showRoomSkeleton && sidebarRooms.length}
           </span>
           {!archiveView && (
             <button
@@ -1233,108 +1254,118 @@ export function Workspace({ email }: { email: string }) {
             </button>
           )}
         </div>
-        <div className="room-list" aria-busy={archiveView && archiveLoading}>
-          {archiveView && archiveLoading ? (
+        <span className="sr-only" role="status">
+          {showRoomSkeleton ? "Loading your rooms…" : ""}
+        </span>
+        <div className="room-list" aria-busy={sidebarLoading}>
+          {showRoomSkeleton ? (
+            <div className="room-list-skeleton" aria-hidden="true">
+              {[1, 2, 3, 4, 5].map((row) => (
+                <div className="room-row" key={row}>
+                  <div className="room-link">
+                    <MessageSquare size={16} />
+                    <span>
+                      <small />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : sidebarLoading ? (
             <p className="nav-empty" role="status">
               Loading archived chats…
             </p>
           ) : (
-            (archiveView ? archivedRooms : rooms)
-              .filter((r) =>
-                r.title.toLowerCase().includes(search.toLowerCase()),
-              )
-              .map((r) => (
-                <div
-                  key={r.id}
-                  className={`room-row ${room?.id === r.id ? "active" : ""}`}
-                >
-                  {archiveView ? (
-                    <div className="room-link archived-room">
-                      <Archive size={16} aria-hidden="true" />
-                      <span title={r.title}>
-                        {r.title}
-                        <small>Archived</small>
-                      </span>
-                    </div>
-                  ) : (
-                    <button
-                      className="room-link"
-                      title={r.title}
-                      onClick={() =>
-                        void selectRoom(r.id, {
-                          source: "navigation",
-                          filtered: !!search.trim(),
-                        })
-                      }
-                    >
-                      <MessageSquare size={16} aria-hidden="true" />
-                      <span>
-                        {r.title}
-                        <small>
-                          {r.status === "running"
-                            ? "In conversation"
-                            : r.purpose === "plan"
-                              ? "Planning"
-                              : r.purpose === "research"
-                                ? "Research"
-                                : r.purpose === "debate"
-                                  ? "Discussion"
-                                  : "Exploration"}
-                        </small>
-                      </span>
-                      {r.status === "running" && <i className="live-dot" />}
-                    </button>
-                  )}
+            filteredSidebarRooms.map((r) => (
+              <div
+                key={r.id}
+                className={`room-row ${room?.id === r.id ? "active" : ""}`}
+              >
+                {archiveView ? (
+                  <div className="room-link archived-room">
+                    <Archive size={16} aria-hidden="true" />
+                    <span title={r.title}>
+                      {r.title}
+                      <small>Archived</small>
+                    </span>
+                  </div>
+                ) : (
                   <button
-                    className={`icon-button room-archive-action${archiveView ? " restore-chat" : ""}`}
-                    aria-label={`${archiveView ? "Restore" : "Archive"} chat: ${r.title}`}
-                    title={archiveView ? "Restore chat" : "Archive chat"}
-                    aria-haspopup={archiveView ? undefined : "dialog"}
-                    disabled={busy || restoreBusy !== null}
+                    className="room-link"
+                    title={r.title}
                     onClick={() =>
-                      archiveView ? void restoreChat(r) : confirmArchive(r)
+                      void selectRoom(r.id, {
+                        source: "navigation",
+                        filtered: !!search.trim(),
+                      })
                     }
                   >
-                    {archiveView ? (
-                      <ArchiveRestore size={16} />
-                    ) : (
-                      <Archive size={16} />
-                    )}
-                    {archiveView && (
-                      <span>
-                        {restoreBusy === r.id ? "Restoring…" : "Restore"}
-                      </span>
-                    )}
+                    <MessageSquare size={16} aria-hidden="true" />
+                    <span>
+                      {r.title}
+                      <small>
+                        {r.status === "running"
+                          ? "In conversation"
+                          : r.purpose === "plan"
+                            ? "Planning"
+                            : r.purpose === "research"
+                              ? "Research"
+                              : r.purpose === "debate"
+                                ? "Discussion"
+                                : "Exploration"}
+                      </small>
+                    </span>
+                    {r.status === "running" && <i className="live-dot" />}
                   </button>
-                </div>
-              ))
+                )}
+                <button
+                  className={`icon-button room-archive-action${archiveView ? " restore-chat" : ""}`}
+                  aria-label={`${archiveView ? "Restore" : "Archive"} chat: ${r.title}`}
+                  title={archiveView ? "Restore chat" : "Archive chat"}
+                  aria-haspopup={archiveView ? undefined : "dialog"}
+                  disabled={busy || restoreBusy !== null}
+                  onClick={() =>
+                    archiveView ? void restoreChat(r) : confirmArchive(r)
+                  }
+                >
+                  {archiveView ? (
+                    <ArchiveRestore size={16} />
+                  ) : (
+                    <Archive size={16} />
+                  )}
+                  {archiveView && (
+                    <span>
+                      {restoreBusy === r.id ? "Restoring…" : "Restore"}
+                    </span>
+                  )}
+                </button>
+              </div>
+            ))
           )}
-          {archiveView && archiveError && (
+          {sidebarError && (
             <div className="nav-empty" role="alert">
-              {archiveError}
+              {sidebarError}
               <button
                 className="sidebar-contact"
-                onClick={() => void loadArchivedRooms()}
+                onClick={() =>
+                  void (archiveView ? loadArchivedRooms() : loadRooms())
+                }
               >
                 Retry loading
               </button>
             </div>
           )}
-          {!(archiveView && (archiveLoading || archiveError)) &&
-            (archiveView ? archivedRooms : rooms).length === 0 &&
-            !loading && (
-              <p className="nav-empty">
-                {archiveView
-                  ? "No archived chats. Chats you archive will appear here, ready to restore."
-                  : "A good conversation starts here. Your rooms will appear as you create them."}
-              </p>
-            )}
-          {!(archiveView && archiveLoading) &&
+          {!sidebarLoading && !sidebarError && sidebarRooms.length === 0 && (
+            <p className="nav-empty">
+              {archiveView
+                ? "No archived chats. Chats you archive will appear here, ready to restore."
+                : "A good conversation starts here. Your rooms will appear as you create them."}
+            </p>
+          )}
+          {!sidebarLoading &&
             search &&
-            (archiveView ? archivedRooms : rooms).length > 0 &&
-            !(archiveView ? archivedRooms : rooms).some((r) =>
-              r.title.toLowerCase().includes(search.toLowerCase()),
-            ) && (
+            sidebarRooms.length > 0 &&
+            filteredSidebarRooms.length === 0 && (
               <p className="nav-empty">
                 No {archiveView ? "archived chats" : "rooms"} match “{search}”.
               </p>
