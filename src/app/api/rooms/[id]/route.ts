@@ -42,6 +42,7 @@ export async function PATCH(req: Request, ctx: Context) {
       .object({
         action: z.enum([
           "start",
+          "extend",
           "pause",
           "stop",
           "message",
@@ -53,6 +54,16 @@ export async function PATCH(req: Request, ctx: Context) {
         payload: z.unknown().optional(),
       })
       .parse(await jsonBody(req));
+    if (body.action === "extend") {
+      const { runId } = z.object({ runId: z.uuid() }).parse(body.payload);
+      const { data, error } = await admin.rpc("extend_room_replies", {
+        p_room: id,
+        p_user: user.id,
+        p_run: runId,
+      });
+      check(error);
+      return Response.json({ room: data });
+    }
     if (body.action === "rename") {
       const { title } = z
         .object({ title: roomTitleSchema })

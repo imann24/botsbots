@@ -485,6 +485,13 @@ try {
       .reason,
     "Every bot has reached its reply limit.",
   );
+  const extension = { p_room: r.id, p_user: user, p_run: r.run_id };
+  const extended = await rpc("extend_room_replies", extension);
+  assert.equal(extended.status, "running");
+  assert.notEqual(extended.run_id, r.run_id);
+  assert.deepEqual(extended.settings, { ...r.settings, maxPerBot: 2 });
+  assert.ok((await admin.rpc("extend_room_replies", extension)).error);
+  await rpc("room_action", { p_room: r.id, p_user: user, p_action: "pause" });
   r = await start((await room(user, { maxMinutes: 1 })).id, user);
   await admin
     .from("rooms")

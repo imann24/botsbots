@@ -338,6 +338,25 @@ export function Workspace({ email }: { email: string }) {
       0,
     ),
     pending = messages.filter((m) => m.status === "pending").length;
+  const replyLimited =
+    room?.status === "limited" &&
+    (room.reason === "Every bot has reached its reply limit." ||
+      room.reason === "Room message limit reached.");
+  const atReplyMaximum =
+    replyLimited &&
+    (count >= 100 ||
+      room.bots.every(
+        (bot) =>
+          messages.filter((message) => message.bot_id === bot.id).length >= 30,
+      ));
+  const continueLabel = replyLimited
+    ? "Extend & continue"
+    : messages.length
+      ? "Continue"
+      : "Start";
+  const extendHint = atReplyMaximum
+    ? "This conversation is at its maximum reply capacity."
+    : "Increase reply limits to make room for another round.";
   const refreshRooms = useCallback(async () => {
     const data = await api<{ rooms: Room[] }>("/api/rooms");
     setRooms(data.rooms);
@@ -729,7 +748,7 @@ export function Workspace({ email }: { email: string }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
-  async function action(name: "start" | "pause" | "stop") {
+  async function action(name: "start" | "extend" | "pause" | "stop") {
     if (!room) return;
     setBusy(true);
     setError("");
@@ -743,10 +762,13 @@ export function Workspace({ email }: { email: string }) {
         () =>
           api<{ room: Room }>(`/api/rooms/${room.id}`, {
             method: "PATCH",
-            body: JSON.stringify({ action: name }),
+            body: JSON.stringify({
+              action: name,
+              payload: name === "extend" ? { runId: room.run_id } : undefined,
+            }),
           }),
       );
-      setRoom(data.room);
+      if (selectedId.current === data.room.id) setRoom(data.room);
       await refreshRooms();
     } catch (e) {
       setError((e as Error).message);
@@ -968,16 +990,21 @@ export function Workspace({ email }: { email: string }) {
       label:
         room?.status === "running"
           ? "Pause conversation"
-          : "Continue conversation",
+          : replyLimited
+            ? continueLabel
+            : "Continue conversation",
       description:
         room?.status === "running"
           ? "Let replies in flight finish; pause new replies"
-          : "Start the next bot replies within your limits",
-      keywords: "start resume play",
+          : replyLimited
+            ? extendHint
+            : "Start the next bot replies within your limits",
+      keywords: "start resume play increase limits",
       group: "Actions",
       icon: room?.status === "running" ? Pause : Play,
       disabled:
         roomUnavailable ||
+        (atReplyMaximum ? extendHint : undefined) ||
         (busy
           ? "Wait for the current action to finish"
           : room?.status === "stopped"
@@ -987,7 +1014,14 @@ export function Workspace({ email }: { email: string }) {
               : room?.status !== "running" && accountExhausted
                 ? "Your weekly allowance is used"
                 : undefined),
-      run: () => void action(room?.status === "running" ? "pause" : "start"),
+      run: () =>
+        void action(
+          room?.status === "running"
+            ? "pause"
+            : replyLimited
+              ? "extend"
+              : "start",
+        ),
     },
     {
       id: "export",
@@ -2096,7 +2130,10 @@ export function Workspace({ email }: { email: string }) {
                   role="status"
                 >
                   <Pause size={16} />
-                  <span>{room.reason}</span>
+                  <span>
+                    {room.reason}
+                    {atReplyMaximum && ` ${extendHint}`}
+                  </span>
                 </div>
               )}
               <div ref={bottom} />
@@ -2139,11 +2176,19 @@ export function Workspace({ email }: { email: string }) {
                     room.status !== "stopped" && (
                       <button
                         className="button small"
-                        disabled={busy || pending > 0 || accountExhausted}
-                        onClick={() => void action("start")}
+                        disabled={
+                          busy ||
+                          pending > 0 ||
+                          accountExhausted ||
+                          atReplyMaximum
+                        }
+                        title={replyLimited ? extendHint : undefined}
+                        onClick={() =>
+                          void action(replyLimited ? "extend" : "start")
+                        }
                       >
                         <Play size={14} />
-                        {messages.length ? "Continue" : "Start"}
+                        {continueLabel}
                       </button>
                     )
                   )}
