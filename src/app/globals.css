@@ -492,6 +492,46 @@ small {
 .room-link.active {
   background: #ffffff13;
 }
+.room-list-skeleton {
+  pointer-events: none;
+}
+.room-list-skeleton .room-link > svg {
+  flex-shrink: 0;
+  opacity: 0.45;
+}
+.room-list-skeleton .room-link > span::before,
+.room-list-skeleton .room-link small::before,
+.nav-count-skeleton::before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  height: 0.75em;
+  border-radius: 3px;
+  background: rgb(182 195 215 / 24%);
+}
+.room-list-skeleton .room-link > span::before {
+  width: min(72%, 110px);
+}
+.room-list-skeleton .room-row:nth-child(even) .room-link > span::before {
+  width: min(58%, 88px);
+}
+.room-list-skeleton .room-link small::before {
+  width: min(42%, 60px);
+}
+.nav-count-skeleton::before {
+  width: 0.75em;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .room-list-skeleton,
+  .nav-count-skeleton::before {
+    animation: room-list-pulse 1.6s ease-in-out infinite alternate;
+  }
+}
+@keyframes room-list-pulse {
+  to {
+    opacity: 0.55;
+  }
+}
 .live-dot {
   width: 6px;
   height: 6px;
